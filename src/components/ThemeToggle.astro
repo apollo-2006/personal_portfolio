@@ -8,6 +8,10 @@
 
 <style>
   .theme-toggle {
+    /* the header sets pointer-events: none and its scoped child selector
+       can't match this component's root (different astro-cid), so we must
+       re-enable clicks ourselves — without this, the toggle is dead */
+    pointer-events: auto;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -46,6 +50,7 @@
         b.setAttribute('aria-pressed', String(b.getAttribute('data-theme-btn') === theme));
       }
       try { localStorage.setItem(KEY, theme); } catch (e) {}
+      try { document.cookie = KEY + '=' + encodeURIComponent(theme) + ';path=/;max-age=31536000'; } catch (e) {}
     }
 
     for (var i = 0; i < buttons.length; i++) {

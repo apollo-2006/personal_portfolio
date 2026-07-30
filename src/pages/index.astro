@@ -1,86 +1,193 @@
 ---
 import SystemLayout from '../layouts/SystemLayout.astro';
 import ConstellationGlyph from '../components/ConstellationGlyph.astro';
+import { projects } from '../data/projects.js';
 
-// order doubles as the constellation traversal path — each star connects to the next, looping back to the first
+// scattered constellation — positioned by top/left percentages (this is the
+// pattern from the original design that rendered correctly; the entrance
+// animation keyframes bake in the -50%,-50% centering translate, so the
+// two never fight over the same transform).
+// order doubles as the traversal path — each star links to the next, looping.
+// APOLLO'S BOW — five stars trace the limb from top tip to bottom tip; the
+// bowstring is the wrap-around segment from the last star back to the first,
+// so it costs no extra stars. the grip (max bulge) is the anchor position.
+// to reshape: these five top/left pairs are the only thing you need to touch.
 const stars = [
-  { href: '/work', variant: 'work', label: 'work', desc: 'u of a · on leave', top: 55, left: 14 },
-  { href: '/passions', variant: 'passions', label: 'passions', desc: 'gym · apex · friends', top: 20, left: 45 },
-  { href: '/projects', variant: 'projects', label: 'projects', desc: '6 systems, built raw', top: 40, left: 70 },
-  { href: '/transmissions', variant: 'transmissions', label: 'transmissions', desc: 'latest signals', top: 68, left: 80 },
-  { href: '/connect', variant: 'connect', label: 'connect', desc: 'say hello', top: 60, left: 50 },
-  { href: '/research', variant: 'research', label: 'research', desc: 'not yet — coming', top: 78, left: 30 },
+  { href: '/research', variant: 'research', label: 'research', desc: 'not yet — coming', top: 10, left: 32 },
+  { href: '/passions', variant: 'passions', label: 'passions', desc: 'gym · gaming · building', top: 30, left: 62 },
+  { href: '/projects', variant: 'projects', label: 'projects', desc: '15 systems, built raw', top: 49, left: 72 },
+  { href: '/work', variant: 'work', label: 'work', desc: 'u of a · grad 2028', top: 68, left: 62 },
+  { href: '/connect', variant: 'connect', label: 'connect', desc: 'say hello', top: 88, left: 32 },
 ];
 
-const segments = stars.map((s, i) => {
-  const t = stars[(i + 1) % stars.length];
-  return { x1: s.left, y1: s.top, x2: t.left, y2: t.top };
-});
+// what each star expands into when clicked — the orbiting sub-nodes.
+// an empty list means a click navigates straight to the page (research).
+const subItems = {
+  work: [
+    { label: 'u of a', desc: 'bsc computing science, graduating 2028', href: '/work' },
+  ],
+  passions: [
+    { label: 'lifting', desc: '6x a week, chasing PRs', href: '/passions' },
+    { label: 'gaming', desc: 'apex plat 2 · valorant · fps generally', href: '/passions' },
+    { label: 'building projects', desc: 'allocators, vms, raytracers', href: '/passions' },
+    { label: 'apollo', desc: 'the myth behind the name', href: '/passions/apollo' },
+  ],
+  // 15 repos is too many to orbit legibly — feature 5, then link out to the rest
+  projects: [
+    ...projects
+      .filter((p) => ['nexus-cluster', 'nano-match', 'custom-mem-alloc', 'neon-vm', 'photon-tracer'].includes(p.slug))
+      .map((p) => ({ label: p.name, desc: p.blurb, href: `/projects/${p.slug}` })),
+    { label: `all ${projects.length} →`, desc: 'the full cluster', href: '/projects' },
+  ],
+  connect: [
+    { label: 'email', desc: 'abir.deol2006@gmail.com', href: 'mailto:abir.deol2006@gmail.com' },
+    { label: 'github', desc: 'source, repos', href: 'https://github.com/apollo-2006' },
+    { label: 'linkedin', desc: 'the professional signal', href: 'https://www.linkedin.com/in/abirdeol/' },
+  ],
+  research: [],
+};
 ---
 
 <SystemLayout title="abir deol" fullBleed>
-  <svg class="links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-    {segments.map((seg, i) => (
-      <g>
-        <line
-          x1={seg.x1} y1={seg.y1} x2={seg.x2} y2={seg.y2}
-          pathLength="100"
-          class="segment"
-          style={`animation-delay: ${0.6 + i * 0.12}s`}
-        />
-        <circle r="0.55" class="pulse">
-          <animateMotion
-            dur="7s"
-            repeatCount="indefinite"
-            begin={`${i * 0.9}s`}
-            path={`M ${seg.x1} ${seg.y1} L ${seg.x2} ${seg.y2}`}
-          />
-        </circle>
-      </g>
+  <div class="field" id="field">
+    <div class="zoom-scrim"></div>
+
+    <!-- constellation lines: plain divs sized/rotated in real pixels by JS.
+         no SVG viewBox, so nothing gets stretched at wide/narrow aspect
+         ratios — a line is a line and a dot is a dot on every screen. -->
+    <div class="lines" id="lines" aria-hidden="true">
+      {stars.map((s, i) => (
+        <div class={`line${i === stars.length - 1 ? ' bowstring' : ''}`} data-a={i} data-b={(i + 1) % stars.length}>
+          <span class="line-dot" style={`animation-delay:${i * 1.1}s`}></span>
+        </div>
+      ))}
+    </div>
+
+    {stars.map((s, i) => (
+      <a
+        class="star"
+        href={s.href}
+        data-key={s.variant}
+        data-idx={i}
+        data-top={s.top}
+        data-left={s.left}
+        data-has-children={subItems[s.variant].length > 0 ? 'true' : 'false'}
+        style={`top:${s.top}%; left:${s.left}%; animation-delay:${0.5 + i * 0.12}s, ${1.2 + i * 0.6}s, ${3 + i}s;`}
+      >
+        <span class="star-pull">
+          <ConstellationGlyph variant={s.variant} size={52} />
+          <span class="star-label">{s.label}</span>
+          <span class="star-desc">{s.desc}</span>
+          <span class="enter-hint">click again to enter →</span>
+        </span>
+      </a>
     ))}
-  </svg>
+
+    {stars.map((s) => {
+      const items = subItems[s.variant];
+      const radius = items.length > 4 ? 230 : items.length > 1 ? 180 : 130;
+      return (
+        <div class="orbit" data-orbit={s.variant} data-radius={radius} style={`--r:${radius}px;`}>
+          {items.map((item, j) => {
+            const angle = (360 / items.length) * j - 90;
+            const external = item.href.startsWith('http') || item.href.startsWith('mailto:');
+            return (
+              <a
+                class="sub-node"
+                href={item.href}
+                tabindex="-1"
+                style={`--angle:${angle}deg; --i:${j};`}
+                target={external && item.href.startsWith('http') ? '_blank' : undefined}
+                rel={external && item.href.startsWith('http') ? 'noopener' : undefined}
+              >
+                <span class="sub-dot"></span>
+                <span class="sub-label">{item.label}</span>
+                <span class="sub-desc">{item.desc}</span>
+              </a>
+            );
+          })}
+        </div>
+      );
+    })}
+  </div>
 
   <div class="hero-text">
     <p class="eyebrow">computing science — university of alberta</p>
-    <h1>you've drifted into the void</h1>
-    <p class="lede">six stars out here — each one a piece of what I've built, trained for, or am still figuring out. pick one and travel to it.</p>
+    <h1>abir deol</h1>
+    <p class="alias">apollo</p>
+    <p class="drift">you've drifted into the void</p>
+    <p class="lede">five stars out here — each one a piece of what I've built, trained for, or am still figuring out. pick one and travel to it.</p>
   </div>
 
-  {stars.map((s, i) => (
-    <a
-      class="star"
-      href={s.href}
-      style={`top:${s.top}%; left:${s.left}%; animation-delay:${0.5 + i * 0.12}s, ${1.2 + i * 0.6}s, ${3 + i}s;`}
-    >
-      <ConstellationGlyph variant={s.variant} size={52} />
-      <span class="star-label">{s.label}</span>
-      <span class="star-desc">{s.desc}</span>
-    </a>
-  ))}
+  <button class="exit-void" type="button" aria-label="back to the void">↺ back to the void</button>
 
   <style>
-    .links {
+    .field {
       position: absolute;
       inset: 0;
-      width: 100%;
-      height: 100%;
+      will-change: transform;
+    }
+    .zoom-scrim {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background: var(--bg);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.45s var(--ease);
+    }
+    :global(main.full-bleed.zoomed) .zoom-scrim { opacity: 0.85; }
+
+    .lines {
+      position: absolute;
+      inset: 0;
       z-index: 1;
-      overflow: visible;
+      pointer-events: none;
     }
-    .segment {
-      stroke: var(--accent);
-      stroke-width: 0.22;
-      opacity: 0.5;
-      stroke-dasharray: 100;
-      stroke-dashoffset: 100;
-      animation: draw-line 1.4s var(--ease) forwards;
+    .line {
+      position: absolute;
+      height: 1px;
+      width: 0;
+      background: var(--accent);
+      opacity: 0.45;
+      transform-origin: 0 50%;
+      transition: opacity 0.4s var(--ease), background 0.4s var(--ease), box-shadow 0.4s var(--ease);
     }
-    .pulse {
-      fill: var(--star);
+    .line-dot {
+      position: absolute;
+      top: 50%;
+      left: 0%;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--star);
+      transform: translate(-50%, -50%);
       filter: drop-shadow(0 0 2px var(--accent));
+      animation: travel 7s linear infinite;
     }
-    @keyframes draw-line {
-      to { stroke-dashoffset: 0; }
+    @keyframes travel {
+      from { left: 0%; }
+      to { left: 100%; }
+    }
+    /* the bowstring: finer and cooler than the limb, so the shape reads as
+       a bow rather than a closed polygon */
+    .line.bowstring {
+      opacity: 0.28;
+      background: var(--accent-warm);
+    }
+    .line.bowstring .line-dot { opacity: 0.55; }
+
+    /* line illumination — hovering a star lights the two lines touching it */
+    .line.lit {
+      opacity: 1;
+      background: var(--accent-warm);
+      box-shadow: 0 0 5px 1px var(--accent-warm);
+      animation: line-throb 1.1s ease-in-out infinite;
+    }
+    .line.lit .line-dot { filter: drop-shadow(0 0 4px var(--accent-warm)); }
+    @keyframes line-throb {
+      0%, 100% { box-shadow: 0 0 3px 0px var(--accent-warm); }
+      50% { box-shadow: 0 0 8px 2px var(--accent-warm); }
     }
 
     .hero-text {
@@ -89,10 +196,27 @@ const segments = stars.map((s, i) => {
       left: clamp(20px, 4vw, 48px);
       max-width: 340px;
       z-index: 3;
+      transition: opacity 0.35s var(--ease), transform 0.35s var(--ease);
     }
     .hero-text h1 {
-      font-size: clamp(1.5rem, 3.4vw, 2rem);
-      margin: 8px 0 12px;
+      font-size: clamp(2.6rem, 6vw, 4.2rem);
+      line-height: 1.02;
+      letter-spacing: -0.03em;
+      margin: 10px 0 0;
+    }
+    .alias {
+      font-family: var(--font-mono);
+      font-size: clamp(0.8rem, 1.4vw, 0.95rem);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent-warm);
+      margin: 6px 0 0;
+    }
+    .drift {
+      font-family: var(--font-display);
+      font-size: clamp(1rem, 1.8vw, 1.2rem);
+      color: var(--fg);
+      margin: 18px 0 10px;
     }
     .lede { color: var(--muted); }
 
@@ -111,6 +235,31 @@ const segments = stars.map((s, i) => {
       animation-fill-mode: forwards, none, none;
       animation-duration: 0.7s, 6s, 4s;
     }
+    /* the entrance keyframes bake the centering translate in, so the
+       animation and the base transform agree (see note at top) */
+    @keyframes star-in {
+      from { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+    @keyframes float {
+      0%, 100% { margin-top: 0; }
+      50% { margin-top: -8px; }
+    }
+    @keyframes twinkle {
+      0%, 100% { filter: brightness(0.85); }
+      50% { filter: brightness(1.15); }
+    }
+
+    /* JS drives this inner span's transform (gravitational pull + zoom),
+       so it never fights the keyframe animation on .star above */
+    .star-pull {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      transform: translate(0, 0) scale(1);
+    }
+    .star-pull.zoom-transition { transition: transform 0.6s var(--ease); }
 
     .star-label {
       font-family: var(--font-mono);
@@ -127,6 +276,17 @@ const segments = stars.map((s, i) => {
       white-space: nowrap;
       transition: color 0.3s var(--ease);
     }
+    .enter-hint {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--accent-warm);
+      white-space: nowrap;
+      opacity: 0;
+      height: 0;
+      transition: opacity 0.3s var(--ease) 0.2s;
+    }
+    .star.is-center .enter-hint { opacity: 1; height: auto; margin-top: 2px; }
+
     .star:hover .star-label,
     .star:focus-visible .star-label { color: var(--accent-warm); }
     .star:hover .star-desc,
@@ -136,22 +296,111 @@ const segments = stars.map((s, i) => {
       filter: drop-shadow(0 0 8px var(--accent));
     }
 
-    @keyframes star-in {
-      from { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
-      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    /* orbiting sub-nodes, revealed on zoom; JS pins each .orbit to its
+       star's real measured position */
+    .orbit {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 4;
+      pointer-events: none;
     }
-    @keyframes float {
-      0%, 100% { margin-top: 0; }
-      50% { margin-top: -8px; }
+    .sub-node {
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      width: 150px;
+      margin-left: -75px;
+      margin-top: -20px;
+      text-align: center;
+      opacity: 0;
+      transform: rotate(var(--angle)) translate(var(--r)) rotate(calc(var(--angle) * -1)) scale(0.4);
+      transition: opacity 0.35s var(--ease), transform 0.35s var(--ease);
+      transition-delay: calc(var(--i) * 55ms);
+      pointer-events: none;
     }
-    @keyframes twinkle {
-      0%, 100% { filter: brightness(0.85); }
-      50% { filter: brightness(1.15); }
+    .orbit.is-active .sub-node {
+      opacity: 1;
+      transform: rotate(var(--angle)) translate(var(--r)) rotate(calc(var(--angle) * -1)) scale(1);
+      pointer-events: auto;
+    }
+    .sub-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--star);
+      box-shadow: 0 0 6px 1px var(--accent);
+    }
+    .sub-label {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      letter-spacing: 0.04em;
+      color: var(--fg);
+      transition: color 0.25s var(--ease);
+    }
+    .sub-desc {
+      font-family: var(--font-mono);
+      font-size: 0.56rem;
+      line-height: 1.4;
+      color: var(--muted);
+      max-width: 100%;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .sub-node:hover .sub-label,
+    .sub-node:focus-visible .sub-label { color: var(--accent-warm); }
+
+    /* zoom state */
+    :global(main.full-bleed.zoomed) .hero-text {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-8px);
+    }
+    :global(main.full-bleed.zoomed) .line {
+      opacity: 0;
+    }
+    :global(main.full-bleed.zoomed) .star.is-dim {
+      opacity: 0 !important;
+      pointer-events: none;
+      transition: opacity 0.4s var(--ease);
+    }
+    .exit-void {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translate(-50%, 12px);
+      z-index: 10;
+      background: none;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 16px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
+    }
+    .exit-void:hover { color: var(--fg); border-color: var(--accent); }
+    :global(main.full-bleed.zoomed) .exit-void {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, 0);
     }
 
     @media (max-width: 720px) {
-      main.full-bleed { height: auto; overflow: visible; min-height: 100vh; }
+      :global(main.full-bleed) { height: auto; overflow: visible; min-height: 100vh; }
+      .field { position: static; transform: none !important; text-align: center; }
       .hero-text { position: static; padding: 140px 24px 0; max-width: none; }
+      .lines, .orbit, .exit-void { display: none; }
       .star {
         position: static;
         transform: none;
@@ -160,13 +409,276 @@ const segments = stars.map((s, i) => {
         animation: none;
         opacity: 1;
       }
-      .links { display: none; }
     }
 
     @media (prefers-reduced-motion: reduce) {
       .star { animation: star-in 0.01s forwards; opacity: 1; }
-      .segment { animation: none; stroke-dashoffset: 0; }
-      .pulse { display: none; }
+      .line-dot { display: none; }
+      .line.lit { animation: none; }
+      .star-pull.zoom-transition,
+      .sub-node,
+      .exit-void { transition-duration: 0.05s; }
     }
   </style>
+
+  <script is:inline>
+    (function () {
+      var main = document.querySelector('main.full-bleed');
+      var field = document.getElementById('field');
+      var starEls = Array.prototype.slice.call(document.querySelectorAll('.star'));
+      var lineEls = Array.prototype.slice.call(document.querySelectorAll('.line'));
+      var exitBtn = document.querySelector('.exit-void');
+      if (!main || !field || !starEls.length) return;
+
+      var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var pointerFine = window.matchMedia('(pointer: fine)').matches;
+      function isMobileLayout() { return window.matchMedia('(max-width: 720px)').matches; }
+
+      // --- model ---------------------------------------------------------
+      var stars = starEls.map(function (el) {
+        return {
+          el: el,
+          pullEl: el.querySelector('.star-pull'),
+          orbitEl: document.querySelector('.orbit[data-orbit="' + el.dataset.key + '"]'),
+          idx: Number(el.dataset.idx),
+          key: el.dataset.key,
+          topPct: Number(el.dataset.top),
+          leftPct: Number(el.dataset.left),
+          hasChildren: el.dataset.hasChildren === 'true',
+          baseX: 0, baseY: 0,
+          cur: { x: 0, y: 0 },
+          target: { x: 0, y: 0 },
+          zoomState: false,
+        };
+      });
+      var starsByKey = {};
+      stars.forEach(function (s) { starsByKey[s.key] = s; });
+
+      // fit the constellation's ACTUAL bounding box rather than a fixed
+      // 100x100 square — a bow is narrow and tall, so assuming a square
+      // would shrink it to nothing on a wide monitor. reshaping the
+      // constellation needs no change here; the box follows the stars.
+      var bbox = (function () {
+        var xs = stars.map(function (s) { return s.leftPct; });
+        var ys = stars.map(function (s) { return s.topPct; });
+        var minX = Math.min.apply(null, xs), maxX = Math.max.apply(null, xs);
+        var minY = Math.min.apply(null, ys), maxY = Math.max.apply(null, ys);
+        return {
+          minX: minX, minY: minY,
+          w: Math.max(maxX - minX, 1),
+          h: Math.max(maxY - minY, 1),
+        };
+      })();
+
+      var lines = lineEls.map(function (el) {
+        return { el: el, a: Number(el.dataset.a), b: Number(el.dataset.b) };
+      });
+
+      var zoomedKey = null;
+
+      var fieldRect = { w: 1, h: 1, left: 0, top: 0 };
+      function measure() {
+        var r = field.getBoundingClientRect();
+        fieldRect.w = r.width || 1;
+        fieldRect.h = r.height || 1;
+        fieldRect.left = r.left;
+        fieldRect.top = r.top;
+
+        // uniform-scale letterbox: the constellation lives in a fixed
+        // 100x100 design space, scaled by the SAME factor in both axes and
+        // centered in whatever room is left after padding. the shape is
+        // therefore identical on every monitor — wide, tall, square — the
+        // whole thing just gets bigger or smaller.
+        // pixel margins leave room for the labels that hang below and beside
+        // each star, so nothing gets clipped at the edges
+        var padTop = 130, padBottom = 100, padSide = 90;
+        var padLeft = fieldRect.w >= 1000 ? 460 : padSide; // clear the hero text on wide screens
+        var availW = Math.max(fieldRect.w - padLeft - padSide, 120);
+        var availH = Math.max(fieldRect.h - padTop - padBottom, 120);
+        // ONE scale factor for both axes — this is what keeps the shape
+        // identical on ultrawide, 16:9, square, and portrait screens
+        var scale = Math.min(availW / bbox.w, availH / bbox.h, 14);
+        var offsetX = padLeft + (availW - bbox.w * scale) / 2;
+        var offsetY = padTop + (availH - bbox.h * scale) / 2;
+
+        // sub-orbit radius shrinks on small windows so the ring always fits
+        var maxRing = Math.max(120, Math.min(fieldRect.w, fieldRect.h) / 2 - 110);
+
+        var mobile = isMobileLayout();
+        stars.forEach(function (s) {
+          s.baseX = offsetX + (s.leftPct - bbox.minX) * scale;
+          s.baseY = offsetY + (s.topPct - bbox.minY) * scale;
+          if (mobile) {
+            s.el.style.left = '';
+            s.el.style.top = '';
+          } else {
+            s.el.style.left = s.baseX + 'px';
+            s.el.style.top = s.baseY + 'px';
+          }
+          if (s.orbitEl) {
+            s.orbitEl.style.left = s.baseX + 'px';
+            s.orbitEl.style.top = s.baseY + 'px';
+            var baseR = Number(s.orbitEl.dataset.radius) || 180;
+            s.orbitEl.style.setProperty('--r', Math.min(baseR, maxRing) + 'px');
+          }
+        });
+
+        // if a star is zoomed while the window resizes, re-center it
+        if (zoomedKey) {
+          var z = starsByKey[zoomedKey];
+          var zdx = fieldRect.w / 2 - z.baseX;
+          var zdy = fieldRect.h / 2 - z.baseY;
+          if (z.pullEl) z.pullEl.style.transform = 'translate(' + zdx + 'px,' + zdy + 'px) scale(1.6)';
+          if (z.orbitEl) z.orbitEl.style.transform = 'translate(' + zdx + 'px,' + zdy + 'px)';
+        }
+      }
+
+      // position one line between two stars' current pixel positions
+      function layLine(line) {
+        var a = stars[line.a], b = stars[line.b];
+        var ax = a.baseX + (a.zoomState ? 0 : a.cur.x);
+        var ay = a.baseY + (a.zoomState ? 0 : a.cur.y);
+        var bx = b.baseX + (b.zoomState ? 0 : b.cur.x);
+        var by = b.baseY + (b.zoomState ? 0 : b.cur.y);
+        var dx = bx - ax, dy = by - ay;
+        var len = Math.hypot(dx, dy);
+        var ang = Math.atan2(dy, dx) * 180 / Math.PI;
+        line.el.style.left = ax + 'px';
+        line.el.style.top = ay + 'px';
+        line.el.style.width = len + 'px';
+        line.el.style.transform = 'rotate(' + ang + 'deg)';
+      }
+      function layAllLines() { lines.forEach(layLine); }
+
+      measure();
+      layAllLines();
+      window.addEventListener('resize', function () { measure(); layAllLines(); });
+
+      // --- line illumination (works regardless of motion prefs) ----------
+      stars.forEach(function (s) {
+        s.el.addEventListener('mouseenter', function () {
+          lines.forEach(function (l) {
+            if (l.a === s.idx || l.b === s.idx) l.el.classList.add('lit');
+          });
+        });
+        s.el.addEventListener('mouseleave', function () {
+          lines.forEach(function (l) { l.el.classList.remove('lit'); });
+        });
+      });
+
+      // --- gravitational pull + parallax (fine pointers, motion ok) ------
+      var mouse = { x: -9999, y: -9999, inside: false };
+      var drift = { x: 0, y: 0 };
+      var targetDrift = { x: 0, y: 0 };
+      var PULL_RADIUS = 170;
+      var PULL_MAX = 20;
+      var DRIFT_MAX = 16;
+
+      if (!reduceMotion && pointerFine && !isMobileLayout()) {
+        window.addEventListener('mousemove', function (e) {
+          mouse.x = e.clientX - fieldRect.left;
+          mouse.y = e.clientY - fieldRect.top;
+          mouse.inside = true;
+          targetDrift.x = (e.clientX / window.innerWidth - 0.5) * DRIFT_MAX;
+          targetDrift.y = (e.clientY / window.innerHeight - 0.5) * DRIFT_MAX;
+        }, { passive: true });
+        document.documentElement.addEventListener('mouseleave', function () { mouse.inside = false; });
+
+        function tick() {
+          drift.x += (targetDrift.x - drift.x) * 0.08;
+          drift.y += (targetDrift.y - drift.y) * 0.08;
+          field.style.transform = 'translate(' + drift.x.toFixed(2) + 'px,' + drift.y.toFixed(2) + 'px)';
+
+          stars.forEach(function (s) {
+            if (s.zoomState) return; // zoom owns this star's transform
+            var dx = mouse.x - s.baseX;
+            var dy = mouse.y - s.baseY;
+            var dist = Math.hypot(dx, dy);
+            if (mouse.inside && dist < PULL_RADIUS && dist > 0.01) {
+              var t = 1 - dist / PULL_RADIUS;
+              s.target.x = (dx / dist) * PULL_MAX * t;
+              s.target.y = (dy / dist) * PULL_MAX * t;
+            } else {
+              s.target.x = 0;
+              s.target.y = 0;
+            }
+            s.cur.x += (s.target.x - s.cur.x) * 0.15;
+            s.cur.y += (s.target.y - s.cur.y) * 0.15;
+            if (s.pullEl) s.pullEl.style.transform = 'translate(' + s.cur.x.toFixed(2) + 'px,' + s.cur.y.toFixed(2) + 'px)';
+          });
+
+          layAllLines(); // lines follow the pulled stars — the "tension"
+          requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      }
+
+      // --- click-to-zoom expansion ---------------------------------------
+      function enterZoom(star) {
+        zoomedKey = star.key;
+        star.zoomState = true;
+        star.cur = { x: 0, y: 0 };
+        main.classList.add('zoomed');
+        star.el.classList.add('is-center');
+        stars.forEach(function (s) { if (s !== star) s.el.classList.add('is-dim'); });
+
+        var dx = fieldRect.w / 2 - star.baseX;
+        var dy = fieldRect.h / 2 - star.baseY;
+
+        if (star.pullEl) {
+          star.pullEl.classList.add('zoom-transition');
+          star.pullEl.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(1.6)';
+        }
+        if (star.orbitEl) {
+          star.orbitEl.style.transition = 'transform 0.6s var(--ease)';
+          star.orbitEl.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+          star.orbitEl.classList.add('is-active');
+          star.orbitEl.querySelectorAll('.sub-node').forEach(function (n) { n.removeAttribute('tabindex'); });
+        }
+      }
+
+      function exitZoom() {
+        if (!zoomedKey) return;
+        var star = starsByKey[zoomedKey];
+        main.classList.remove('zoomed');
+        star.el.classList.remove('is-center');
+        stars.forEach(function (s) { s.el.classList.remove('is-dim'); });
+
+        if (star.pullEl) star.pullEl.style.transform = 'translate(0px,0px) scale(1)';
+        if (star.orbitEl) {
+          star.orbitEl.style.transform = 'translate(0px,0px)';
+          star.orbitEl.classList.remove('is-active');
+          star.orbitEl.querySelectorAll('.sub-node').forEach(function (n) { n.setAttribute('tabindex', '-1'); });
+        }
+        var doneKey = zoomedKey;
+        zoomedKey = null;
+        setTimeout(function () {
+          var s = starsByKey[doneKey];
+          s.zoomState = false;
+          if (s.pullEl) s.pullEl.classList.remove('zoom-transition');
+        }, 650);
+      }
+
+      stars.forEach(function (star) {
+        star.el.addEventListener('click', function (e) {
+          if (isMobileLayout()) return; // flat mobile layout — default nav
+          if (!star.hasChildren) return; // nothing to expand — go to page
+          if (zoomedKey === star.key) return; // second click commits to page
+          e.preventDefault();
+          if (zoomedKey) exitZoom();
+          enterZoom(star);
+        });
+      });
+
+      exitBtn.addEventListener('click', exitZoom);
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') exitZoom();
+      });
+      main.addEventListener('click', function (e) {
+        if (!zoomedKey) return;
+        if (e.target.closest('.star, .sub-node, .exit-void')) return;
+        exitZoom();
+      });
+    })();
+  </script>
 </SystemLayout>

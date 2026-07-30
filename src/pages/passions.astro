@@ -15,15 +15,31 @@ import SectionHeader from '../components/SectionHeader.astro';
     </li>
     <li>
       <div>
-        <strong>apex legends</strong>
-        <p class="muted">competitive — currently plat 2, maining wattson and alter.</p>
+        <strong>gaming</strong>
+        <p class="muted">
+          apex legends is the main one — plat 2, maining wattson and alter. valorant enough
+          that I built a stat tracker for it, and enough fps generally that I ended up writing
+          my own barebones shooter to see how the genre works from the inside.
+        </p>
       </div>
     </li>
     <li>
       <div>
-        <strong>building small things with old friends</strong>
-        <p class="muted">a habit-tracking app built with a friend of 15 years, still in use.</p>
+        <strong>building projects</strong>
+        <p class="muted">
+          mostly low-level things, to find out what the abstraction is hiding — a memory
+          allocator instead of malloc, a virtual machine instead of an interpreter, a
+          raytracer and a software rasterizer instead of a graphics api. plus a distributed
+          key-value store running raft, and an hft matching engine built for latency.
+          a habit-tracking app with a friend of 15 years is still in use.
+        </p>
       </div>
+    </li>
+    <li>
+      <a href="/passions/apollo" class="myth-link">
+        <strong>apollo</strong>
+        <p class="muted">the lyre, the sun, and why he's the idol — the myth behind the handle.</p>
+      </a>
     </li>
   </ul>
 
@@ -42,5 +58,7 @@ import SectionHeader from '../components/SectionHeader.astro';
     .rows > li:last-child { border-bottom: none; }
     .rows strong { font-family: var(--font-display); font-weight: 500; }
     .rows p { margin: 4px 0 0; }
+    .myth-link { display: block; }
+    .myth-link:hover strong { color: var(--accent); }
   </style>
 </SystemLayout>

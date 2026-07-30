@@ -22,15 +22,15 @@
   --star: #ffffff;
 }
 
-/* MONO — pure black/white, no color */
+/* MONO — pure black/white, no color, noticeably starker than orbit */
 [data-theme='mono'] {
-  --bg: #0a0a0a;
-  --bg-elev: #131313;
-  --fg: #f2f2f2;
-  --muted: #7a7a7a;
-  --line: #2a2a2a;
+  --bg: #000000;
+  --bg-elev: #0f0f0f;
+  --fg: #ffffff;
+  --muted: #9a9a9a;
+  --line: #3a3a3a;
   --accent: #ffffff;
-  --accent-warm: #cfcfcf;
+  --accent-warm: #e8e8e8;
   --star: #ffffff;
 }
 
