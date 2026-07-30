@@ -1,17 +1,172 @@
 ---
+import SystemLayout from '../layouts/SystemLayout.astro';
+import ConstellationGlyph from '../components/ConstellationGlyph.astro';
 
+// order doubles as the constellation traversal path — each star connects to the next, looping back to the first
+const stars = [
+  { href: '/work', variant: 'work', label: 'work', desc: 'u of a · on leave', top: 55, left: 14 },
+  { href: '/passions', variant: 'passions', label: 'passions', desc: 'gym · apex · friends', top: 20, left: 45 },
+  { href: '/projects', variant: 'projects', label: 'projects', desc: '6 systems, built raw', top: 40, left: 70 },
+  { href: '/transmissions', variant: 'transmissions', label: 'transmissions', desc: 'latest signals', top: 68, left: 80 },
+  { href: '/connect', variant: 'connect', label: 'connect', desc: 'say hello', top: 60, left: 50 },
+  { href: '/research', variant: 'research', label: 'research', desc: 'not yet — coming', top: 78, left: 30 },
+];
+
+const segments = stars.map((s, i) => {
+  const t = stars[(i + 1) % stars.length];
+  return { x1: s.left, y1: s.top, x2: t.left, y2: t.top };
+});
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<SystemLayout title="abir deol" fullBleed>
+  <svg class="links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+    {segments.map((seg, i) => (
+      <g>
+        <line
+          x1={seg.x1} y1={seg.y1} x2={seg.x2} y2={seg.y2}
+          pathLength="100"
+          class="segment"
+          style={`animation-delay: ${0.6 + i * 0.12}s`}
+        />
+        <circle r="0.55" class="pulse">
+          <animateMotion
+            dur="7s"
+            repeatCount="indefinite"
+            begin={`${i * 0.9}s`}
+            path={`M ${seg.x1} ${seg.y1} L ${seg.x2} ${seg.y2}`}
+          />
+        </circle>
+      </g>
+    ))}
+  </svg>
+
+  <div class="hero-text">
+    <p class="eyebrow">computing science — university of alberta</p>
+    <h1>you've drifted into the void</h1>
+    <p class="lede">six stars out here — each one a piece of what I've built, trained for, or am still figuring out. pick one and travel to it.</p>
+  </div>
+
+  {stars.map((s, i) => (
+    <a
+      class="star"
+      href={s.href}
+      style={`top:${s.top}%; left:${s.left}%; animation-delay:${0.5 + i * 0.12}s, ${1.2 + i * 0.6}s, ${3 + i}s;`}
+    >
+      <ConstellationGlyph variant={s.variant} size={52} />
+      <span class="star-label">{s.label}</span>
+      <span class="star-desc">{s.desc}</span>
+    </a>
+  ))}
+
+  <style>
+    .links {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      overflow: visible;
+    }
+    .segment {
+      stroke: var(--accent);
+      stroke-width: 0.22;
+      opacity: 0.5;
+      stroke-dasharray: 100;
+      stroke-dashoffset: 100;
+      animation: draw-line 1.4s var(--ease) forwards;
+    }
+    .pulse {
+      fill: var(--star);
+      filter: drop-shadow(0 0 2px var(--accent));
+    }
+    @keyframes draw-line {
+      to { stroke-dashoffset: 0; }
+    }
+
+    .hero-text {
+      position: absolute;
+      top: 100px;
+      left: clamp(20px, 4vw, 48px);
+      max-width: 340px;
+      z-index: 3;
+    }
+    .hero-text h1 {
+      font-size: clamp(1.5rem, 3.4vw, 2rem);
+      margin: 8px 0 12px;
+    }
+    .lede { color: var(--muted); }
+
+    .star {
+      position: absolute;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      animation-name: star-in, float, twinkle;
+      animation-timing-function: var(--ease), ease-in-out, ease-in-out;
+      animation-iteration-count: 1, infinite, infinite;
+      animation-fill-mode: forwards, none, none;
+      animation-duration: 0.7s, 6s, 4s;
+    }
+
+    .star-label {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--fg);
+      transition: color 0.3s var(--ease);
+    }
+    .star-desc {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--muted);
+      white-space: nowrap;
+      transition: color 0.3s var(--ease);
+    }
+    .star:hover .star-label,
+    .star:focus-visible .star-label { color: var(--accent-warm); }
+    .star:hover .star-desc,
+    .star:focus-visible .star-desc { color: var(--fg); }
+    .star:hover :global(.glyph),
+    .star:focus-visible :global(.glyph) {
+      filter: drop-shadow(0 0 8px var(--accent));
+    }
+
+    @keyframes star-in {
+      from { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+    @keyframes float {
+      0%, 100% { margin-top: 0; }
+      50% { margin-top: -8px; }
+    }
+    @keyframes twinkle {
+      0%, 100% { filter: brightness(0.85); }
+      50% { filter: brightness(1.15); }
+    }
+
+    @media (max-width: 720px) {
+      main.full-bleed { height: auto; overflow: visible; min-height: 100vh; }
+      .hero-text { position: static; padding: 140px 24px 0; max-width: none; }
+      .star {
+        position: static;
+        transform: none;
+        display: inline-flex;
+        margin: 22px;
+        animation: none;
+        opacity: 1;
+      }
+      .links { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .star { animation: star-in 0.01s forwards; opacity: 1; }
+      .segment { animation: none; stroke-dashoffset: 0; }
+      .pulse { display: none; }
+    }
+  </style>
+</SystemLayout>

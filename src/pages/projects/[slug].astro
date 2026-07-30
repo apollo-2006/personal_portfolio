@@ -1,0 +1,97 @@
+---
+import SystemLayout from '../../layouts/SystemLayout.astro';
+import { projects } from '../../data/projects.js';
+
+export function getStaticPaths() {
+  return projects.map((p) => ({
+    params: { slug: p.slug },
+    props: { project: p },
+  }));
+}
+
+const { project } = Astro.props;
+---
+
+<SystemLayout title={`${project.name} — abir deol`}>
+  <a href="/projects" class="back">← projects</a>
+  <p class="eyebrow">{project.tag} · sub-star</p>
+  <h1>{project.name}</h1>
+  <p class="lede">{project.blurb}</p>
+
+  <hr class="rule" />
+
+  <h2 class="sub-heading">signal log</h2>
+  <ul class="highlights">
+    {project.highlights.map((h) => <li>{h}</li>)}
+  </ul>
+
+  <h2 class="sub-heading">built with</h2>
+  <div class="stack">
+    {project.stack.map((s) => <span class="chip">{s}</span>)}
+  </div>
+
+  <a class="repo-link" href={project.repo} target="_blank" rel="noopener">view repository →</a>
+
+  <style>
+    .back {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+    .back:hover { color: var(--accent); }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.1rem); margin: 8px 0 12px; }
+    .lede { max-width: 50ch; color: var(--fg); }
+    .rule { margin: 32px 0; }
+    .sub-heading {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+    .highlights {
+      list-style: none;
+      margin: 0 0 32px;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .highlights li {
+      padding-left: 18px;
+      position: relative;
+      max-width: 55ch;
+    }
+    .highlights li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+    }
+    .stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 40px;
+    }
+    .chip {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      padding: 4px 10px;
+      border-radius: 3px;
+    }
+    .repo-link {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--fg);
+    }
+    .repo-link:hover { color: var(--accent); }
+  </style>
+</SystemLayout>

@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  --nav-w: 64px;
+  --content-w: 640px;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ORBIT — deep space HUD, cool blue with a warm sunlit edge (default) */
+[data-theme='orbit'] {
+  --bg: #070b12;
+  --bg-elev: #0d131d;
+  --fg: #dfe7f2;
+  --muted: #64788d;
+  --line: #1c2735;
+  --accent: #8fb8e8;
+  --accent-warm: #d9b98a;
+  --star: #ffffff;
+}
+
+/* MONO — pure black/white, no color */
+[data-theme='mono'] {
+  --bg: #0a0a0a;
+  --bg-elev: #131313;
+  --fg: #f2f2f2;
+  --muted: #7a7a7a;
+  --line: #2a2a2a;
+  --accent: #ffffff;
+  --accent-warm: #cfcfcf;
+  --star: #ffffff;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+a { color: var(--fg); text-decoration: none; }
+a:hover { color: var(--accent); }
+
+a:focus-visible,
+button:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 3px;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.muted { color: var(--muted); }
+
+.rule {
+  height: 1px;
+  background: var(--line);
+  border: none;
+  margin: 0;
+}

@@ -1,0 +1,77 @@
+export const projects = [
+  {
+    slug: 'nexus-cluster',
+    tag: 'systems',
+    name: 'nexus_cluster',
+    blurb: 'distributed key-value store with Raft consensus.',
+    highlights: [
+      'leader election, log replication, and failover handled from scratch — no off-the-shelf consensus library.',
+      'nodes can drop and rejoin without losing consistency.',
+      '[ add a detail on throughput / cluster size you tested with ]',
+    ],
+    stack: ['Go', 'Raft', 'gRPC'],
+    repo: '#',
+  },
+  {
+    slug: 'nexus-editor',
+    tag: 'systems',
+    name: 'nexus_editor',
+    blurb: 'real-time collaborative editor built on CRDTs.',
+    highlights: [
+      'multiple people can edit the same document at once with no central lock, conflicts resolve automatically.',
+      'React front end, Go backend handling sync over websockets.',
+      '[ add a detail on latency / concurrent users tested ]',
+    ],
+    stack: ['React', 'TypeScript', 'Go'],
+    repo: '#',
+  },
+  {
+    slug: 'nexus-db',
+    tag: 'systems',
+    name: 'nexus_db',
+    blurb: 'full-stack key-value store with a React dashboard over a C++ engine.',
+    highlights: [
+      'storage engine written in C++, exposed through a dashboard for inspecting reads/writes live.',
+      '[ add a detail on the indexing / persistence strategy ]',
+    ],
+    stack: ['C++', 'React'],
+    repo: '#',
+  },
+  {
+    slug: 'photon-tracer',
+    tag: 'graphics',
+    name: 'photon_tracer',
+    blurb: 'multithreaded C++ raytracer.',
+    highlights: [
+      'renders reflection, refraction, and soft shadows by tracing light per-pixel.',
+      'threaded to split the frame across cores instead of rendering single-threaded.',
+      '[ add a render time / sample count you\'re proud of ]',
+    ],
+    stack: ['C++'],
+    repo: '#',
+  },
+  {
+    slug: 'custom-mem-alloc',
+    tag: 'tools',
+    name: 'custom_mem_alloc',
+    blurb: 'a memory allocator, built to understand what malloc actually does.',
+    highlights: [
+      'implements its own free-list and block-splitting instead of calling the system allocator.',
+      '[ add a detail on fragmentation handling / benchmarks ]',
+    ],
+    stack: ['C'],
+    repo: '#',
+  },
+  {
+    slug: 'neon-vm',
+    tag: 'tools',
+    name: 'neon_vm',
+    blurb: 'a small virtual machine — bytecode in, execution out.',
+    highlights: [
+      'defines its own instruction set and executes compiled bytecode on a stack-based VM.',
+      '[ add what you\'d run on it — a toy language, an assembler? ]',
+    ],
+    stack: ['C'],
+    repo: '#',
+  },
+];

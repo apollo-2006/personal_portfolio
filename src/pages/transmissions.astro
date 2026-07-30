@@ -1,0 +1,33 @@
+---
+import SystemLayout from '../layouts/SystemLayout.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+---
+
+<SystemLayout title="transmissions — abir deol">
+  <SectionHeader variant="transmissions" eyebrow="signals from the void, most recent first" title="transmissions" />
+
+  <ul class="log">
+    <li><span class="stamp">2026.07 · 21:14</span> deadlift PR, logged and moving on.</li>
+    <li><span class="stamp">2026.06 · 09:02</span> plat 2, raptor's claw unlocked.</li>
+    <li><span class="stamp">[ date ]</span> [ your entry — one line, no explanation needed ]</li>
+  </ul>
+
+  <style>
+    .log {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+    }
+    .log li {
+      display: flex;
+      gap: 18px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--line);
+      color: var(--fg);
+    }
+    .log li:last-child { border-bottom: none; }
+    .stamp { color: var(--accent-warm); flex-shrink: 0; }
+  </style>
+</SystemLayout>

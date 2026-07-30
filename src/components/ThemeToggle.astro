@@ -1,0 +1,59 @@
+---
+---
+<div class="theme-toggle" role="group" aria-label="Theme">
+  <button data-theme-btn="orbit" aria-pressed="true">orbit</button>
+  <span class="sep">/</span>
+  <button data-theme-btn="mono" aria-pressed="false">mono</button>
+</div>
+
+<style>
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+  }
+  .theme-toggle button {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 2px 0;
+    font-family: inherit;
+    font-size: inherit;
+    letter-spacing: inherit;
+    text-transform: uppercase;
+  }
+  .theme-toggle button[aria-pressed='true'] {
+    color: var(--fg);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .sep { color: var(--line); }
+</style>
+
+<script is:inline>
+  (function () {
+    var KEY = 'portfolio-theme';
+    var buttons = document.querySelectorAll('[data-theme-btn]');
+
+    function apply(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      for (var i = 0; i < buttons.length; i++) {
+        var b = buttons[i];
+        b.setAttribute('aria-pressed', String(b.getAttribute('data-theme-btn') === theme));
+      }
+      try { localStorage.setItem(KEY, theme); } catch (e) {}
+    }
+
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].addEventListener('click', function (e) {
+        apply(e.currentTarget.getAttribute('data-theme-btn'));
+      });
+    }
+
+    apply(document.documentElement.getAttribute('data-theme') || 'orbit');
+  })();
+</script>

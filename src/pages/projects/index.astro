@@ -1,0 +1,90 @@
+---
+import SystemLayout from '../../layouts/SystemLayout.astro';
+import SectionHeader from '../../components/SectionHeader.astro';
+import { projects } from '../../data/projects.js';
+
+const tags = ['all', ...Array.from(new Set(projects.map((p) => p.tag)))];
+---
+
+<SystemLayout title="projects — abir deol">
+  <SectionHeader variant="projects" eyebrow="a small cluster, each one its own star" title="projects" />
+
+  <div class="filters" role="tablist">
+    {tags.map((t, i) => (
+      <button class="filter" data-filter={t} aria-pressed={i === 0 ? 'true' : 'false'}>{t}</button>
+    ))}
+  </div>
+
+  <ul class="rows">
+    {projects.map((p) => (
+      <li data-tag={p.tag}>
+        <span class="eyebrow tag-label">{p.tag}</span>
+        <a href={`/projects/${p.slug}`} class="project-link">
+          <strong>{p.name}</strong>
+          <p class="muted">{p.blurb}</p>
+        </a>
+      </li>
+    ))}
+  </ul>
+
+  <style>
+    .filters {
+      display: flex;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+    .filter {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      padding: 4px 0;
+    }
+    .filter[aria-pressed='true'] {
+      color: var(--fg);
+      border-bottom: 1px solid var(--accent);
+    }
+
+    .rows {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .rows > li {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 20px;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .rows > li:last-child { border-bottom: none; }
+    .rows > li[hidden] { display: none; }
+    .tag-label { padding-top: 3px; }
+    .project-link strong { font-family: var(--font-display); font-weight: 500; }
+    .project-link p { margin: 4px 0 0; }
+    .project-link:hover strong { color: var(--accent); }
+  </style>
+
+  <script is:inline>
+    (function () {
+      var buttons = document.querySelectorAll('.filter');
+      var items = document.querySelectorAll('.rows > li');
+      for (var i = 0; i < buttons.length; i++) {
+        buttons[i].addEventListener('click', function (e) {
+          var btn = e.currentTarget;
+          for (var j = 0; j < buttons.length; j++) buttons[j].setAttribute('aria-pressed', 'false');
+          btn.setAttribute('aria-pressed', 'true');
+          var filter = btn.getAttribute('data-filter');
+          for (var k = 0; k < items.length; k++) {
+            var li = items[k];
+            li.hidden = filter !== 'all' && li.getAttribute('data-tag') !== filter;
+          }
+        });
+      }
+    })();
+  </script>
+</SystemLayout>

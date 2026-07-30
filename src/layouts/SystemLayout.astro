@@ -1,0 +1,156 @@
+---
+import '../styles/theme.css';
+import Starfield from '../components/Starfield.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
+
+interface Props {
+  title: string;
+  fullBleed?: boolean;
+}
+const { title, fullBleed = false } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <script is:inline>
+      // set theme before first paint — no flash of wrong theme, works on every page
+      (function () {
+        var saved = null;
+        try { saved = localStorage.getItem('portfolio-theme'); } catch (e) {}
+        document.documentElement.setAttribute('data-theme', saved || 'orbit');
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="boot" aria-hidden="true">
+      <span>apollo uplink — establishing signal<span class="dots">...</span></span>
+    </div>
+
+    <Starfield />
+    <div class="apollo" title="apollo" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a href="/" class="wordmark">
+        <svg class="sun-mark" viewBox="0 0 24 24" width="11" height="11" aria-hidden="true">
+          <circle cx="12" cy="12" r="4" />
+          <line x1="12" y1="1" x2="12" y2="4" />
+          <line x1="12" y1="20" x2="12" y2="23" />
+          <line x1="1" y1="12" x2="4" y2="12" />
+          <line x1="20" y1="12" x2="23" y2="12" />
+          <line x1="4.2" y1="4.2" x2="6.3" y2="6.3" />
+          <line x1="17.7" y1="17.7" x2="19.8" y2="19.8" />
+          <line x1="4.2" y1="19.8" x2="6.3" y2="17.7" />
+          <line x1="17.7" y1="6.3" x2="19.8" y2="4.2" />
+        </svg>
+        abir deol
+      </a>
+      <ThemeToggle />
+    </header>
+
+    <main class={fullBleed ? 'full-bleed' : ''}>
+      <slot />
+    </main>
+
+    <style>
+      .site-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 20;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 22px clamp(20px, 4vw, 48px);
+        pointer-events: none;
+      }
+      .site-header > * { pointer-events: auto; }
+      .wordmark {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+        text-transform: lowercase;
+        color: var(--muted);
+      }
+      .wordmark:hover { color: var(--fg); }
+      .sun-mark {
+        stroke: var(--accent-warm);
+        stroke-width: 1.5;
+        fill: none;
+      }
+      .sun-mark circle { fill: var(--accent-warm); stroke: none; }
+
+      .apollo {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 2;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--accent-warm);
+        box-shadow: 0 0 16px 4px var(--accent-warm), 0 0 40px 10px var(--accent-warm);
+        opacity: 0;
+        pointer-events: none;
+        animation: apollo-arc 46s linear infinite;
+      }
+      @keyframes apollo-arc {
+        0%   { transform: translate(-8vw, 22vh) scale(0.7); opacity: 0; }
+        6%   { opacity: 0.9; }
+        50%  { transform: translate(52vw, -6vh) scale(1); opacity: 1; }
+        94%  { opacity: 0.9; }
+        100% { transform: translate(112vw, 22vh) scale(0.7); opacity: 0; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .apollo { animation: none; opacity: 0.6; top: 6vh; left: 50vw; }
+      }
+
+      main {
+        position: relative;
+        z-index: 5;
+        max-width: var(--content-w);
+        margin: 0 auto;
+        padding: 140px clamp(20px, 6vw, 48px) 160px;
+        min-height: 100vh;
+      }
+      main.full-bleed {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      #boot {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        background: var(--bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--muted);
+        animation: boot-out 0.6s ease 0.7s forwards;
+        pointer-events: none;
+      }
+      .dots { display: inline-block; width: 1.4em; text-align: left; }
+      @keyframes boot-out {
+        to { opacity: 0; visibility: hidden; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #boot { animation: none; opacity: 0; visibility: hidden; }
+      }
+    </style>
+  </body>
+</html>

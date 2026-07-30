@@ -1,0 +1,46 @@
+---
+import SystemLayout from '../layouts/SystemLayout.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+---
+
+<SystemLayout title="passions — abir deol">
+  <SectionHeader variant="passions" eyebrow="what I do when I'm not building" title="passions" />
+
+  <ul class="rows">
+    <li>
+      <div>
+        <strong>lifting</strong>
+        <p class="muted">6 days a week, push/pull/legs — chasing PRs, tracking every macro.</p>
+      </div>
+    </li>
+    <li>
+      <div>
+        <strong>apex legends</strong>
+        <p class="muted">competitive — currently plat 2, maining wattson and alter.</p>
+      </div>
+    </li>
+    <li>
+      <div>
+        <strong>building small things with old friends</strong>
+        <p class="muted">a habit-tracking app built with a friend of 15 years, still in use.</p>
+      </div>
+    </li>
+  </ul>
+
+  <style>
+    .rows {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .rows > li {
+      padding: 18px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .rows > li:last-child { border-bottom: none; }
+    .rows strong { font-family: var(--font-display); font-weight: 500; }
+    .rows p { margin: 4px 0 0; }
+  </style>
+</SystemLayout>

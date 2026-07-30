@@ -1,0 +1,46 @@
+---
+import SystemLayout from '../layouts/SystemLayout.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+---
+
+<SystemLayout title="work — abir deol">
+  <SectionHeader variant="work" eyebrow="where I've spent my time" title="work" />
+
+  <ul class="rows">
+    <li>
+      <div>
+        <strong>computing science, university of alberta</strong>
+        <p class="muted">undergraduate studies — currently on leave, returning fall 2027</p>
+      </div>
+      <span class="eyebrow">2027 →</span>
+    </li>
+    <li>
+      <div>
+        <strong>[ your role / co-op / employer ]</strong>
+        <p class="muted">[ one line on what you did there ]</p>
+      </div>
+      <span class="eyebrow">[ dates ]</span>
+    </li>
+  </ul>
+
+  <style>
+    .rows {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .rows > li {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .rows > li:last-child { border-bottom: none; }
+    .rows strong { font-family: var(--font-display); font-weight: 500; }
+    .rows p { margin: 4px 0 0; }
+  </style>
+</SystemLayout>
