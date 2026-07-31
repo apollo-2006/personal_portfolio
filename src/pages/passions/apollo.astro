@@ -3,7 +3,7 @@ import SystemLayout from '../../layouts/SystemLayout.astro';
 import ConstellationGlyph from '../../components/ConstellationGlyph.astro';
 ---
 
-<SystemLayout title="apollo — abir deol">
+<SystemLayout title="apollo · abir deol">
   <a href="/passions" class="back">← passions</a>
 
   <div class="header">
@@ -19,10 +19,11 @@ import ConstellationGlyph from '../../components/ConstellationGlyph.astro';
     </svg>
     <p class="eyebrow">why the name</p>
     <h1>apollo</h1>
+    <hr class="accent-rule" />
   </div>
 
   <p class="lede">
-    god of the sun, music, prophecy, healing, and the bow — the only Olympian
+    god of the sun, music, prophecy, healing, and the bow. the only Olympian
     said to be as comfortable on a battlefield as on a stage.
   </p>
 
@@ -33,21 +34,21 @@ import ConstellationGlyph from '../../components/ConstellationGlyph.astro';
     the story goes that Hermes, only hours old, hollowed out a tortoise shell,
     strung it with cattle gut, and built the first lyre. when Apollo came
     looking for the cattle Hermes had stolen from him, the infant god didn't
-    apologize — he played. Apollo was so taken with the sound that he traded
+    apologize. he played. Apollo was so taken with the sound that he traded
     the entire herd for the instrument on the spot. he went on to master it
     completely, and the lyre became his emblem: the thing he's holding in
     almost every statue you'll find of him.
   </p>
   <p>
     what stuck with me about that story isn't the trade. it's that Apollo was
-    already the god of archery and the sun before he ever touched the thing —
+    already the god of archery and the sun before he ever touched the thing.
     and he still stopped to learn an instrument he had no reason to need.
   </p>
 
   <h2 class="sub-heading">why him</h2>
   <p>
     most gods get one lane. Ares gets war, Hephaestus gets the forge, Athena
-    gets strategy. Apollo is the rare one who refused to specialize — archer
+    gets strategy. Apollo is the rare one who refused to specialize: archer
     and musician, healer and plague-bringer, the clearest-headed god on
     Olympus and the one who ran the oracle at Delphi, where the answers
     never came clean. discipline and instinct, precision and chaos, held in
@@ -55,7 +56,7 @@ import ConstellationGlyph from '../../components/ConstellationGlyph.astro';
   </p>
   <p>
     that split is the whole reason he's the idol. two national titles inside
-    a cage is one half of it — the part that's all repetition, weight, and
+    a cage is one half of it, the part that's all repetition, weight, and
     control. the other half is the systems work: building things from
     scratch, precise enough that they don't fall over. neither side cancels
     the other out. Apollo's the patron saint of not having to pick.
@@ -64,7 +65,7 @@ import ConstellationGlyph from '../../components/ConstellationGlyph.astro';
   <h2 class="sub-heading">the sun-mark</h2>
   <p>
     the little arc that crosses the sky on every page here is Apollo's
-    chariot — the sun making its pass, the way it was said to every day. the
+    chariot: the sun making its pass, the way it was said to every day. the
     lyre in the header is the other half of him: the one who put the bow
     down long enough to make something.
   </p>
@@ -93,18 +94,13 @@ import ConstellationGlyph from '../../components/ConstellationGlyph.astro';
       stroke-width: 1;
       stroke-linecap: round;
       fill: none;
+      filter: drop-shadow(0 0 10px var(--accent-soft));
     }
     h1 { font-size: clamp(1.8rem, 4vw, 2.4rem); }
-    .lede { max-width: 52ch; color: var(--fg); }
-    .rule { margin: 32px 0; }
-    .sub-heading {
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin: 28px 0 12px;
-    }
-    p { max-width: 60ch; }
+    .lede { max-width: 54ch; color: var(--fg); font-size: 1.04rem; }
+    .rule { margin: 36px 0; }
+    /* .sub-heading styling is shared, see theme.css */
+    .sub-heading { margin: 34px 0 16px; }
+    p { max-width: 62ch; line-height: 1.78; }
   </style>
 </SystemLayout>

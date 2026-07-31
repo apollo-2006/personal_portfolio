@@ -12,13 +12,25 @@ export function getStaticPaths() {
 const { project } = Astro.props;
 ---
 
-<SystemLayout title={`${project.name} — abir deol`}>
+<SystemLayout title={`${project.name} · abir deol`}>
+  <!-- faint arc echoing the bow's limb, background texture only -->
+  <svg class="arc-echo" viewBox="0 0 260 620" aria-hidden="true">
+    <path d="M232 18 C 96 128, 96 492, 232 602" />
+    <circle cx="232" cy="18" r="3.2" />
+    <circle cx="139" cy="147" r="2.6" />
+    <circle cx="112" cy="310" r="3.6" />
+    <circle cx="139" cy="473" r="2.6" />
+    <circle cx="232" cy="602" r="3.2" />
+    <line class="arc-string" x1="232" y1="18" x2="232" y2="602" />
+  </svg>
+
   <a href="/projects" class="back">← projects</a>
   <p class="eyebrow">{project.tag} · sub-star</p>
   <h1>{project.name}</h1>
   <p class="lede">{project.blurb}</p>
+  <hr class="accent-rule" />
 
-  <hr class="rule" />
+  <hr class="rule spacer-rule" />
 
   <h2 class="sub-heading">readme</h2>
   <p class="summary">{project.summary}</p>
@@ -33,7 +45,12 @@ const { project } = Astro.props;
     {project.stack.map((s) => <span class="chip">{s}</span>)}
   </div>
 
-  <a class="repo-link" href={project.repo} target="_blank" rel="noopener">view repository →</a>
+  <hr class="rule spacer-rule" />
+
+  <div class="repo-row">
+    <span class="repo-bar" aria-hidden="true"></span>
+    <a class="repo-link" href={project.repo} target="_blank" rel="noopener">view repository →</a>
+  </div>
 
   <style>
     .back {
@@ -47,59 +64,108 @@ const { project } = Astro.props;
     }
     .back:hover { color: var(--accent); }
     h1 { font-size: clamp(1.6rem, 4vw, 2.1rem); margin: 8px 0 12px; }
-    .lede { max-width: 50ch; color: var(--fg); }
-    .rule { margin: 32px 0; }
-    .sub-heading {
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 14px;
+    .lede { max-width: 52ch; color: var(--fg); font-size: 1.04rem; }
+    .spacer-rule { margin: 36px 0; }
+
+    /* decorative arc, sits behind the content, never interferes */
+    .arc-echo {
+      position: fixed;
+      right: -34px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 260px;
+      height: 620px;
+      max-height: 78vh;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.3;
+      fill: var(--accent-warm);
+      stroke: var(--accent-warm);
     }
+    .arc-echo path { fill: none; stroke-width: 1.1; opacity: 0.5; }
+    .arc-echo circle { stroke: none; opacity: 0.75; }
+    .arc-echo .arc-string { stroke-width: 0.9; opacity: 0.22; }
+    @media (max-width: 900px) { .arc-echo { display: none; } }
     .summary {
-      max-width: 62ch;
-      margin: 0 0 36px;
+      max-width: 64ch;
+      margin: 0 0 42px;
       color: var(--fg);
+      line-height: 1.78;
     }
+    /* each highlight is a star strung along a faint limb, the same
+       shape language as the bow on the homepage */
     .highlights {
       list-style: none;
-      margin: 0 0 32px;
-      padding: 0;
+      margin: 0 0 44px;
+      padding: 0 0 0 26px;
+      position: relative;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 22px;
+    }
+    .highlights::before {
+      content: '';
+      position: absolute;
+      left: 5px;
+      top: 0.55em;
+      bottom: 0.55em;
+      width: 1px;
+      background: linear-gradient(
+        to bottom,
+        transparent,
+        var(--line) 10%,
+        var(--line) 90%,
+        transparent
+      );
     }
     .highlights li {
-      padding-left: 18px;
       position: relative;
-      max-width: 55ch;
+      max-width: 58ch;
+      line-height: 1.75;
     }
     .highlights li::before {
-      content: '—';
+      content: '';
       position: absolute;
-      left: 0;
-      color: var(--accent);
+      left: -24px;
+      top: 0.62em;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 7px 1px var(--accent-soft);
     }
     .stack {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 40px;
+      gap: 10px;
+      margin-bottom: 8px;
     }
-    .chip {
-      font-family: var(--font-mono);
-      font-size: 0.7rem;
-      border: 1px solid var(--line);
-      color: var(--muted);
-      padding: 4px 10px;
-      border-radius: 3px;
+
+    /* repo link sits behind a vertical accent bar, split off by a rule */
+    .repo-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .repo-bar {
+      flex: none;
+      width: 2px;
+      height: 1.5em;
+      border-radius: 2px;
+      background: linear-gradient(to bottom, var(--accent-warm), transparent);
     }
     .repo-link {
       font-family: var(--font-mono);
-      font-size: 0.85rem;
+      font-size: 0.88rem;
       color: var(--fg);
+      border-bottom: 1px solid transparent;
+      padding-bottom: 2px;
+      transition: color 0.25s var(--ease), border-color 0.25s var(--ease);
     }
-    .repo-link:hover { color: var(--accent); }
+    .repo-link:hover,
+    .repo-link:focus-visible {
+      color: var(--accent-warm);
+      border-bottom-color: var(--accent-warm);
+    }
   </style>
 </SystemLayout>

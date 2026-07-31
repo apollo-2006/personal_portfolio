@@ -1,0 +1,124 @@
+---
+import SystemLayout from '../../layouts/SystemLayout.astro';
+import { passions } from '../../data/passions.js';
+
+export function getStaticPaths() {
+  return passions.map((p) => ({
+    params: { slug: p.slug },
+    props: { passion: p },
+  }));
+}
+
+const { passion } = Astro.props;
+---
+
+<SystemLayout
+  title={`${passion.name} · abir deol`}
+  description={passion.blurb}
+>
+  <!-- faint arc echoing the bow's limb, background texture only -->
+  <svg class="arc-echo" viewBox="0 0 260 620" aria-hidden="true">
+    <path d="M232 18 C 96 128, 96 492, 232 602" />
+    <circle cx="232" cy="18" r="3.2" />
+    <circle cx="139" cy="147" r="2.6" />
+    <circle cx="112" cy="310" r="3.6" />
+    <circle cx="139" cy="473" r="2.6" />
+    <circle cx="232" cy="602" r="3.2" />
+    <line class="arc-string" x1="232" y1="18" x2="232" y2="602" />
+  </svg>
+
+  <a href="/passions" class="back">← passions</a>
+  <p class="eyebrow">{passion.eyebrow}</p>
+  <h1>{passion.name}</h1>
+  <p class="lede">{passion.blurb}</p>
+  <hr class="accent-rule" />
+
+  <hr class="rule spacer-rule" />
+
+  {passion.sections.map((s) => (
+    <section class="block">
+      <h2 class="sub-heading">{s.heading}</h2>
+      {s.body.map((para) => <p>{para}</p>)}
+    </section>
+  ))}
+
+  {passion.links.length > 0 && (
+    <>
+      <hr class="rule spacer-rule" />
+      <h2 class="sub-heading">what it produced</h2>
+      <div class="out-links">
+        {passion.links.map((l) => (
+          <a class="out-link" href={l.href}>{l.label} →</a>
+        ))}
+      </div>
+    </>
+  )}
+
+  <style>
+    .back {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+    .back:hover { color: var(--accent); }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.1rem); margin: 8px 0 12px; }
+    .lede { max-width: 52ch; color: var(--fg); font-size: 1.04rem; }
+    .spacer-rule { margin: 36px 0; }
+
+    .block { margin-bottom: 34px; }
+    .block p {
+      max-width: 64ch;
+      line-height: 1.78;
+      margin: 0 0 14px;
+    }
+    .block p:last-child { margin-bottom: 0; }
+
+    .out-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .out-link {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      padding: 8px 14px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: var(--muted);
+      transition:
+        color 0.25s var(--ease),
+        border-color 0.25s var(--ease),
+        background 0.25s var(--ease);
+    }
+    .out-link:hover,
+    .out-link:focus-visible {
+      color: var(--fg);
+      border-color: var(--accent-edge);
+      background: var(--accent-soft);
+    }
+
+    /* decorative arc, sits behind the content and never interferes */
+    .arc-echo {
+      position: fixed;
+      right: -34px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 260px;
+      height: 620px;
+      max-height: 78vh;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.3;
+      fill: var(--accent-warm);
+      stroke: var(--accent-warm);
+    }
+    .arc-echo path { fill: none; stroke-width: 1.1; opacity: 0.5; }
+    .arc-echo circle { stroke: none; opacity: 0.75; }
+    .arc-echo .arc-string { stroke-width: 0.9; opacity: 0.22; }
+    @media (max-width: 900px) { .arc-echo { display: none; } }
+  </style>
+</SystemLayout>

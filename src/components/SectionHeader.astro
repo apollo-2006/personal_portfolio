@@ -13,6 +13,7 @@ const { variant, eyebrow, title } = Astro.props;
   <ConstellationGlyph variant={variant} size={56} />
   <p class="eyebrow">{eyebrow}</p>
   <h1>{title}</h1>
+  <hr class="accent-rule" />
 </div>
 
 <style>
@@ -34,5 +35,9 @@ const { variant, eyebrow, title } = Astro.props;
   .back:hover { color: var(--accent); }
   .section-header h1 {
     font-size: clamp(1.8rem, 4vw, 2.4rem);
+  }
+  /* the glyph gets the same soft halo the homepage stars have */
+  .section-header :global(.glyph) {
+    filter: drop-shadow(0 0 10px var(--accent-soft));
   }
 </style>

@@ -3,36 +3,39 @@ import SystemLayout from '../layouts/SystemLayout.astro';
 import ConstellationGlyph from '../components/ConstellationGlyph.astro';
 import { projects } from '../data/projects.js';
 
-// scattered constellation — positioned by top/left percentages (this is the
+// scattered constellation, positioned by top/left percentages (this is the
 // pattern from the original design that rendered correctly; the entrance
 // animation keyframes bake in the -50%,-50% centering translate, so the
 // two never fight over the same transform).
-// order doubles as the traversal path — each star links to the next, looping.
-// APOLLO'S BOW — five stars trace the limb from top tip to bottom tip; the
+// order doubles as the traversal path: each star links to the next, looping.
+// APOLLO'S BOW: five stars trace the limb from top tip to bottom tip; the
 // bowstring is the wrap-around segment from the last star back to the first,
 // so it costs no extra stars. the grip (max bulge) is the anchor position.
 // to reshape: these five top/left pairs are the only thing you need to touch.
 const stars = [
-  { href: '/research', variant: 'research', label: 'research', desc: 'not yet — coming', top: 10, left: 32 },
-  { href: '/passions', variant: 'passions', label: 'passions', desc: 'gym · gaming · building', top: 30, left: 62 },
+  { href: '/research', variant: 'research', label: 'research', desc: 'learning ml, writing it down', top: 10, left: 32 },
+  { href: '/passions', variant: 'passions', label: 'passions', desc: 'gym · mma · gaming · reading', top: 30, left: 62 },
   { href: '/projects', variant: 'projects', label: 'projects', desc: '15 systems, built raw', top: 49, left: 72 },
   { href: '/work', variant: 'work', label: 'work', desc: 'u of a · grad 2028', top: 68, left: 62 },
   { href: '/connect', variant: 'connect', label: 'connect', desc: 'say hello', top: 88, left: 32 },
 ];
 
-// what each star expands into when clicked — the orbiting sub-nodes.
+// what each star expands into when clicked: the orbiting sub-nodes.
 // an empty list means a click navigates straight to the page (research).
 const subItems = {
   work: [
     { label: 'u of a', desc: 'bsc computing science, graduating 2028', href: '/work' },
   ],
+  // each passion is its own sub-page now; feature 5 and link out to the rest
   passions: [
-    { label: 'lifting', desc: '6x a week, chasing PRs', href: '/passions' },
-    { label: 'gaming', desc: 'apex plat 2 · valorant · fps generally', href: '/passions' },
-    { label: 'building projects', desc: 'allocators, vms, raytracers', href: '/passions' },
+    { label: 'lifting', desc: '6x a week, push/pull/legs', href: '/passions/lifting' },
+    { label: 'mma', desc: 'two-time national champion', href: '/passions/mma' },
+    { label: 'gaming', desc: 'apex plat · valorant diamond', href: '/passions/gaming' },
+    { label: 'building things', desc: 'allocators, vms, raytracers', href: '/passions/building' },
     { label: 'apollo', desc: 'the myth behind the name', href: '/passions/apollo' },
+    { label: 'all 7 →', desc: 'reading, basketball, the rest', href: '/passions' },
   ],
-  // 15 repos is too many to orbit legibly — feature 5, then link out to the rest
+  // 15 repos is too many to orbit legibly, so feature 5, then link out to the rest
   projects: [
     ...projects
       .filter((p) => ['nexus-cluster', 'nano-match', 'custom-mem-alloc', 'neon-vm', 'photon-tracer'].includes(p.slug))
@@ -44,17 +47,19 @@ const subItems = {
     { label: 'github', desc: 'source, repos', href: 'https://github.com/apollo-2006' },
     { label: 'linkedin', desc: 'the professional signal', href: 'https://www.linkedin.com/in/abirdeol/' },
   ],
-  research: [],
+  research: [
+    { label: 'the paper', desc: 'learning cv from the pixels up', href: '/research' },
+  ],
 };
 ---
 
-<SystemLayout title="abir deol — personal portfolio" fullBleed>
+<SystemLayout title="abir deol · personal portfolio" fullBleed>
   <div class="field" id="field">
     <div class="zoom-scrim"></div>
 
     <!-- constellation lines: plain divs sized/rotated in real pixels by JS.
          no SVG viewBox, so nothing gets stretched at wide/narrow aspect
-         ratios — a line is a line and a dot is a dot on every screen. -->
+         ratios: a line is a line and a dot is a dot on every screen. -->
     <div class="lines" id="lines" aria-hidden="true">
       {stars.map((s, i) => (
         <div class={`line${i === stars.length - 1 ? ' bowstring' : ''}`} data-a={i} data-b={(i + 1) % stars.length}>
@@ -112,11 +117,11 @@ const subItems = {
   </div>
 
   <div class="hero-text">
-    <p class="eyebrow">computing science — university of alberta</p>
+    <p class="eyebrow">computing science · university of alberta</p>
     <h1>abir deol</h1>
     <p class="alias">apollo</p>
     <p class="drift">you've drifted into the void</p>
-    <p class="lede">five stars out here — each one a piece of what I've built, trained for, or am still figuring out. pick one and travel to it.</p>
+    <p class="lede">five stars out here, each one a piece of what I've built, trained for, or am still figuring out. pick one and travel to it.</p>
   </div>
 
   <button class="exit-void" type="button" aria-label="back to the void">↺ back to the void</button>
@@ -177,7 +182,7 @@ const subItems = {
     }
     .line.bowstring .line-dot { opacity: 0.55; }
 
-    /* line illumination — hovering a star lights the two lines touching it */
+    /* line illumination: hovering a star lights the two lines touching it */
     .line.lit {
       opacity: 1;
       background: var(--accent-warm);
@@ -404,7 +409,7 @@ const subItems = {
         display: flex;
         flex-direction: column;
       }
-      /* the field comes FIRST in the DOM (it has to — the stars are absolutely
+      /* the field comes FIRST in the DOM (it has to, since the stars are absolutely
          positioned over the hero on desktop). on mobile everything goes static
          and flows in source order, which buried the name below the whole
          constellation. flex order puts the name back on top. */
@@ -440,7 +445,7 @@ const subItems = {
         animation: none;
         opacity: 1;
       }
-      /* five stars in a two-column grid leaves one alone on the last row —
+      /* five stars in a two-column grid leaves one alone on the last row,
          let it span both columns so it centers instead of hanging left */
       .star:last-of-type { grid-column: 1 / -1; }
       .star-label { font-size: 0.72rem; }
@@ -492,7 +497,7 @@ const subItems = {
       stars.forEach(function (s) { starsByKey[s.key] = s; });
 
       // fit the constellation's ACTUAL bounding box rather than a fixed
-      // 100x100 square — a bow is narrow and tall, so assuming a square
+      // 100x100 square, since a bow is narrow and tall, so assuming a square
       // would shrink it to nothing on a wide monitor. reshaping the
       // constellation needs no change here; the box follows the stars.
       var bbox = (function () {
@@ -524,7 +529,7 @@ const subItems = {
         // uniform-scale letterbox: the constellation lives in a fixed
         // 100x100 design space, scaled by the SAME factor in both axes and
         // centered in whatever room is left after padding. the shape is
-        // therefore identical on every monitor — wide, tall, square — the
+        // therefore identical on every monitor (wide, tall, square); the
         // whole thing just gets bigger or smaller.
         // pixel margins leave room for the labels that hang below and beside
         // each star, so nothing gets clipped at the edges
@@ -532,7 +537,7 @@ const subItems = {
         var padLeft = fieldRect.w >= 1000 ? 460 : padSide; // clear the hero text on wide screens
         var availW = Math.max(fieldRect.w - padLeft - padSide, 120);
         var availH = Math.max(fieldRect.h - padTop - padBottom, 120);
-        // ONE scale factor for both axes — this is what keeps the shape
+        // ONE scale factor for both axes, which is what keeps the shape
         // identical on ultrawide, 16:9, square, and portrait screens
         var scale = Math.min(availW / bbox.w, availH / bbox.h, 14);
         var offsetX = padLeft + (availW - bbox.w * scale) / 2;
@@ -644,7 +649,7 @@ const subItems = {
             if (s.pullEl) s.pullEl.style.transform = 'translate(' + s.cur.x.toFixed(2) + 'px,' + s.cur.y.toFixed(2) + 'px)';
           });
 
-          layAllLines(); // lines follow the pulled stars — the "tension"
+          layAllLines(); // lines follow the pulled stars, the "tension"
           requestAnimationFrame(tick);
         }
         requestAnimationFrame(tick);
@@ -698,8 +703,8 @@ const subItems = {
 
       stars.forEach(function (star) {
         star.el.addEventListener('click', function (e) {
-          if (isMobileLayout()) return; // flat mobile layout — default nav
-          if (!star.hasChildren) return; // nothing to expand — go to page
+          if (isMobileLayout()) return; // flat mobile layout, default nav
+          if (!star.hasChildren) return; // nothing to expand, go to page
           if (zoomedKey === star.key) return; // second click commits to page
           e.preventDefault();
           if (zoomedKey) exitZoom();

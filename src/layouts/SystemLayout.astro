@@ -9,12 +9,12 @@ interface Props {
   fullBleed?: boolean;
 }
 
-// absolute origin — link previews (discord, imessage, slack, twitter) all
+// absolute origin. link previews (discord, imessage, slack, twitter) all
 // REQUIRE an absolute og:image url; a relative path renders as a grey box.
 const SITE = 'https://abirdeol.tech';
 const {
   title,
-  description = 'systems programmer at the university of alberta. 15 projects built raw — distributed systems, allocators, virtual machines, raytracers.',
+  description = 'systems programmer at the university of alberta. 15 projects built raw: distributed systems, allocators, virtual machines, raytracers.',
   fullBleed = false,
 } = Astro.props;
 const canonical = new URL(Astro.url.pathname, SITE).href;
@@ -44,20 +44,20 @@ const ogImage = `${SITE}/og.png`;
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="abir deol / apollo — constellation portfolio" />
+    <meta property="og:image:alt" content="abir deol / apollo, constellation portfolio" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
     <script is:inline>
-      // set theme before first paint — no flash of wrong theme, works on every page
+      // set theme before first paint, so there is no flash of wrong theme, works on every page
       (function () {
         var saved = null;
         try { saved = localStorage.getItem('portfolio-theme'); } catch (e) {}
         if (!saved) {
           // fallback for environments that block localStorage (sandboxed
-          // preview iframes, private browsing) — read the cookie mirror instead
+          // preview iframes, private browsing), so read the cookie mirror instead
           var match = document.cookie.match(/(?:^|; )portfolio-theme=([^;]+)/);
           if (match) saved = decodeURIComponent(match[1]);
         }
@@ -67,13 +67,14 @@ const ogImage = `${SITE}/og.png`;
   </head>
   <body>
     <div id="boot" aria-hidden="true">
-      <span>apollo uplink — establishing signal<span class="dots">...</span></span>
+      <span>apollo uplink :: establishing signal<span class="dots">...</span></span>
     </div>
 
     <Starfield />
     <div class="apollo" title="apollo" aria-hidden="true"></div>
 
     <header class="site-header">
+      <div class="header-left">
       <a href="/" class="wordmark">
         <svg class="lyre-mark" viewBox="0 0 24 24" width="15" height="16" aria-hidden="true">
           <path d="M5.5 21V11C5.5 6.5 7.3 3.4 9.6 2.4" />
@@ -86,6 +87,25 @@ const ogImage = `${SITE}/og.png`;
         </svg>
         abir deol / apollo
       </a>
+
+      <span class="header-sep" aria-hidden="true"></span>
+
+      <a
+        class="resume-link"
+        href="/abir-deol-resume.pdf"
+        target="_blank"
+        rel="noopener"
+        title="open resume (pdf)"
+      >
+        <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">
+          <path d="M6 2.5h8l4 4V21a.5.5 0 0 1-.5.5h-11A.5.5 0 0 1 6 21V3a.5.5 0 0 1 .5-.5Z" />
+          <path d="M14 2.5V7h4" />
+          <line x1="9" y1="12" x2="15" y2="12" />
+          <line x1="9" y1="16" x2="13" y2="16" />
+        </svg>
+        resume
+      </a>
+      </div>
       <ThemeToggle />
     </header>
 
@@ -94,6 +114,26 @@ const ogImage = `${SITE}/og.png`;
     </main>
 
     <style>
+      /* without a backdrop, page content scrolls straight through the fixed
+         header and collides with the wordmark. this fades the background out
+         below the header instead of drawing a hard bar across the starfield. */
+      .site-header::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: calc(100% + 34px);
+        z-index: -1;
+        pointer-events: none;
+        background: linear-gradient(
+          to bottom,
+          rgb(var(--bg-rgb)) 0%,
+          rgb(var(--bg-rgb)) 52%,
+          rgba(var(--bg-rgb), 0.82) 74%,
+          rgba(var(--bg-rgb), 0) 100%
+        );
+      }
       .site-header {
         position: fixed;
         top: 0;
@@ -119,6 +159,51 @@ const ogImage = `${SITE}/og.png`;
         color: var(--fg);
       }
       .wordmark:hover { color: var(--accent); }
+
+      .header-left {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        pointer-events: auto;
+        min-width: 0;
+      }
+      .header-sep {
+        width: 1px;
+        height: 15px;
+        background: var(--line);
+        flex: none;
+      }
+      /* resume sits beside the name, deliberately outside the constellation */
+      .resume-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        flex: none;
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        letter-spacing: 0.07em;
+        color: var(--muted);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 4px 11px 4px 9px;
+        transition:
+          color 0.25s var(--ease),
+          border-color 0.25s var(--ease),
+          background 0.25s var(--ease);
+      }
+      .resume-link svg {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .resume-link:hover,
+      .resume-link:focus-visible {
+        color: var(--fg);
+        border-color: var(--accent-edge);
+        background: var(--accent-soft);
+      }
       .lyre-mark {
         stroke: var(--accent-warm);
         stroke-width: 1.4;
@@ -148,9 +233,17 @@ const ogImage = `${SITE}/og.png`;
         100% { transform: translate(112vw, 22vh) scale(0.7); opacity: 0; }
       }
       @media (max-width: 720px) {
-        .site-header { padding: 15px 18px; }
+        .site-header { padding: 15px 14px; }
         .wordmark { font-size: 0.76rem; letter-spacing: 0.04em; gap: 6px; }
         .lyre-mark { width: 12px; height: 13px; }
+        .header-left { gap: 8px; }
+        .header-sep { height: 13px; }
+        .resume-link { font-size: 0.64rem; padding: 3px 8px 3px 7px; gap: 4px; }
+        .resume-link svg { width: 10px; height: 10px; }
+      }
+      /* very narrow phones: drop the icon, keep the label */
+      @media (max-width: 400px) {
+        .resume-link svg { display: none; }
       }
 
       @media (prefers-reduced-motion: reduce) {

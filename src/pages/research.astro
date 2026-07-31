@@ -1,12 +1,213 @@
 ---
 import SystemLayout from '../layouts/SystemLayout.astro';
 import SectionHeader from '../components/SectionHeader.astro';
+
+const paper = {
+  title: 'Learning Computer Vision from the Pixels Up',
+  subtitle:
+    'Field notes on classical CV, and why I worked through all of it before touching a neural network.',
+  date: 'july 2026',
+  status: 'working draft',
+  pages: 6,
+  href: '/abir-deol-learning-computer-vision.pdf',
+  topics: ['OpenCV', 'convolution', 'canny', 'contours', 'ORB / SIFT', 'homography'],
+};
 ---
 
-<SystemLayout title="research — abir deol">
-  <SectionHeader variant="research" eyebrow="a faint signal, still forming" title="research" />
-  <p class="muted">
-    nothing published yet — most of what I know so far, I've built rather than written up.
-    this star is still dim. check back.
+<SystemLayout
+  title="research · abir deol"
+  description="Learning Computer Vision from the Pixels Up, field notes on classical computer vision, by Abir Deol."
+>
+  <SectionHeader
+    variant="research"
+    eyebrow="what I'm working through right now"
+    title="research"
+  />
+
+  <p class="intro">
+    not published work. I'm two years into a degree, not a phd. what lives here is
+    the writing I do while learning something properly: what a technique actually
+    does, what I got wrong, and what it cost me to find out. it gets revised as
+    the work moves.
   </p>
+
+  <article class="paper">
+    <div class="paper-head">
+      <p class="eyebrow paper-meta">
+        <span class="status-dot" aria-hidden="true"></span>
+        {paper.status} · {paper.date} · {paper.pages} pages
+      </p>
+      <h2>{paper.title}</h2>
+      <p class="paper-sub">{paper.subtitle}</p>
+    </div>
+
+    <h3 class="sub-heading">abstract</h3>
+    <p class="abstract">
+      Most people entering computer vision start at a pretrained model and work
+      backwards, which means the first time something breaks they have no mental model
+      to debug against. I took the opposite route: several weeks working through
+      classical CV (convolution, edge detection, segmentation, feature matching, and
+      projective geometry) implemented and tuned by hand in OpenCV before any network
+      was involved. This document is the writeup of that process. It records what each
+      technique actually does, the errors I made and what they taught me, three projects
+      that forced the ideas together, and where the work goes from here. The central
+      claim is simple: a convolutional network is a stack of learned kernels, and it is
+      worth knowing exactly what a kernel does before letting gradient descent choose
+      them for you.
+    </p>
+
+    <h3 class="sub-heading">covered</h3>
+    <div class="topics">
+      {paper.topics.map((t) => <span class="chip">{t}</span>)}
+    </div>
+
+    <div class="paper-actions">
+      <span class="repo-bar" aria-hidden="true"></span>
+      <a class="paper-link" href={paper.href} target="_blank" rel="noopener">
+        read the paper (pdf) →
+      </a>
+    </div>
+  </article>
+
+  <h3 class="sub-heading next-heading">what's next</h3>
+  <ul class="rows row-list">
+    <li>
+      <div>
+        <strong>tensors &amp; preprocessing</strong>
+        <p class="muted">
+          the same array work, reshaped to (batch, channels, height, width): resizing,
+          normalization, augmentation.
+        </p>
+      </div>
+      <span class="eyebrow">in progress</span>
+    </li>
+    <li>
+      <div>
+        <strong>convolutional networks</strong>
+        <p class="muted">
+          the direct continuation: same sliding window, kernel values learned instead of
+          chosen by hand.
+        </p>
+      </div>
+      <span class="eyebrow">next</span>
+    </li>
+    <li>
+      <div>
+        <strong>detection &amp; tracking</strong>
+        <p class="muted">
+          where the motion detector gets replaced by something that holds identity across
+          frames.
+        </p>
+      </div>
+      <span class="eyebrow">queued</span>
+    </li>
+  </ul>
+
+  <style>
+    .intro {
+      max-width: 60ch;
+      margin: -18px 0 36px;
+      color: var(--fg);
+      font-size: 1.04rem;
+    }
+
+    .paper {
+      border: 1px solid var(--line);
+      border-left: 2px solid var(--accent-warm);
+      border-radius: 0 6px 6px 0;
+      padding: 28px 30px 26px;
+      background: linear-gradient(to right, var(--warm-soft), transparent 60%);
+      margin-bottom: 46px;
+    }
+    .paper-head { margin-bottom: 26px; }
+    .paper-meta {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 10px;
+    }
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-warm);
+      box-shadow: 0 0 7px 1px var(--accent-warm);
+      animation: pulse 3.2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.55; }
+      50% { opacity: 1; }
+    }
+    .paper h2 {
+      font-size: clamp(1.25rem, 2.6vw, 1.6rem);
+      margin: 0 0 8px;
+      line-height: 1.25;
+    }
+    .paper-sub {
+      color: var(--muted);
+      max-width: 58ch;
+      margin: 0;
+      font-size: 0.98rem;
+    }
+    .abstract {
+      max-width: 66ch;
+      line-height: 1.78;
+      margin: 0 0 30px;
+    }
+    .topics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-bottom: 30px;
+    }
+
+    .paper-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .repo-bar {
+      flex: none;
+      width: 2px;
+      height: 1.5em;
+      border-radius: 2px;
+      background: linear-gradient(to bottom, var(--accent-warm), transparent);
+    }
+    .paper-link {
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      color: var(--fg);
+      border-bottom: 1px solid transparent;
+      padding-bottom: 2px;
+      transition: color 0.25s var(--ease), border-color 0.25s var(--ease);
+    }
+    .paper-link:hover,
+    .paper-link:focus-visible {
+      color: var(--accent-warm);
+      border-bottom-color: var(--accent-warm);
+    }
+
+    .next-heading { margin-bottom: 8px; }
+    .rows > li {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+    }
+    .rows .eyebrow {
+      flex: none;
+      padding-top: 4px;
+      color: var(--accent-warm);
+      opacity: 0.85;
+    }
+    .rows p { max-width: 54ch; }
+
+    @media (max-width: 600px) {
+      .paper { padding: 22px 20px; }
+      .rows > li { flex-direction: column; gap: 8px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .status-dot { animation: none; }
+    }
+  </style>
 </SystemLayout>

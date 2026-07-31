@@ -10,7 +10,7 @@
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* ORBIT — deep space HUD, cool blue with a warm sunlit edge (default) */
+/* ORBIT: deep space HUD, cool blue with a warm sunlit edge (default) */
 [data-theme='orbit'] {
   --bg: #070b12;
   --bg-elev: #0d131d;
@@ -20,9 +20,14 @@
   --accent: #8fb8e8;
   --accent-warm: #d9b98a;
   --star: #ffffff;
+  /* tinted surfaces, derived from the accents, used for chips + hovers */
+  --bg-rgb: 7, 11, 18;
+  --accent-soft: rgba(143, 184, 232, 0.11);
+  --accent-edge: rgba(143, 184, 232, 0.34);
+  --warm-soft: rgba(217, 185, 138, 0.09);
 }
 
-/* MONO — pure black/white, no color, noticeably starker than orbit */
+/* MONO: pure black/white, no color, noticeably starker than orbit */
 [data-theme='mono'] {
   --bg: #000000;
   --bg-elev: #0f0f0f;
@@ -32,6 +37,10 @@
   --accent: #ffffff;
   --accent-warm: #e8e8e8;
   --star: #ffffff;
+  --bg-rgb: 0, 0, 0;
+  --accent-soft: rgba(255, 255, 255, 0.09);
+  --accent-edge: rgba(255, 255, 255, 0.30);
+  --warm-soft: rgba(255, 255, 255, 0.06);
 }
 
 * { box-sizing: border-box; }
@@ -43,7 +52,7 @@ html, body {
   color: var(--fg);
   font-family: var(--font-body);
   font-size: 16px;
-  line-height: 1.6;
+  line-height: 1.68;
   scroll-behavior: smooth;
 }
 
@@ -74,7 +83,8 @@ h1, h2, h3 {
 .eyebrow {
   font-family: var(--font-mono);
   font-size: 0.7rem;
-  letter-spacing: 0.12em;
+  font-weight: 500;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--muted);
 }
@@ -86,4 +96,92 @@ h1, h2, h3 {
   background: var(--line);
   border: none;
   margin: 0;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   SHARED VISUAL LANGUAGE
+   carries the homepage's constellation feel into every subpage.
+   ───────────────────────────────────────────────────────────── */
+
+/* warm accent underline, echoes the rule under "apollo" on the home hero */
+.accent-rule {
+  height: 2px;
+  width: 62px;
+  border: none;
+  margin: 16px 0 0;
+  border-radius: 2px;
+  background: linear-gradient(to right, var(--accent-warm), transparent);
+}
+
+/* section sub-heading: star dot + label + hairline running to the edge */
+.sub-heading {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 18px;
+}
+.sub-heading::before {
+  content: '';
+  flex: none;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent-warm);
+  box-shadow: 0 0 7px 1px var(--accent-warm);
+}
+.sub-heading::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--line), transparent);
+}
+
+/* list rows with a left accent border that lights on hover */
+.row-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.row-list > li {
+  position: relative;
+  padding: 18px 16px 18px 20px;
+  border-bottom: 1px solid var(--line);
+  border-left: 2px solid transparent;
+  border-radius: 0 4px 4px 0;
+  transition:
+    border-left-color 0.3s var(--ease),
+    background 0.3s var(--ease),
+    padding-left 0.3s var(--ease);
+}
+.row-list > li:last-child { border-bottom: none; }
+.row-list > li:hover,
+.row-list > li:focus-within {
+  border-left-color: var(--accent-warm);
+  background: linear-gradient(to right, var(--warm-soft), transparent 72%);
+  padding-left: 26px;
+}
+.row-list strong {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.02rem;
+}
+.row-list p { margin: 5px 0 0; }
+
+/* stack chips: larger, tinted, readable */
+.chip {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.03em;
+  border: 1px solid var(--accent-edge);
+  background: var(--accent-soft);
+  color: var(--fg);
+  padding: 7px 13px;
+  border-radius: 4px;
 }

@@ -1,64 +1,85 @@
 ---
 import SystemLayout from '../layouts/SystemLayout.astro';
 import SectionHeader from '../components/SectionHeader.astro';
+import { passions } from '../data/passions.js';
+
+// apollo is a bespoke page rather than a data entry, so it is appended here
+const entries = [
+  ...passions.map((p) => ({
+    name: p.name,
+    blurb: p.blurb,
+    eyebrow: p.eyebrow,
+    href: `/passions/${p.slug}`,
+  })),
+  {
+    name: 'apollo',
+    blurb: 'the lyre, the bow, and why he is the idol. the myth behind the handle.',
+    eyebrow: 'the name',
+    href: '/passions/apollo',
+  },
+];
 ---
 
-<SystemLayout title="passions — abir deol">
-  <SectionHeader variant="passions" eyebrow="what I do when I'm not building" title="passions" />
+<SystemLayout title="passions · abir deol">
+  <SectionHeader
+    variant="passions"
+    eyebrow="the things I keep coming back to"
+    title="passions"
+  />
 
-  <ul class="rows">
-    <li>
-      <div>
-        <strong>lifting</strong>
-        <p class="muted">6 days a week, push/pull/legs — chasing PRs, tracking every macro.</p>
-      </div>
-    </li>
-    <li>
-      <div>
-        <strong>gaming</strong>
-        <p class="muted">
-          apex legends is the main one — plat 2, maining wattson and alter. valorant enough
-          that I built a stat tracker for it, and enough fps generally that I ended up writing
-          my own barebones shooter to see how the genre works from the inside.
-        </p>
-      </div>
-    </li>
-    <li>
-      <div>
-        <strong>building projects</strong>
-        <p class="muted">
-          mostly low-level things, to find out what the abstraction is hiding — a memory
-          allocator instead of malloc, a virtual machine instead of an interpreter, a
-          raytracer and a software rasterizer instead of a graphics api. plus a distributed
-          key-value store running raft, and an hft matching engine built for latency.
-          a habit-tracking app with a friend of 15 years is still in use.
-        </p>
-      </div>
-    </li>
-    <li>
-      <a href="/passions/apollo" class="myth-link">
-        <strong>apollo</strong>
-        <p class="muted">the lyre, the sun, and why he's the idol — the myth behind the handle.</p>
-      </a>
-    </li>
+  <p class="intro">
+    most of these are the same thing wearing different clothes: pick something hard,
+    do it badly, keep showing up until you don't. the gym taught me that one first and
+    everything else inherited it.
+  </p>
+
+  <ul class="rows row-list">
+    {entries.map((e) => (
+      <li>
+        <span class="eyebrow tag-label">{e.eyebrow}</span>
+        <a href={e.href} class="passion-link">
+          <strong>{e.name}</strong>
+          <p class="muted">{e.blurb}</p>
+        </a>
+      </li>
+    ))}
   </ul>
 
   <style>
-    .rows {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
+    .intro {
+      max-width: 62ch;
+      margin: -18px 0 34px;
+      color: var(--fg);
+      font-size: 1.04rem;
     }
+    /* borders and hover come from .row-list in theme.css */
     .rows > li {
-      padding: 18px 0;
-      border-bottom: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: 168px 1fr;
+      gap: 20px;
     }
-    .rows > li:last-child { border-bottom: none; }
-    .rows strong { font-family: var(--font-display); font-weight: 500; }
-    .rows p { margin: 4px 0 0; }
-    .myth-link { display: block; }
-    .myth-link:hover strong { color: var(--accent); }
+    .tag-label {
+      padding-top: 5px;
+      color: var(--accent-warm);
+      opacity: 0.8;
+    }
+    .passion-link strong {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 1.05rem;
+      transition: color 0.25s var(--ease);
+    }
+    .passion-link p {
+      margin: 6px 0 0;
+      font-size: 0.97rem;
+      max-width: 60ch;
+    }
+    .passion-link:hover strong,
+    .passion-link:focus-visible strong { color: var(--accent-warm); }
+
+    @media (max-width: 620px) {
+      .rows > li { grid-template-columns: 1fr; gap: 4px; }
+      .tag-label { padding-top: 0; }
+    }
   </style>
 </SystemLayout>
