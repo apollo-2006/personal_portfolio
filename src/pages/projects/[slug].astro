@@ -1,6 +1,7 @@
 ---
 import SystemLayout from '../../layouts/SystemLayout.astro';
 import { projects } from '../../data/projects.js';
+import ProjectArtifact from '../../components/ProjectArtifact.astro';
 
 export function getStaticPaths() {
   return projects.map((p) => ({
@@ -34,6 +35,8 @@ const { project } = Astro.props;
 
   <h2 class="sub-heading">readme</h2>
   <p class="summary">{project.summary}</p>
+
+  <ProjectArtifact slug={project.slug} />
 
   <h2 class="sub-heading">signal log</h2>
   <ul class="highlights">

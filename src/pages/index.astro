@@ -68,6 +68,16 @@ const subItems = {
       ))}
     </div>
 
+    <!-- shootable bowstring: an svg for the bent string while drawing,
+         an invisible grab strip laid along the straight string, and the
+         arrow that flies on release -->
+    <svg class="bow-draw" id="bowDraw" aria-hidden="true">
+      <path id="bowDrawPath" d="" />
+      <circle id="bowNock" r="3" />
+    </svg>
+    <div class="bow-grip" id="bowGrip" aria-hidden="true"></div>
+    <div class="bow-arrow" id="bowArrow" aria-hidden="true"></div>
+
     {stars.map((s, i) => (
       <a
         class="star"
@@ -77,7 +87,7 @@ const subItems = {
         data-top={s.top}
         data-left={s.left}
         data-has-children={subItems[s.variant].length > 0 ? 'true' : 'false'}
-        style={`--i:${i}; top:${s.top}%; left:${s.left}%; animation-delay:${0.15 + i * 0.28}s, ${1.2 + i * 0.6}s, ${3 + i}s;`}
+        style={`--i:${i}; top:${s.top}%; left:${s.left}%; animation-delay:${i * 0.28}s, ${1.2 + i * 0.6}s, ${3 + i}s;`}
       >
         <span class="star-pull">
           <ConstellationGlyph variant={s.variant} size={52} />
@@ -121,10 +131,16 @@ const subItems = {
     <h1>abir deol</h1>
     <p class="alias">apollo</p>
     <p class="drift">you've drifted into the void</p>
-    <p class="lede">click a star to explore.</p>
+    <p class="lede">click a star to explore. <span class="lede-hint">or draw the bowstring and let go.</span></p>
   </div>
 
   <button class="exit-void" type="button" aria-label="back to the void">↺ back to the void</button>
+
+  <noscript>
+    <style>
+      .star { opacity: 1 !important; animation: none !important; }
+    </style>
+  </noscript>
 
   <style>
     .field {
@@ -238,6 +254,11 @@ const subItems = {
       gap: 6px;
       transform: translate(-50%, -50%);
       opacity: 0;
+    }
+    /* entrance waits for the JS boot signal: CSS delays and the JS line
+       timer then share one time origin, so the rhythm can't drift, and the
+       first stars can't be eaten by page-load jank */
+    :global(main.full-bleed.booted) .star {
       animation-name: star-in, float, twinkle;
       animation-timing-function: var(--ease), ease-in-out, ease-in-out;
       animation-iteration-count: 1, infinite, infinite;
@@ -311,8 +332,12 @@ const subItems = {
       opacity: 0;
       pointer-events: none;
     }
-    :global(main.full-bleed.intro-done) .star-pull::after {
+    :global(main.full-bleed.ping-run) .star-pull::after {
       animation: star-ping 0.85s ease-out calc(var(--i, 0) * 0.13s) 1 both;
+    }
+    /* arrow impact: one ping on just the star that was hit */
+    :global(main.full-bleed) .star.hit .star-pull::after {
+      animation: star-ping 0.6s ease-out 1 both;
     }
     @keyframes star-ping {
       0%   { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
@@ -490,6 +515,7 @@ const subItems = {
         padding: 20px 16px 60px;
       }
       .zoom-scrim, .lines, .orbit, .exit-void { display: none; }
+      .bow-grip, .bow-draw, .bow-arrow { display: none; }
       .star {
         position: static;
         transform: none;
@@ -507,8 +533,56 @@ const subItems = {
       .enter-hint { display: none; }
     }
 
+    /* ---- shootable bowstring ---- */
+    .bow-grip {
+      position: absolute;
+      height: 22px;
+      z-index: 2;
+      transform-origin: 0 50%;
+      cursor: grab;
+      pointer-events: none;   /* switched on by JS once the intro is done */
+      touch-action: none;
+    }
+    :global(main.full-bleed.bow-enabled.intro-done) .bow-grip { pointer-events: auto; }
+    :global(main.full-bleed.zoomed) .bow-grip { pointer-events: none; }
+    .bow-grip:active { cursor: grabbing; }
+
+    .bow-draw {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      overflow: visible;
+      width: 100%;
+      height: 100%;
+    }
+    .bow-draw path { fill: none; stroke: var(--accent-warm); stroke-width: 1; opacity: 0; }
+    .bow-draw circle { fill: var(--star); opacity: 0; filter: drop-shadow(0 0 4px var(--accent-warm)); }
+    :global(main.full-bleed.bow-drawing) .bow-draw path { opacity: 0.9; }
+    :global(main.full-bleed.bow-drawing) .bow-draw circle { opacity: 1; }
+    /* the straight string steps aside while the bent one is shown */
+    :global(main.full-bleed.bow-drawing) .line.bowstring { opacity: 0; }
+
+    .bow-arrow {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 30px;
+      height: 2px;
+      z-index: 2;
+      opacity: 0;
+      border-radius: 2px;
+      background: linear-gradient(to left, var(--star), transparent);
+      filter: drop-shadow(0 0 5px var(--accent-warm));
+      transform-origin: 100% 50%;
+      pointer-events: none;
+    }
+
+    .lede-hint { font-size: 0.9em; opacity: 0.75; }
+
     @media (prefers-reduced-motion: reduce) {
-      .star { animation: star-in 0.01s forwards; opacity: 1; }
+      .bow-grip, .bow-draw, .bow-arrow { display: none; }
+      .star { animation: none; opacity: 1; }
       .line-dot { display: none; }
       /* intro is skipped in JS too; this covers the pre-JS paint */
       .line { opacity: 0.45; }
@@ -572,8 +646,24 @@ const subItems = {
       var lines = lineEls.map(function (el) {
         // draw: 0 = not yet revealed, 1 = fully drawn. the intro walks this
         // from 0 to 1 one line at a time so the constellation assembles itself.
-        return { el: el, a: Number(el.dataset.a), b: Number(el.dataset.b), draw: 0 };
+        return {
+          el: el,
+          a: Number(el.dataset.a),
+          b: Number(el.dataset.b),
+          draw: 0,
+          isBow: el.classList.contains('bowstring'),
+        };
       });
+      var bowGripEl = document.getElementById('bowGrip');
+
+      // bow flex: while the string is drawn, the whole limb bends. tips
+      // (research, connect) travel furthest; the grip star (projects, the
+      // middle) barely moves, like a real bow bending around its riser.
+      var bowFlex = { x: 0, y: 0 };
+      var FLEX_W = [1, 0.6, 0.3, 0.6, 1];
+      function flexX(s) { return s.zoomState ? 0 : bowFlex.x * (FLEX_W[s.idx] || 0); }
+      function flexY(s) { return s.zoomState ? 0 : bowFlex.y * (FLEX_W[s.idx] || 0); }
+
 
       var zoomedKey = null;
 
@@ -592,7 +682,7 @@ const subItems = {
         // whole thing just gets bigger or smaller.
         // pixel margins leave room for the labels that hang below and beside
         // each star, so nothing gets clipped at the edges
-        var padTop = 130, padBottom = 100, padSide = 90;
+        var padTop = 175, padBottom = 100, padSide = 90;
         var padLeft = fieldRect.w >= 1000 ? 460 : padSide; // clear the hero text on wide screens
         var availW = Math.max(fieldRect.w - padLeft - padSide, 120);
         var availH = Math.max(fieldRect.h - padTop - padBottom, 120);
@@ -609,6 +699,12 @@ const subItems = {
         stars.forEach(function (s) {
           s.baseX = offsetX + (s.leftPct - bbox.minX) * scale;
           s.baseY = offsetY + (s.topPct - bbox.minY) * scale;
+          // the anchor is the center of the whole column (glyph + label +
+          // desc), but the visual star is the glyph at the top. lines, rings,
+          // and pings should all meet at the glyph's center, 26px from the
+          // column top.
+          var colH = s.el.offsetHeight || 52;
+          s.nodeDY = 26 - colH / 2;
           if (mobile) {
             s.el.style.left = '';
             s.el.style.top = '';
@@ -637,10 +733,10 @@ const subItems = {
       // position one line between two stars' current pixel positions
       function layLine(line) {
         var a = stars[line.a], b = stars[line.b];
-        var ax = a.baseX + (a.zoomState ? 0 : a.cur.x);
-        var ay = a.baseY + (a.zoomState ? 0 : a.cur.y);
-        var bx = b.baseX + (b.zoomState ? 0 : b.cur.x);
-        var by = b.baseY + (b.zoomState ? 0 : b.cur.y);
+        var ax = a.baseX + flexX(a) + (a.zoomState ? 0 : a.cur.x);
+        var ay = a.baseY + (a.nodeDY || 0) + flexY(a) + (a.zoomState ? 0 : a.cur.y);
+        var bx = b.baseX + flexX(b) + (b.zoomState ? 0 : b.cur.x);
+        var by = b.baseY + (b.nodeDY || 0) + flexY(b) + (b.zoomState ? 0 : b.cur.y);
         var dx = bx - ax, dy = by - ay;
         var len = Math.hypot(dx, dy);
         var ang = Math.atan2(dy, dx) * 180 / Math.PI;
@@ -651,6 +747,13 @@ const subItems = {
         line.el.style.top = ay + 'px';
         line.el.style.width = (len * line.draw) + 'px';
         line.el.style.transform = 'rotate(' + ang + 'deg)';
+        // the invisible grab strip rides along the bowstring
+        if (line.isBow && bowGripEl) {
+          bowGripEl.style.left = ax + 'px';
+          bowGripEl.style.top = (ay - 11) + 'px';
+          bowGripEl.style.width = (len * line.draw) + 'px';
+          bowGripEl.style.transform = 'rotate(' + ang + 'deg)';
+        }
       }
       function layAllLines() { lines.forEach(layLine); }
 
@@ -668,15 +771,24 @@ const subItems = {
       // the stars' own entrance is CSS (staggered .star animation-delay); this
       // picks up where that leaves off and draws the limb star to star, so the
       // shape assembles itself instead of just appearing.
+      var BOOT_DELAY   = 600;   // ms of quiet before the first star appears
       var STAR_STAGGER = 280;   // ms between each star twinkling in (sequential)
       var LINE_STAGGER = 150;   // ms between each line starting to draw
       var LINE_DUR     = 420;   // ms for one line to draw fully
-      var LINE_START   = 150 + starEls.length * STAR_STAGGER - 250; // slight overlap
+      // measured from boot: lines begin as the last star is landing
+      var LINE_START   = starEls.length * STAR_STAGGER - 250;
 
       function finishIntro() {
         lines.forEach(function (l) { l.draw = 1; });
         layAllLines();
-        if (main) main.classList.add('intro-done');
+        if (main) {
+          main.classList.add('intro-done');
+          // the intro ping plays once under its own class; removing the
+          // class afterwards means re-triggering a ping later (arrow hits)
+          // can't accidentally replay the full intro ripple
+          main.classList.add('ping-run');
+          setTimeout(function () { main.classList.remove('ping-run'); }, 3000);
+        }
       }
 
       function runIntro() {
@@ -702,7 +814,16 @@ const subItems = {
         }
         requestAnimationFrame(frame);
       }
-      runIntro();
+      // boot after a beat of stillness: two rAFs guarantee a real painted
+      // frame first, so star one is never eaten by page-load jank
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          setTimeout(function () {
+            if (main) main.classList.add('booted');
+            runIntro();
+          }, BOOT_DELAY);
+        });
+      });
 
       // --- line illumination (works regardless of motion prefs) ----------
       stars.forEach(function (s) {
@@ -754,7 +875,7 @@ const subItems = {
             }
             s.cur.x += (s.target.x - s.cur.x) * 0.15;
             s.cur.y += (s.target.y - s.cur.y) * 0.15;
-            if (s.pullEl) s.pullEl.style.transform = 'translate(' + s.cur.x.toFixed(2) + 'px,' + s.cur.y.toFixed(2) + 'px)';
+            if (s.pullEl) s.pullEl.style.transform = 'translate(' + (s.cur.x + flexX(s)).toFixed(2) + 'px,' + (s.cur.y + flexY(s)).toFixed(2) + 'px)';
           });
 
           layAllLines(); // lines follow the pulled stars, the "tension"
@@ -829,6 +950,172 @@ const subItems = {
         if (e.target.closest('.star, .sub-node, .exit-void')) return;
         exitZoom();
       });
+      // --- shootable bow ---------------------------------------------------
+      // grab the bowstring, pull, release: the string bends into a V and an
+      // arrow flies to a random star and opens it. shoot the bow, go somewhere.
+      (function () {
+        if (reduceMotion || isMobileLayout()) return;
+        var grip = document.getElementById('bowGrip');
+        var drawPath = document.getElementById('bowDrawPath');
+        var nock = document.getElementById('bowNock');
+        var arrow = document.getElementById('bowArrow');
+        var bowLine = null;
+        for (var i = 0; i < lines.length; i++) if (lines[i].isBow) bowLine = lines[i];
+        if (!grip || !drawPath || !nock || !arrow || !bowLine) return;
+        main.classList.add('bow-enabled');
+
+        var drawing = false, firing = false, grab = { x: 0, y: 0 };
+        var grab0 = { x: 0, y: 0 };   // where the string was first grabbed
+        var MAX_PULL = 240;   // px: how far the string can stretch
+        var MIN_FIRE = 40;    // px: pulls shorter than this just relax
+
+        function nodePoint(s) {
+          return {
+            x: s.baseX + flexX(s) + (s.zoomState ? 0 : s.cur.x),
+            y: s.baseY + (s.nodeDY || 0) + flexY(s) + (s.zoomState ? 0 : s.cur.y),
+          };
+        }
+        function stringEnds() { return { A: nodePoint(stars[bowLine.a]), B: nodePoint(stars[bowLine.b]) }; }
+        function stringMid() {
+          var ep = stringEnds();
+          return { x: (ep.A.x + ep.B.x) / 2, y: (ep.A.y + ep.B.y) / 2 };
+        }
+        function fieldPos(e) {
+          // live rect: the field translates with the parallax drift
+          var r = field.getBoundingClientRect();
+          return { x: e.clientX - r.left, y: e.clientY - r.top };
+        }
+        function renderString() {
+          var ep = stringEnds();
+          drawPath.setAttribute('d',
+            'M ' + ep.A.x + ' ' + ep.A.y +
+            ' L ' + grab.x + ' ' + grab.y +
+            ' L ' + ep.B.x + ' ' + ep.B.y);
+          nock.setAttribute('cx', grab.x);
+          nock.setAttribute('cy', grab.y);
+        }
+
+        grip.addEventListener('pointerdown', function (e) {
+          if (zoomedKey || firing || !main.classList.contains('intro-done')) return;
+          e.preventDefault();
+          drawing = true;
+          grab = fieldPos(e);
+          grab0 = { x: grab.x, y: grab.y };
+          main.classList.add('bow-drawing');
+          renderString();
+          if (grip.setPointerCapture && e.pointerId !== undefined) {
+            try { grip.setPointerCapture(e.pointerId); } catch (err) {}
+          }
+        });
+
+        window.addEventListener('pointermove', function (e) {
+          if (!drawing) return;
+          var p = fieldPos(e);
+          // clamp relative to where the string was grabbed, not its midpoint,
+          // so grabbing near an end doesn't snap the nock across the screen
+          var dx = p.x - grab0.x, dy = p.y - grab0.y;
+          var d = Math.hypot(dx, dy);
+          if (d > MAX_PULL) { dx *= MAX_PULL / d; dy *= MAX_PULL / d; }
+          grab = { x: grab0.x + dx, y: grab0.y + dy };
+          // the limb bends with the draw: a fraction of the pull displacement,
+          // scaled per star by FLEX_W in the render loop
+          bowFlex.x = dx * 0.38;
+          bowFlex.y = dy * 0.38;
+          renderString();
+        });
+
+        // the snap: after release the limb doesn't glide back, it whips past
+        // rest and rings down. damped oscillation on the flex vector.
+        function springBack() {
+          var fx = bowFlex.x, fy = bowFlex.y;
+          if (Math.hypot(fx, fy) < 0.5) { bowFlex.x = 0; bowFlex.y = 0; return; }
+          var t0 = null;
+          function step(ts) {
+            if (t0 === null) t0 = ts;
+            var t = (ts - t0) / 1000;
+            var k = Math.exp(-t * 7) * Math.cos(t * 2 * Math.PI * 3.4);
+            bowFlex.x = fx * k;
+            bowFlex.y = fy * k;
+            if (t < 0.7) { requestAnimationFrame(step); return; }
+            bowFlex.x = 0; bowFlex.y = 0;
+          }
+          requestAnimationFrame(step);
+        }
+
+        window.addEventListener('pointerup', function () {
+          if (!drawing) return;
+          drawing = false;
+          main.classList.remove('bow-drawing');
+          // fire only on an actual drag: displacement from the grab point,
+          // so a bare click on the string can never loose an arrow
+          var pull = Math.hypot(grab.x - grab0.x, grab.y - grab0.y);
+          springBack();
+          if (pull >= MIN_FIRE) fire(stringMid());
+        });
+
+        // a resize mid-draw would leave the bent string aimed at stale
+        // coordinates: relax instead
+        window.addEventListener('resize', function () {
+          if (!drawing) return;
+          drawing = false;
+          main.classList.remove('bow-drawing');
+          bowFlex.x = 0; bowFlex.y = 0;
+        });
+
+        function fire(mid) {
+          firing = true;
+          // launch direction: opposite the pull, through the string's rest line
+          var dirx = mid.x - grab.x, diry = mid.y - grab.y;
+          var dl = Math.hypot(dirx, diry) || 1;
+          dirx /= dl; diry /= dl;
+
+          var target = stars[Math.floor(Math.random() * stars.length)];
+          var T = nodePoint(target);
+
+          // quadratic bezier: leaves along the aim direction, curves to the star
+          var P0 = { x: grab.x, y: grab.y };
+          var dist = Math.hypot(T.x - P0.x, T.y - P0.y);
+          var lead = Math.min(240, dist * 0.5);
+          var P1 = { x: P0.x + dirx * lead, y: P0.y + diry * lead };
+
+          var DUR = 560, t0 = null;
+          arrow.style.opacity = '1';
+          function step(ts) {
+            if (t0 === null) t0 = ts;
+            var p = Math.min(1, (ts - t0) / DUR);
+            var ez = 1 - Math.pow(1 - p, 2); // ease-out: fast off the string
+            var u = 1 - ez;
+            var x = u * u * P0.x + 2 * u * ez * P1.x + ez * ez * T.x;
+            var y = u * u * P0.y + 2 * u * ez * P1.y + ez * ez * T.y;
+            var vx = 2 * u * (P1.x - P0.x) + 2 * ez * (T.x - P1.x);
+            var vy = 2 * u * (P1.y - P0.y) + 2 * ez * (T.y - P1.y);
+            var ang = Math.atan2(vy, vx) * 180 / Math.PI;
+            // the div's right end is the arrowhead; pivot there
+            arrow.style.transform =
+              'translate(' + (x - 30) + 'px,' + (y - 1) + 'px) rotate(' + ang + 'deg)';
+            if (p < 1) { requestAnimationFrame(step); return; }
+            arrow.style.opacity = '0';
+            // impact ping on the star it found, then open it
+            target.el.classList.remove('hit');
+            void target.el.offsetWidth;
+            target.el.classList.add('hit');
+            setTimeout(function () { target.el.classList.remove('hit'); }, 700);
+            setTimeout(function () {
+              target.el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+              firing = false;
+            }, 180);
+          }
+          requestAnimationFrame(step);
+        }
+
+        // hovering the string lights it, hinting it can be grabbed
+        grip.addEventListener('mouseenter', function () {
+          if (!zoomedKey) bowLine.el.classList.add('lit');
+        });
+        grip.addEventListener('mouseleave', function () {
+          if (!drawing) bowLine.el.classList.remove('lit');
+        });
+      })();
     })();
   </script>
 </SystemLayout>

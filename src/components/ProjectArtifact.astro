@@ -1,0 +1,693 @@
+---
+// One small "artifact" per project: a live, self-contained visual that shows
+// the project's core idea in motion. All feeds and numbers are SIMULATED and
+// labeled as such; these are illustrations of behavior, not benchmarks.
+interface Props { slug: string; }
+const { slug } = Astro.props;
+
+const meta: Record<string, { caption: string }> = {
+  'nano-match':        { caption: 'illustrative feed. orders are generated, latencies are mocked, not benchmarked.' },
+  'nexus-cluster':     { caption: 'simulated cluster: heartbeats, an election timeout, and a new leader.' },
+  'nexus-db':          { caption: 'simulated write path: wal append, memtable growth, flush to sstable at 1mb.' },
+  'nexus-editor':      { caption: 'simulated crdt merge: two clients insert at fractional indices; replicas converge.' },
+  'custom-mem-alloc':  { caption: 'simulated heap: mallocs claim blocks, frees release them, the pool gets recycled.' },
+  'neon-vm':           { caption: 'simulated dispatch loop: bytecode steps, the stack pushes and pops.' },
+  'photon-tracer':     { caption: 'not simulated: this sphere is raytraced in your browser, scanline by scanline.' },
+  'rasterizer-engine': { caption: 'not simulated: 3d points through a perspective matrix, projected live.' },
+  'radiant-slice':     { caption: 'simulated netcode: shots rewound by ping before the hit test runs.' },
+  'terminal-dashboard':{ caption: 'simulated telemetry in the style of the real dashboard.' },
+  'thermal-monitor':   { caption: 'simulated thermal curves in the style of the logged data.' },
+  'valo-scout':        { caption: 'not simulated: an actual heapsort, replayed swap by swap.' },
+  'cal-cli':           { caption: 'simulated day of logging against real targets.' },
+  'personal-portfolio':{ caption: '' },
+};
+const m = meta[slug];
+---
+
+{m && (
+  <section class="artifact-block">
+    <h2 class="sub-heading">artifact</h2>
+
+    <div class="artifact" data-artifact={slug}>
+      {slug === 'nano-match' && (
+        <>
+          <pre class="feed" data-feed></pre>
+          <div class="hist" data-hist>
+            {Array.from({ length: 14 }).map(() => <span></span>)}
+          </div>
+          <p class="axis">latency distribution · 0.1µs — 1.5µs</p>
+        </>
+      )}
+
+      {(slug === 'nexus-cluster' || slug === 'nexus-db' || slug === 'radiant-slice') && (
+        <pre class="feed tall" data-feed></pre>
+      )}
+
+      {slug === 'nexus-editor' && (
+        <>
+          <pre class="feed" data-feed></pre>
+          <p class="doc">doc: <span class="hl" data-doc></span></p>
+        </>
+      )}
+
+      {slug === 'custom-mem-alloc' && (
+        <>
+          <div class="heap" data-heap></div>
+          <pre class="feed short" data-feed></pre>
+        </>
+      )}
+
+      {slug === 'neon-vm' && (
+        <div class="vm">
+          <pre class="feed prog" data-prog></pre>
+          <div class="stackcol">
+            <p class="axis">stack</p>
+            <div class="stack" data-stack></div>
+            <p class="axis out">out: <span data-out></span></p>
+          </div>
+        </div>
+      )}
+
+      {(slug === 'photon-tracer' || slug === 'rasterizer-engine') && (
+        <canvas data-canvas width="280" height="160"></canvas>
+      )}
+
+      {slug === 'thermal-monitor' && (
+        <>
+          <canvas data-canvas width="280" height="90"></canvas>
+          <p class="axis"><span class="hl">—</span> gpu hotspot · <span class="ok">—</span> cpu package</p>
+        </>
+      )}
+
+      {slug === 'terminal-dashboard' && (
+        <>
+          <div class="cores" data-cores>
+            {Array.from({ length: 6 }).map(() => <i></i>)}
+          </div>
+          <pre class="feed short" data-feed></pre>
+        </>
+      )}
+
+      {slug === 'valo-scout' && (
+        <>
+          <div class="hist sort" data-sort>
+            {Array.from({ length: 12 }).map(() => <span></span>)}
+          </div>
+          <p class="axis" data-status>heapsort · building heap</p>
+        </>
+      )}
+
+      {slug === 'cal-cli' && <div class="macros" data-macros></div>}
+
+      {slug === 'personal-portfolio' && (
+        <p class="selfref">&gt; artifact: the page you're reading.<br />&gt; view-source encouraged.</p>
+      )}
+    </div>
+
+    {m.caption && <p class="artifact-cap">{m.caption}</p>}
+  </section>
+)}
+
+<style>
+  .artifact-block { margin: 0 0 44px; }
+  .artifact {
+    border: 1px solid var(--line);
+    border-left: 2px solid var(--accent-warm);
+    border-radius: 0 6px 6px 0;
+    background: linear-gradient(to right, var(--warm-soft), transparent 55%);
+    padding: 18px 20px;
+    overflow: hidden;
+  }
+  .artifact-cap {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin: 8px 0 0;
+  }
+  .feed {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    line-height: 1.75;
+    color: var(--muted);
+    height: 128px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    white-space: pre-wrap;
+  }
+  .feed.tall { height: 168px; }
+  .feed.short { height: 68px; }
+  .artifact :global(.hl) { color: var(--accent-warm); }
+  .artifact :global(.ok) { color: var(--accent); }
+  .axis {
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    color: var(--muted);
+    margin: 8px 0 0;
+    opacity: 0.8;
+  }
+  .hist {
+    display: flex;
+    gap: 5px;
+    align-items: flex-end;
+    height: 64px;
+    margin-top: 14px;
+  }
+  .hist span {
+    flex: 1;
+    height: 2%;
+    background: var(--accent-soft);
+    border-top: 2px solid var(--accent);
+    transition: height 0.3s var(--ease);
+  }
+  .hist.sort { margin-top: 4px; height: 88px; }
+  .hist.sort span { border-top-color: var(--accent-warm); }
+  .heap {
+    display: flex;
+    height: 34px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .heap :global(i) {
+    display: block;
+    border-right: 1px solid var(--bg);
+    background: var(--accent-soft);
+    transition: background 0.3s var(--ease);
+  }
+  .heap :global(i.freed) { background: transparent; }
+  .vm { display: flex; gap: 26px; align-items: flex-start; }
+  .prog { height: 150px; justify-content: flex-start; flex: none; }
+  .prog :global(.cur) { color: var(--accent-warm); }
+  .stackcol { flex: 1; }
+  .stack {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 4px;
+    min-height: 96px;
+    justify-content: flex-start;
+  }
+  .stack :global(b) {
+    font-family: var(--font-mono);
+    font-weight: 400;
+    font-size: 0.72rem;
+    color: var(--fg);
+    border: 1px solid var(--accent-edge);
+    background: var(--accent-soft);
+    border-radius: 3px;
+    padding: 2px 10px;
+    width: fit-content;
+  }
+  .axis.out { margin-top: 10px; }
+  canvas { display: block; max-width: 100%; }
+  .cores { display: flex; gap: 6px; align-items: flex-end; height: 60px; margin-bottom: 12px; }
+  .cores i {
+    flex: 1;
+    height: 10%;
+    background: var(--accent-soft);
+    border-top: 2px solid var(--accent);
+    transition: height 0.5s var(--ease);
+  }
+  .macros { display: flex; flex-direction: column; gap: 12px; }
+  .macros :global(.row) {
+    display: grid;
+    grid-template-columns: 76px 1fr 110px;
+    gap: 12px;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+  .macros :global(.bar) {
+    height: 6px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .macros :global(.bar i) {
+    display: block;
+    height: 100%;
+    width: 0%;
+    background: var(--accent-warm);
+    opacity: 0.8;
+    transition: width 0.4s var(--ease);
+  }
+  .doc {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    margin: 10px 0 0;
+    color: var(--muted);
+  }
+  .selfref {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin: 0;
+    line-height: 2;
+  }
+  @media (max-width: 600px) {
+    .vm { flex-direction: column; gap: 14px; }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var root = document.querySelector('[data-artifact]');
+    if (!root) return;
+    var kind = root.getAttribute('data-artifact');
+    var RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var timers = [];
+    function later(fn, ms) { if (!RM) timers.push(setTimeout(fn, ms)); }
+    function loop(fn, ms) {
+      fn();
+      if (RM) return;               // reduced motion: render one state, stop
+      (function again() { timers.push(setTimeout(function () { fn(); again(); }, ms)); })();
+    }
+    function rnd(a, b) { return a + Math.random() * (b - a); }
+    function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+    function feedPush(el, html, cls) {
+      var d = document.createElement('div');
+      if (cls) d.className = cls;
+      d.innerHTML = html;
+      el.appendChild(d);
+      while (el.children.length > 14) el.removeChild(el.firstChild);
+    }
+
+    var boot = {
+      'nano-match': function () {
+        var feed = root.querySelector('[data-feed]');
+        var bars = root.querySelectorAll('[data-hist] span');
+        var counts = new Array(bars.length).fill(0);
+        var px = 150.0;
+        loop(function () {
+          px = Math.max(1, px + rnd(-0.04, 0.04));
+          var side = pick(['BUY ', 'SELL']);
+          var qty = Math.round(rnd(1, 40)) * 25;
+          feedPush(feed, '&gt; ADD ' + side + ' ' + qty + ' @ $' + px.toFixed(2));
+          if (Math.random() < 0.55) {
+            var us = Math.max(0.12, rnd(0.2, 0.6) + (Math.random() < 0.12 ? rnd(0.3, 0.9) : 0));
+            feedPush(feed, '&gt; MATCH ' + qty + ' @ $' + px.toFixed(2) +
+              ' <span class="hl">[' + us.toFixed(2) + '\u00b5s]</span>');
+            var bin = Math.min(counts.length - 1, Math.floor((us - 0.1) / 0.1));
+            counts[bin]++;
+            var max = Math.max.apply(null, counts);
+            counts.forEach(function (n, i) { bars[i].style.height = (2 + 96 * n / max) + '%'; });
+          }
+        }, 340);
+      },
+
+      'nexus-cluster': function () {
+        var feed = root.querySelector('[data-feed]');
+        var term = 12, leader = 3, idx = 8451, beat = 0;
+        loop(function () {
+          beat++;
+          if (beat % 11 === 0) {
+            var cand = 1 + Math.floor(Math.random() * 5);
+            if (cand === leader) cand = (cand % 5) + 1;
+            term++;
+            feedPush(feed, '! node-' + leader + ' unreachable \u00b7 election timeout');
+            feedPush(feed, '[node-' + cand + '] RequestVote \u00b7 term ' + term);
+            feedPush(feed, '[node-' + ((cand % 5) + 1) + '] vote granted');
+            feedPush(feed, '[node-' + ((cand + 1) % 5 + 1) + '] vote granted');
+            feedPush(feed, '<span class="hl">\u2605 node-' + cand + ' elected leader \u00b7 term ' + term + '</span>');
+            leader = cand;
+          } else {
+            idx += Math.round(rnd(1, 6));
+            feedPush(feed, '[node-' + leader + '] append ok \u00b7 term ' + term + ' \u00b7 idx ' + idx);
+          }
+        }, 520);
+      },
+
+      'nexus-db': function () {
+        var feed = root.querySelector('[data-feed]');
+        var mem = 0, sst = 46;
+        var keys = ['user:', 'order:', 'session:', 'cart:', 'event:'];
+        loop(function () {
+          var kb = Math.round(rnd(14, 46));
+          mem += kb;
+          if (mem >= 1024) {
+            sst++;
+            feedPush(feed, '<span class="hl">flush \u2192 ' +
+              String(sst).padStart(6, '0') + '.sst \u00b7 mem 0kb</span>');
+            mem = 0;
+          } else {
+            feedPush(feed, 'PUT ' + pick(keys) + Math.round(rnd(1000, 9999)) +
+              ' \u00b7 <span class="ok">wal+1</span> \u00b7 mem ' + mem + 'kb');
+          }
+        }, 420);
+      },
+
+      'nexus-editor': function () {
+        var feed = root.querySelector('[data-feed]');
+        var docEl = root.querySelector('[data-doc]');
+        var target = 'eventual consistency';
+        var slots = [];
+        function reset() {
+          slots = new Array(target.length).fill(null);
+          docEl.textContent = '';
+        }
+        reset();
+        var li = 0, ri = target.length - 1;
+        loop(function () {
+          if (li > ri) {
+            feedPush(feed, '<span class="hl">\u2713 replicas converged</span>');
+            reset(); li = 0; ri = target.length - 1;
+            return;
+          }
+          if (Math.random() < 0.5 && li <= ri) {
+            slots[li] = target[li];
+            feedPush(feed, 'alice \u2192 ins "' + target[li] + '" @ ' + (li + 0.5));
+            li++;
+          } else {
+            slots[ri] = target[ri];
+            feedPush(feed, 'bob   \u2192 ins "' + target[ri] + '" @ ' + (ri + 0.25));
+            ri--;
+          }
+          docEl.textContent = slots.map(function (ch) { return ch === null ? '\u00b7' : ch; }).join('');
+        }, 300);
+      },
+
+      'custom-mem-alloc': function () {
+        var heap = root.querySelector('[data-heap]');
+        var feed = root.querySelector('[data-feed]');
+        var blocks = [];
+        function render() {
+          heap.innerHTML = '';
+          blocks.forEach(function (b) {
+            var i = document.createElement('i');
+            i.style.width = b.size + '%';
+            if (b.free) i.className = 'freed';
+            heap.appendChild(i);
+          });
+        }
+        loop(function () {
+          var used = blocks.filter(function (b) { return !b.free; });
+          var total = blocks.reduce(function (s, b) { return s + b.size; }, 0);
+          if (total > 88) {
+            blocks = [];
+            feedPush(feed, '<span class="hl">pool recycled \u00b7 free list rebuilt</span>');
+          } else if (used.length && Math.random() < 0.4) {
+            var b = pick(used);
+            b.free = true;
+            feedPush(feed, 'my_free(0x' + b.addr + ') \u00b7 block returned');
+          } else {
+            var size = Math.round(rnd(6, 16));
+            var addr = Math.round(rnd(4096, 65535)).toString(16);
+            var slot = blocks.find(function (x) { return x.free && x.size >= size; });
+            if (slot) {
+              slot.free = false; slot.addr = addr;
+              feedPush(feed, 'my_malloc(' + size * 64 + ') \u2192 <span class="ok">reused free block</span>');
+            } else {
+              blocks.push({ size: size, free: false, addr: addr });
+              feedPush(feed, 'my_malloc(' + size * 64 + ') \u2192 0x' + addr);
+            }
+          }
+          render();
+        }, 560);
+      },
+
+      'neon-vm': function () {
+        var prog = root.querySelector('[data-prog]');
+        var stackEl = root.querySelector('[data-stack]');
+        var outEl = root.querySelector('[data-out]');
+        var code = [
+          ['OP_CONST 7', function (s) { s.push(7); }],
+          ['OP_CONST 5', function (s) { s.push(5); }],
+          ['OP_ADD', function (s) { s.push(s.pop() + s.pop()); }],
+          ['OP_CONST 3', function (s) { s.push(3); }],
+          ['OP_MUL', function (s) { s.push(s.pop() * s.pop()); }],
+          ['OP_PRINT', function (s) { outEl.textContent = s.pop(); }],
+        ];
+        var stack = [], pc = 0;
+        function render() {
+          prog.innerHTML = code.map(function (op, i) {
+            return '<div' + (i === pc ? ' class="cur"' : '') + '>' +
+              (i === pc ? '\u25b8 ' : '  ') + op[0] + '</div>';
+          }).join('');
+          stackEl.innerHTML = stack.map(function (v) { return '<b>' + v + '</b>'; }).join('');
+        }
+        render();
+        loop(function () {
+          code[pc][1](stack);
+          pc++;
+          if (pc >= code.length) { pc = 0; stack = []; }
+          render();
+        }, 760);
+      },
+
+      'photon-tracer': function () {
+        var cv = root.querySelector('[data-canvas]');
+        var ctx = cv.getContext('2d');
+        if (!ctx) return;
+        var W = cv.width, H = cv.height, y = 0;
+        var L = (function (v) {
+          var l = Math.hypot(v[0], v[1], v[2]);
+          return [v[0] / l, v[1] / l, v[2] / l];
+        })([0.55, 1, 0.85]);
+        function shade(px, py) {
+          // one real ray per pixel: camera at origin, sphere at (0,0,-3)
+          var u = (px / W) * 2 - 1, v = 1 - (py / H) * 2;
+          u *= W / H;
+          var d = [u, v, -1.8];
+          var dl = Math.hypot(d[0], d[1], d[2]);
+          d = [d[0] / dl, d[1] / dl, d[2] / dl];
+          var C = [0, 0, -3], r = 1;
+          var oc = [-C[0], -C[1], -C[2]];
+          var b = oc[0] * d[0] + oc[1] * d[1] + oc[2] * d[2];
+          var cc = oc[0] * oc[0] + oc[1] * oc[1] + oc[2] * oc[2] - r * r;
+          var disc = b * b - cc;
+          if (disc > 0) {
+            var t = -b - Math.sqrt(disc);
+            if (t > 0) {
+              var p = [d[0] * t, d[1] * t, d[2] * t];
+              var n = [(p[0] - C[0]) / r, (p[1] - C[1]) / r, (p[2] - C[2]) / r];
+              var lam = Math.max(0, n[0] * L[0] + n[1] * L[1] + n[2] * L[2]);
+              var g = 30 + 200 * lam;
+              return [g * 0.75, g * 0.85, g];
+            }
+          }
+          // floor at y=-1: checkerboard
+          if (d[1] < -0.02) {
+            var ft = -1 / d[1] * 1;
+            var fx = d[0] * ft, fz = d[2] * ft;
+            if (fz > -14) {
+              var ck = (Math.floor(fx) + Math.floor(fz)) % 2 === 0;
+              var fade = Math.max(0, 1 + fz / 14);
+              var base = ck ? 70 : 28;
+              return [base * fade * 0.7, base * fade * 0.8, base * fade];
+            }
+          }
+          var sky = 14 + 26 * ((H - py) / H);
+          return [sky * 0.55, sky * 0.7, sky];
+        }
+        function pass() {
+          var rows = RM ? H : 3;
+          var img = ctx.createImageData(W, rows);
+          for (var ry = 0; ry < rows && y + ry < H; ry++) {
+            for (var x = 0; x < W; x++) {
+              var c = shade(x, y + ry);
+              var o = (ry * W + x) * 4;
+              img.data[o] = c[0]; img.data[o + 1] = c[1]; img.data[o + 2] = c[2]; img.data[o + 3] = 255;
+            }
+          }
+          ctx.putImageData(img, 0, y);
+          y += rows;
+          if (y < H) { later(pass, 16); }
+          else { later(function () { y = 0; ctx.clearRect(0, 0, W, H); pass(); }, 4000); }
+        }
+        pass();
+      },
+
+      'rasterizer-engine': function () {
+        var cv = root.querySelector('[data-canvas]');
+        var ctx = cv.getContext('2d');
+        if (!ctx) return;
+        var W = cv.width, H = cv.height;
+        var V = [];
+        [-1, 1].forEach(function (x) { [-1, 1].forEach(function (y) { [-1, 1].forEach(function (z) { V.push([x, y, z]); }); }); });
+        var E = [[0,1],[0,2],[1,3],[2,3],[4,5],[4,6],[5,7],[6,7],[0,4],[1,5],[2,6],[3,7]];
+        var a = 0.6;
+        var css = getComputedStyle(document.documentElement);
+        function frame() {
+          a += 0.014;
+          ctx.clearRect(0, 0, W, H);
+          var ca = Math.cos(a), sa = Math.sin(a);
+          var cb = Math.cos(a * 0.6), sb = Math.sin(a * 0.6);
+          var P = V.map(function (v) {
+            var x = v[0] * ca - v[2] * sa, z = v[0] * sa + v[2] * ca;
+            var y = v[1] * cb - z * sb; z = v[1] * sb + z * cb;
+            // the whole point of the project: perspective divide by depth
+            var f = 2.6 / (z + 4.2);
+            return [W / 2 + x * f * 58, H / 2 - y * f * 58];
+          });
+          ctx.strokeStyle = css.getPropertyValue('--accent').trim() || '#8fb8e8';
+          ctx.globalAlpha = 0.85;
+          ctx.beginPath();
+          E.forEach(function (e) {
+            ctx.moveTo(P[e[0]][0], P[e[0]][1]);
+            ctx.lineTo(P[e[1]][0], P[e[1]][1]);
+          });
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+          ctx.fillStyle = css.getPropertyValue('--star').trim() || '#fff';
+          P.forEach(function (p) { ctx.fillRect(p[0] - 1.5, p[1] - 1.5, 3, 3); });
+          if (!RM) requestAnimationFrame(frame);
+        }
+        frame();
+      },
+
+      'radiant-slice': function () {
+        var feed = root.querySelector('[data-feed]');
+        var tickN = 8452;
+        loop(function () {
+          tickN += Math.round(rnd(6, 20));
+          var ping = Math.round(rnd(21, 62));
+          var roll = Math.random();
+          if (roll < 0.42) {
+            var hit = Math.random() < 0.6;
+            feedPush(feed, '[shot] tick ' + tickN + ' \u00b7 rewind ' + ping + 'ms \u2192 ' +
+              (hit ? '<span class="hl">HIT (lag comp)</span>' : 'miss'));
+          } else if (roll < 0.55) {
+            feedPush(feed, '[ability] Dark Cover deployed \u00b7 tick ' + tickN);
+          } else {
+            feedPush(feed, 'tick ' + tickN + ' \u00b7 ping ' + ping + 'ms \u00b7 28 players synced');
+          }
+        }, 560);
+      },
+
+      'terminal-dashboard': function () {
+        var cores = root.querySelectorAll('[data-cores] i');
+        var feed = root.querySelector('[data-feed]');
+        loop(function () {
+          var avg = 0;
+          cores.forEach(function (c) {
+            var v = rnd(8, 92);
+            avg += v;
+            c.style.height = v + '%';
+          });
+          avg = Math.round(avg / cores.length);
+          feedPush(feed, 'cpu ' + avg + '% \u00b7 ram ' + rnd(10.2, 13.8).toFixed(1) +
+            '/32gb \u00b7 <span class="ok">\u2193 ' + rnd(0.4, 8).toFixed(1) + ' mb/s</span>');
+        }, 900);
+      },
+
+      'thermal-monitor': function () {
+        var cv = root.querySelector('[data-canvas]');
+        var ctx = cv.getContext('2d');
+        if (!ctx) return;
+        var W = cv.width, H = cv.height;
+        var cpu = [], gpu = [], t = 0;
+        var css = getComputedStyle(document.documentElement);
+        function push() {
+          t += 0.12;
+          cpu.push(62 + Math.sin(t) * 5 + rnd(-2, 2));
+          gpu.push(74 + Math.sin(t * 0.7 + 1) * 6 + rnd(-2, 2));
+          if (cpu.length > W / 2) { cpu.shift(); gpu.shift(); }
+        }
+        function draw(series, color) {
+          ctx.strokeStyle = color;
+          ctx.beginPath();
+          series.forEach(function (v, i) {
+            var x = i * 2, y = H - (v - 40) / 50 * H;
+            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+          });
+          ctx.stroke();
+        }
+        loop(function () {
+          push();
+          ctx.clearRect(0, 0, W, H);
+          ctx.globalAlpha = 0.25;
+          ctx.strokeStyle = css.getPropertyValue('--line').trim() || '#333';
+          [55, 70, 85].forEach(function (g) {
+            var y = H - (g - 40) / 50 * H;
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+          });
+          ctx.globalAlpha = 1;
+          draw(cpu, css.getPropertyValue('--accent').trim() || '#8fb8e8');
+          draw(gpu, css.getPropertyValue('--accent-warm').trim() || '#d9b98a');
+        }, 140);
+      },
+
+      'valo-scout': function () {
+        var bars = Array.prototype.slice.call(root.querySelectorAll('[data-sort] span'));
+        var status = root.querySelector('[data-status]');
+        var vals, swaps, si;
+        function heapsortSwaps(arr) {
+          var a = arr.slice(), out = [];
+          function swap(i, j) { var t = a[i]; a[i] = a[j]; a[j] = t; out.push([i, j]); }
+          function sift(i, n) {
+            while (true) {
+              var l = 2 * i + 1, r = l + 1, m = i;
+              if (l < n && a[l] > a[m]) m = l;
+              if (r < n && a[r] > a[m]) m = r;
+              if (m === i) return;
+              swap(i, m); i = m;
+            }
+          }
+          for (var i = Math.floor(a.length / 2) - 1; i >= 0; i--) sift(i, a.length);
+          for (var n = a.length - 1; n > 0; n--) { swap(0, n); sift(0, n); }
+          return out;
+        }
+        function reset() {
+          vals = bars.map(function () { return Math.round(rnd(12, 96)); });
+          swaps = heapsortSwaps(vals);
+          si = 0;
+          render();
+          status.textContent = 'heapsort \u00b7 ' + swaps.length + ' swaps queued';
+        }
+        function render() {
+          vals.forEach(function (v, i) { bars[i].style.height = v + '%'; });
+        }
+        reset();
+        loop(function () {
+          if (si >= swaps.length) {
+            status.textContent = 'sorted \u00b7 reshuffling';
+            later(reset, 1400);
+            si = swaps.length + 1e9;
+            return;
+          }
+          var s = swaps[si++];
+          var t = vals[s[0]]; vals[s[0]] = vals[s[1]]; vals[s[1]] = t;
+          render();
+          status.textContent = 'heapsort \u00b7 swap ' + si + '/' + swaps.length;
+        }, 130);
+      },
+
+      'cal-cli': function () {
+        var wrap = root.querySelector('[data-macros]');
+        var rows = [
+          { label: 'protein', unit: 'g', target: 220 },
+          { label: 'calories', unit: '', target: 1800 },
+          { label: 'water', unit: 'l', target: 3.0 },
+        ];
+        wrap.innerHTML = rows.map(function (r, i) {
+          return '<div class="row"><span>' + r.label + '</span>' +
+            '<span class="bar"><i data-bar-' + i + '></i></span>' +
+            '<span data-num-' + i + '>0 / ' + r.target + r.unit + '</span></div>';
+        }).join('');
+        var cur = [0, 0, 0];
+        loop(function () {
+          var done = true;
+          rows.forEach(function (r, i) {
+            if (cur[i] < r.target) {
+              done = false;
+              cur[i] = Math.min(r.target, cur[i] + r.target * rnd(0.06, 0.16));
+            }
+            var pct = cur[i] / r.target * 100;
+            wrap.querySelector('[data-bar-' + i + ']').style.width = pct + '%';
+            var shown = r.unit === 'l' ? cur[i].toFixed(1) : Math.round(cur[i]);
+            wrap.querySelector('[data-num-' + i + ']').textContent =
+              shown + ' / ' + r.target + r.unit;
+          });
+          if (done) { later(function () { cur = [0, 0, 0]; }, 2200); }
+        }, 700);
+      },
+    };
+
+    if (boot[kind]) { try { boot[kind](); } catch (e) {} }
+    window.addEventListener('pagehide', function () { timers.forEach(clearTimeout); });
+  })();
+</script>
