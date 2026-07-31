@@ -48,7 +48,7 @@ const subItems = {
 };
 ---
 
-<SystemLayout title="abir deol" fullBleed>
+<SystemLayout title="abir deol — personal portfolio" fullBleed>
   <div class="field" id="field">
     <div class="zoom-scrim"></div>
 
@@ -397,18 +397,55 @@ const subItems = {
     }
 
     @media (max-width: 720px) {
-      :global(main.full-bleed) { height: auto; overflow: visible; min-height: 100vh; }
-      .field { position: static; transform: none !important; text-align: center; }
-      .hero-text { position: static; padding: 140px 24px 0; max-width: none; }
-      .lines, .orbit, .exit-void { display: none; }
+      :global(main.full-bleed) {
+        height: auto;
+        overflow: visible;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      /* the field comes FIRST in the DOM (it has to — the stars are absolutely
+         positioned over the hero on desktop). on mobile everything goes static
+         and flows in source order, which buried the name below the whole
+         constellation. flex order puts the name back on top. */
+      .hero-text { order: -1; }
+      .field { order: 0; }
+
+      .hero-text {
+        position: static;
+        padding: 96px 22px 4px;
+        max-width: none;
+      }
+      .hero-text h1 { font-size: clamp(2.2rem, 12vw, 3rem); }
+      .drift { margin: 14px 0 8px; }
+      .lede { font-size: 0.94rem; }
+
+      /* even two-column grid instead of inline-flex + margins, which wrapped
+         unevenly and left a big dead gap under the last star */
+      .field {
+        position: static;
+        transform: none !important;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px 10px;
+        padding: 20px 16px 60px;
+      }
+      .zoom-scrim, .lines, .orbit, .exit-void { display: none; }
       .star {
         position: static;
         transform: none;
-        display: inline-flex;
-        margin: 22px;
+        display: flex;
+        margin: 0;
+        padding: 4px;
         animation: none;
         opacity: 1;
       }
+      /* five stars in a two-column grid leaves one alone on the last row —
+         let it span both columns so it centers instead of hanging left */
+      .star:last-of-type { grid-column: 1 / -1; }
+      .star-label { font-size: 0.72rem; }
+      .star-desc { white-space: normal; font-size: 0.62rem; line-height: 1.45; }
+      .enter-hint { display: none; }
     }
 
     @media (prefers-reduced-motion: reduce) {
