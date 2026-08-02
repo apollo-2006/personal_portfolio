@@ -1,0 +1,153 @@
+---
+import SystemLayout from '../../layouts/SystemLayout.astro';
+import { postmortems } from '../../data/postmortems.js';
+
+export function getStaticPaths() {
+  return postmortems.map((pm) => ({
+    params: { slug: pm.slug },
+    props: { pm },
+  }));
+}
+
+const { pm } = Astro.props;
+---
+
+<SystemLayout title={`${pm.title} · abir deol`} description={pm.blurb}>
+  <!-- faint arc echoing the bow's limb, background texture only -->
+  <svg class="arc-echo" viewBox="0 0 260 620" aria-hidden="true">
+    <path d="M232 18 C 96 128, 96 492, 232 602" />
+    <circle cx="232" cy="18" r="3.2" />
+    <circle cx="139" cy="147" r="2.6" />
+    <circle cx="112" cy="310" r="3.6" />
+    <circle cx="139" cy="473" r="2.6" />
+    <circle cx="232" cy="602" r="3.2" />
+    <line class="arc-string" x1="232" y1="18" x2="232" y2="602" />
+  </svg>
+
+  <a href="/research" class="back">← research</a>
+
+  <p class="eyebrow pm-eyebrow">
+    <span class="status-dot" aria-hidden="true"></span>
+    post-mortem · {pm.eyebrow} · {pm.pages} pages
+  </p>
+  <h1>{pm.title}</h1>
+  <p class="lede">{pm.blurb}</p>
+  <hr class="accent-rule" />
+
+  <hr class="rule spacer-rule" />
+
+  <h2 class="sub-heading">abstract</h2>
+  <p class="abstract">{pm.abstract}</p>
+
+  {pm.sections.map((s) => (
+    <section class="block">
+      <h2 class="sub-heading">{s.heading}</h2>
+      <p>{s.body}</p>
+    </section>
+  ))}
+
+  <hr class="rule spacer-rule" />
+
+  <h2 class="sub-heading">covered</h2>
+  <div class="topics">
+    {pm.topics.map((t) => <span class="chip">{t}</span>)}
+  </div>
+
+  <div class="actions">
+    <span class="repo-bar" aria-hidden="true"></span>
+    <a class="pm-link" href={pm.pdf} target="_blank" rel="noopener">
+      read the full post-mortem (pdf) →
+    </a>
+  </div>
+
+  <div class="actions">
+    <span class="repo-bar" aria-hidden="true"></span>
+    <a class="pm-link" href={pm.projectHref}>the project: {pm.project} →</a>
+  </div>
+
+  <style>
+    .back {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+    .back:hover { color: var(--accent); }
+
+    .pm-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 10px;
+    }
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-warm);
+      box-shadow: 0 0 7px 1px var(--accent-warm);
+      flex: none;
+    }
+
+    h1 { font-size: clamp(1.5rem, 3.6vw, 2rem); margin: 8px 0 12px; line-height: 1.25; }
+    .lede { max-width: 56ch; color: var(--fg); font-size: 1.02rem; }
+    .spacer-rule { margin: 36px 0; }
+
+    .abstract {
+      max-width: 64ch;
+      line-height: 1.78;
+      color: var(--muted);
+      border-left: 2px solid var(--accent-edge);
+      padding-left: 16px;
+      margin: 0 0 34px;
+    }
+
+    .block { margin-bottom: 30px; }
+    .block p { max-width: 64ch; line-height: 1.78; margin: 0; }
+
+    .topics { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 26px; }
+
+    .actions { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .repo-bar {
+      width: 2px;
+      height: 17px;
+      background: linear-gradient(to bottom, var(--accent-warm), transparent);
+      flex: none;
+    }
+    .pm-link {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--muted);
+      transition: color 0.25s var(--ease);
+    }
+    .pm-link:hover,
+    .pm-link:focus-visible {
+      color: var(--accent-warm);
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    /* decorative arc, sits behind the content and never interferes */
+    .arc-echo {
+      position: fixed;
+      right: -34px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 260px;
+      height: 620px;
+      max-height: 78vh;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.3;
+      fill: var(--accent-warm);
+      stroke: var(--accent-warm);
+    }
+    .arc-echo path { fill: none; stroke-width: 1.1; opacity: 0.5; }
+    .arc-echo circle { stroke: none; opacity: 0.75; }
+    .arc-echo .arc-string { stroke-width: 0.9; opacity: 0.22; }
+    @media (max-width: 900px) { .arc-echo { display: none; } }
+  </style>
+</SystemLayout>

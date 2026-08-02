@@ -217,11 +217,19 @@ export const projects = [
     slug: 'points-sys',
     tag: 'tools',
     name: 'points_sys',
-    blurb: '[ one-line description: what does points-sys do? ]',
+    blurb: 'a two-player points economy for real life, live-synced between two phones.',
     summary:
-      '[ this repo has no README yet. add a short paragraph on what it is and why you built it, or drop it from this list. ]',
-    highlights: ['[ what problem does it solve? ]'],
-    stack: ['HTML'],
+      'SEASON 1: BATTLE FOR THE TOP. A competitive habit tracker my partner and I actually run our weeks on. Workouts, sleep, studying and chores are worth points, slipping costs points, and whoever is ahead holds the top of the leaderboard until the other one takes it back. The whole thing is one self-contained HTML file with no build step and no framework, sitting on Firestore so a claim tapped on one phone shows up on the other instantly.',
+    highlights: [
+      'one HTML file, no bundler and no framework: the only dependencies are Firebase ES modules imported straight from the CDN.',
+      'all state lives in a single Firestore document streamed to both clients through onSnapshot, with an applyingRemote guard so rendering a remote update never echoes a write back into the database.',
+      'full points economy: daily habits with prerequisite chains, per-person quests, achievements, penalties, and a shop where points buy real rewards.',
+      'four repeating tiers of 15,000 points, so progress bars and colors fall out of arithmetic instead of a hardcoded ladder.',
+      'append-only history log doubles as the undo stack: undo finds the last claim for a given key and reverses its delta.',
+      'drag-and-drop sticky-note boards with sections and per-note to-do lists, positioned in percentages so a board reads the same on a laptop and a phone.',
+      'email auth gates the whole app, and bets let either side stake points on an outcome and settle it later.',
+    ],
+    stack: ['HTML', 'JavaScript', 'Firebase', 'Firestore'],
     repo: `${GH}/points-sys`,
   },
   {

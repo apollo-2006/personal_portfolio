@@ -1,5 +1,6 @@
 ---
 import SystemLayout from '../layouts/SystemLayout.astro';
+import { postmortems } from '../data/postmortems.js';
 import ConstellationGlyph from '../components/ConstellationGlyph.astro';
 import { projects } from '../data/projects.js';
 
@@ -49,6 +50,11 @@ const subItems = {
   ],
   research: [
     { label: 'the paper', desc: 'learning cv from the pixels up', href: '/research' },
+    ...postmortems.map((pm) => ({
+      label: pm.orbitLabel,
+      desc: pm.orbitDesc,
+      href: `/research/${pm.slug}`,
+    })),
   ],
 };
 ---

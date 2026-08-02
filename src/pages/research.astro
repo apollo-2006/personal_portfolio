@@ -1,6 +1,7 @@
 ---
 import SystemLayout from '../layouts/SystemLayout.astro';
 import SectionHeader from '../components/SectionHeader.astro';
+import { postmortems } from '../data/postmortems.js';
 
 const paper = {
   title: 'Learning Computer Vision from the Pixels Up',
@@ -12,6 +13,7 @@ const paper = {
   href: '/abir-deol-learning-computer-vision.pdf',
   topics: ['OpenCV', 'convolution', 'canny', 'contours', 'ORB / SIFT', 'homography'],
 };
+
 ---
 
 <SystemLayout
@@ -27,8 +29,8 @@ const paper = {
   <p class="intro">
     not published work. I'm two years into a degree, not a phd. what lives here is
     the writing I do while learning something properly: what a technique actually
-    does, what I got wrong, and what it cost me to find out. it gets revised as
-    the work moves.
+    does, what I got wrong, and what it cost me to find out. the post-mortems below
+    are the second half of that, one per bug that actually hurt.
   </p>
 
   <article class="paper">
@@ -68,6 +70,25 @@ const paper = {
       </a>
     </div>
   </article>
+
+  <h3 class="sub-heading pm-heading">post-mortems</h3>
+  <p class="pm-intro">
+    every one of these is a bug that cost me real hours in a repo on this site. written
+    up afterwards, in the order I found them: the symptom, how I chased it, what was
+    actually wrong, and what I changed about how I write that kind of code.
+  </p>
+
+  <ul class="pm-rows row-list">
+    {postmortems.map((pm) => (
+      <li>
+        <span class="eyebrow pm-tag">{pm.project}</span>
+        <a href={`/research/${pm.slug}`} class="pm-link">
+          <strong>{pm.title}</strong>
+          <p class="muted">{pm.blurb}</p>
+        </a>
+      </li>
+    ))}
+  </ul>
 
   <h3 class="sub-heading next-heading">what's next</h3>
   <ul class="rows row-list">
@@ -109,6 +130,45 @@ const paper = {
       margin: -18px 0 36px;
       color: var(--fg);
       font-size: 1.04rem;
+    }
+
+    .pm-heading { margin-top: 4px; }
+    .pm-intro {
+      max-width: 62ch;
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+    .pm-rows { margin-bottom: 46px; }
+    .pm-rows > li {
+      display: grid;
+      grid-template-columns: 168px 1fr;
+      gap: 20px;
+    }
+    .pm-tag {
+      padding-top: 5px;
+      color: var(--accent-warm);
+      opacity: 0.8;
+      font-family: var(--font-mono);
+    }
+    .pm-link strong {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 1.05rem;
+      transition: color 0.25s var(--ease);
+    }
+    .pm-link p {
+      margin: 6px 0 0;
+      font-size: 0.95rem;
+      max-width: 62ch;
+      line-height: 1.66;
+    }
+    .pm-link:hover strong,
+    .pm-link:focus-visible strong { color: var(--accent-warm); }
+
+    @media (max-width: 620px) {
+      .pm-rows > li { grid-template-columns: 1fr; gap: 4px; }
+      .pm-tag { padding-top: 0; }
     }
 
     .paper {

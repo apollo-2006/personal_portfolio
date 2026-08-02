@@ -19,6 +19,7 @@ const meta: Record<string, { caption: string }> = {
   'thermal-monitor':   { caption: 'simulated thermal curves in the style of the logged data.' },
   'valo-scout':        { caption: 'not simulated: an actual heapsort, replayed swap by swap.' },
   'cal-cli':           { caption: 'simulated day of logging against real targets.' },
+  'points-sys':        { caption: 'simulated season: two players claiming habits, trading the lead, and climbing a tier.' },
   'personal-portfolio':{ caption: '' },
 };
 const m = meta[slug];
@@ -35,7 +36,7 @@ const m = meta[slug];
           <div class="hist" data-hist>
             {Array.from({ length: 14 }).map(() => <span></span>)}
           </div>
-          <p class="axis">latency distribution · 0.1µs — 1.5µs</p>
+          <p class="axis">latency distribution · 0.1µs to 1.5µs</p>
         </>
       )}
 
@@ -75,7 +76,7 @@ const m = meta[slug];
       {slug === 'thermal-monitor' && (
         <>
           <canvas data-canvas width="280" height="90"></canvas>
-          <p class="axis"><span class="hl">—</span> gpu hotspot · <span class="ok">—</span> cpu package</p>
+          <p class="axis"><span class="hl">▬</span> gpu hotspot · <span class="ok">▬</span> cpu package</p>
         </>
       )}
 
@@ -98,6 +99,13 @@ const m = meta[slug];
       )}
 
       {slug === 'cal-cli' && <div class="macros" data-macros></div>}
+
+      {slug === 'points-sys' && (
+        <>
+          <div class="board" data-board></div>
+          <pre class="feed short" data-feed></pre>
+        </>
+      )}
 
       {slug === 'personal-portfolio' && (
         <p class="selfref">&gt; artifact: the page you're reading.<br />&gt; view-source encouraged.</p>
@@ -211,6 +219,35 @@ const m = meta[slug];
     border-top: 2px solid var(--accent);
     transition: height 0.5s var(--ease);
   }
+  .board { display: flex; flex-direction: column; gap: 14px; margin-bottom: 14px; }
+  .board :global(.p) {
+    display: grid;
+    grid-template-columns: 74px 1fr 92px;
+    gap: 12px;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+  .board :global(.p .who) { transition: color 0.3s var(--ease); }
+  .board :global(.p.lead .who) { color: var(--accent-warm); }
+  .board :global(.tier) {
+    height: 8px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .board :global(.tier i) {
+    display: block;
+    height: 100%;
+    width: 0%;
+    background: var(--accent-soft);
+    border-right: 2px solid var(--accent);
+    transition: width 0.45s var(--ease);
+  }
+  .board :global(.p.lead .tier i) { border-right-color: var(--accent-warm); }
+  .board :global(.pts) { text-align: right; color: var(--fg); }
+
   .macros { display: flex; flex-direction: column; gap: 12px; }
   .macros :global(.row) {
     display: grid;
@@ -654,6 +691,60 @@ const m = meta[slug];
           render();
           status.textContent = 'heapsort \u00b7 swap ' + si + '/' + swaps.length;
         }, 130);
+      },
+
+      'points-sys': function () {
+        var board = root.querySelector('[data-board]');
+        var feed = root.querySelector('[data-feed]');
+        var TIER = 15000;
+        var players = [
+          { name: 'player 1', pts: 14150 },
+          { name: 'player 2', pts: 14020 },
+        ];
+        var claims = [
+          ['workout', 250], ['sleep 8h', 150], ['studied 2h', 300],
+          ['chores', 100], ['quest done', 500], ['meal logged', 75],
+        ];
+        var penalties = [['skipped gym', -200], ['slept late', -125], ['missed chore', -100]];
+        board.innerHTML = players.map(function (p, i) {
+          return '<div class="p" data-p-' + i + '><span class="who">' + p.name + '</span>' +
+            '<span class="tier"><i data-bar-' + i + '></i></span>' +
+            '<span class="pts" data-pts-' + i + '>0</span></div>';
+        }).join('');
+        var leader = -1;
+        function render() {
+          var top = players[0].pts >= players[1].pts ? 0 : 1;
+          players.forEach(function (p, i) {
+            var tier = Math.floor(p.pts / TIER) + 1;
+            var into = (p.pts % TIER) / TIER * 100;
+            board.querySelector('[data-bar-' + i + ']').style.width = into + '%';
+            board.querySelector('[data-pts-' + i + ']').textContent =
+              p.pts.toLocaleString() + ' \u00b7 t' + tier;
+            board.querySelector('[data-p-' + i + ']').classList.toggle('lead', i === top);
+          });
+          if (top !== leader && leader !== -1) {
+            feedPush(feed, '<span class="hl">\u2605 ' + players[top].name +
+              ' takes the top spot</span>');
+          }
+          leader = top;
+        }
+        render();
+        loop(function () {
+          var behind = players[0].pts <= players[1].pts ? 0 : 1;
+          var i = Math.random() < 0.62 ? behind : 1 - behind;
+          var slip = Math.random() < 0.22;
+          var ev = slip ? pick(penalties) : pick(claims);
+          var before = Math.floor(players[i].pts / TIER);
+          players[i].pts = Math.max(0, players[i].pts + ev[1]);
+          feedPush(feed, players[i].name + ' \u00b7 ' + ev[0] + ' ' +
+            (ev[1] > 0 ? '<span class="ok">+' + ev[1] + '</span>'
+                       : '<span class="hl">' + ev[1] + '</span>'));
+          if (Math.floor(players[i].pts / TIER) > before) {
+            feedPush(feed, '<span class="hl">\u2605 ' + players[i].name + ' hits tier ' +
+              (Math.floor(players[i].pts / TIER) + 1) + '</span>');
+          }
+          render();
+        }, 900);
       },
 
       'cal-cli': function () {
