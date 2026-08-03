@@ -16,7 +16,7 @@ import { projects } from '../data/projects.js';
 const stars = [
   { href: '/research', variant: 'research', label: 'research', desc: 'learning ml, writing it down', top: 10, left: 32 },
   { href: '/passions', variant: 'passions', label: 'passions', desc: 'gym · mma · gaming · reading', top: 30, left: 62 },
-  { href: '/projects', variant: 'projects', label: 'projects', desc: '15 systems, built raw', top: 49, left: 72 },
+  { href: '/projects', variant: 'projects', label: 'projects', desc: `${projects.length} systems, built raw`, top: 49, left: 72 },
   { href: '/work', variant: 'work', label: 'work', desc: 'u of a · grad 2028', top: 68, left: 62 },
   { href: '/connect', variant: 'connect', label: 'connect', desc: 'say hello', top: 88, left: 32 },
 ];
@@ -36,7 +36,7 @@ const subItems = {
     { label: 'apollo', desc: 'the myth behind the name', href: '/passions/apollo' },
     { label: 'all 7 →', desc: 'reading, basketball, the rest', href: '/passions' },
   ],
-  // 15 repos is too many to orbit legibly, so feature 5, then link out to the rest
+  // the full list is too many to orbit legibly, so feature 5, then link out to the rest
   projects: [
     ...projects
       .filter((p) => ['nexus-cluster', 'nano-match', 'custom-mem-alloc', 'neon-vm', 'photon-tracer'].includes(p.slug))

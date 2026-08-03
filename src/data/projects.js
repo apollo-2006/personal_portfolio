@@ -119,6 +119,26 @@ export const projects = [
     repo: `${GH}/photon_tracer`,
   },
   {
+    slug: 'cpu-rasterizer',
+    tag: 'graphics',
+    name: 'cpu_rasterizer',
+    blurb: 'a 3d rendering pipeline in plain javascript, no graphics api at all.',
+    summary:
+      'A real-time software rasterizer that runs in the browser with no WebGL and no Three.js. Every triangle of a procedurally generated torus is transformed by hand-written matrices, culled, shaded, depth-tested and written pixel by pixel into a raw byte buffer, which is then blitted to a canvas with putImageData. A GPU does this thousands of times faster, which is not the point: after writing one, nothing in a graphics API is magic anymore.',
+    highlights: [
+      'full model-view-projection pipeline written from scratch: Vec3 and Mat4x4 classes, rotation and translation and perspective matrices, and the perspective divide, with no math library.',
+      'barycentric coverage test per pixel inside a screen-space bounding box, with the weights divided by the signed area so the test stays correct for either winding order.',
+      'z-buffer stores interpolated 1/w rather than post-divide z, because only 1/w interpolates linearly in screen space.',
+      'backface culling from the cross product of two triangle edges, discarding roughly half the geometry before it costs anything to shade.',
+      'flat shading from a single normal-to-light dot product per triangle, written into a Uint8ClampedArray and blitted in one putImageData call.',
+      'toggles expose each stage: barycentric wireframe, culling on and off, and a greyscale render of the depth buffer itself as a correctness check.',
+    ],
+    stack: ['JavaScript', 'React', 'Vite', 'Canvas'],
+    repo: `${GH}/cpu_rasterizer`,
+    live: 'https://apollo-2006.github.io/cpu_rasterizer/',
+  },
+
+  {
     slug: 'rasterizer-engine',
     tag: 'graphics',
     name: 'rasterizer_engine',

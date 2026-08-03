@@ -2,6 +2,7 @@
 import '../styles/theme.css';
 import Starfield from '../components/Starfield.astro';
 import ThemeToggle from '../components/ThemeToggle.astro';
+import { projects } from '../data/projects.js';
 
 interface Props {
   title: string;
@@ -14,7 +15,7 @@ interface Props {
 const SITE = 'https://abirdeol.tech';
 const {
   title,
-  description = 'systems programmer at the university of alberta. 15 projects built raw: distributed systems, allocators, virtual machines, raytracers.',
+  description = `systems programmer at the university of alberta. ${projects.length} projects built raw: distributed systems, allocators, virtual machines, raytracers.`,
   fullBleed = false,
 } = Astro.props;
 const canonical = new URL(Astro.url.pathname, SITE).href;
