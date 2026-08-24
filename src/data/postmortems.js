@@ -3,6 +3,41 @@
 // the PDF is the full writeup.
 export const postmortems = [
   {
+    slug: 'oracle',
+    title: 'It Was Never the Model',
+    project: 'oracle_of_delphi',
+    projectHref: '/projects/oracle-of-delphi',
+    orbitLabel: 'the oracle bugs',
+    orbitDesc: 'four failures, none in the model',
+    eyebrow: 'oracle_of_delphi · Rust, TypeScript',
+    blurb:
+      'four failures in a local voice assistant, at four different layers. two of them presented as the language model being inadequate. none of them were.',
+    topics: ['tcp resets', 'process environment', 'streamed tool calls', 'sampling temperature'],
+    pages: 4,
+    pdf: '/abir-deol-postmortem-oracle.pdf',
+    abstract:
+      'Getting a five-process local assistant working was almost entirely a debugging project. These four are chosen because each lived at a different layer of the stack and each presented as something other than what it was. The through line is that none of them were in the language model, including the one where it started answering in Thai.',
+    sections: [
+      {
+        heading: 'the blank interface',
+        body: 'The orchestrator closed its socket while the client still had unread request bytes in flight. On Windows that sends a TCP reset rather than a graceful shutdown, and a reset truncates whatever the peer had not read yet. The 500KB bundle was arriving cut off, so nothing executed and nothing rendered. Invisible from the browser, which saw a connection that ended normally.',
+      },
+      {
+        heading: 'the daemon killed by its own logger',
+        body: 'It worked when launched by hand and failed when auto-launched, which is the shape of an environment difference rather than a logic error. The daemon opened its audit log first thing on startup, fell back to the current working directory, and that directory was writable from my shell but not from the shortcut. Opening the log threw, and the error propagated out of startup and killed the process before it ever bound its pipe. A logging failure took down the whole service.',
+      },
+      {
+        heading: 'the tools that never worked',
+        body: 'Two layers, both mine, both presenting as model quality. The model server was missing the flag that applies the chat template, which is what teaches the format, so the model had never been shown how to call a tool. Once that was fixed, the model streamed calls in fragments, name first and arguments dribbling in across messages, and my parser treated each fragment as a separate nameless call.',
+      },
+      {
+        heading: 'the assistant that spoke Thai',
+        body: 'Replies would occasionally come back as fluent, correct Thai. Nothing deterministic produces that by accident, so it looked like the clearest possible model failure. The cause was temperature at 0.7: in the low-confidence moment before a tool call, the sampler had room to pick a plausible-but-unusual continuation, and a language switch is exactly that. Dropping to 0.3 stopped it. One line in a config file.',
+      },
+    ],
+  },
+
+  {
     slug: 'allocator',
     title: 'The Block That Was Too Small to Free',
     project: 'custom_mem_alloc',

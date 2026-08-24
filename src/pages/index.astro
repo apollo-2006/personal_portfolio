@@ -39,7 +39,7 @@ const subItems = {
   // the full list is too many to orbit legibly, so feature 5, then link out to the rest
   projects: [
     ...projects
-      .filter((p) => ['nexus-cluster', 'nano-match', 'custom-mem-alloc', 'neon-vm', 'photon-tracer'].includes(p.slug))
+      .filter((p) => ['oracle-of-delphi', 'nexus-cluster', 'nexus-db', 'nano-match', 'cpu-rasterizer'].includes(p.slug))
       .map((p) => ({ label: p.name, desc: p.blurb, href: `/projects/${p.slug}` })),
     { label: `all ${projects.length} →`, desc: 'the full cluster', href: '/projects' },
   ],

@@ -59,10 +59,19 @@ const { project } = Astro.props;
     </div>
   )}
 
-  <div class="repo-row">
-    <span class="repo-bar" aria-hidden="true"></span>
-    <a class="repo-link" href={project.repo} target="_blank" rel="noopener">view repository →</a>
-  </div>
+  {project.repo && (
+    <div class="repo-row">
+      <span class="repo-bar" aria-hidden="true"></span>
+      <a class="repo-link" href={project.repo} target="_blank" rel="noopener">view repository →</a>
+    </div>
+  )}
+
+  {project.repoNote && (
+    <div class="repo-row">
+      <span class="repo-bar" aria-hidden="true"></span>
+      <span class="repo-note">{project.repoNote}</span>
+    </div>
+  )}
 
   <style>
     .back {
@@ -175,6 +184,12 @@ const { project } = Astro.props;
       transition: color 0.25s var(--ease), border-color 0.25s var(--ease);
     }
     .live-link { color: var(--accent-warm); }
+    .repo-note {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: var(--muted);
+      opacity: 0.85;
+    }
     .repo-link:hover,
     .repo-link:focus-visible {
       color: var(--accent-warm);

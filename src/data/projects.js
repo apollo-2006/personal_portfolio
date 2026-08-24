@@ -5,6 +5,25 @@ const GH = 'https://github.com/apollo-2006';
 
 export const projects = [
   {
+    slug: 'oracle-of-delphi',
+    tag: 'systems',
+    name: 'oracle_of_delphi',
+    blurb: 'a fully-local voice assistant. five rust services, a 14b model on my own gpu, nothing leaves the box.',
+    summary:
+      'A voice-capable desktop assistant that runs entirely on my own machine: no cloud, no API keys leaving the box, no data going anywhere. Pythia is the voice, Apollo is the seal of judgment that gates irreversible actions, and Delphi is the name you call to summon her. Under the hood it is a small fleet of Rust services, a llama.cpp server running Qwen2.5-14B on an RX 9070 XT, and a Three.js heads-up display in a native window, all behind one double-click.',
+    highlights: [
+      'five cooperating processes behind a single executable: a native shell owning the window, hotkey and tray; an orchestrator running the agent loop and serving the HUD; a privileged actuator daemon; a shared IPC crate; and the Three.js interface.',
+      'the LLM is treated as an untrusted planner. every OS-touching action is isolated in a separate daemon, and irreversible ones (killing a process, running a shell) are gated behind an explicit sanction before they happen.',
+      'the native window is bare tao and wry rather than a framework, and the orchestrator supervises llama-server and the daemon as hidden children, so one double-click brings the whole fleet up and reaps it on quit.',
+      'streaming tool-call parser that accumulates fragmented function calls by index: Qwen streams the name first and dribbles arguments across many messages, so calls are only emitted once whole, pinned by a test replaying a real fragmented stream.',
+      'always-on wake word: say "Delphi" and she wakes, with a matcher that tolerates how speech-to-text mangles the name without tripping on ordinary words like "delta" or "deli".',
+      'a build journal documenting thirteen failures and their causes, including a daemon killed by a logging call in a non-writable working directory and a 500KB bundle truncated by a TCP reset.',
+    ],
+    stack: ['Rust', 'TypeScript', 'Three.js', 'llama.cpp'],
+    repo: `${GH}/oracle-of-delphi`,
+  },
+
+  {
     slug: 'nexus-cluster',
     tag: 'systems',
     name: 'nexus_cluster',
