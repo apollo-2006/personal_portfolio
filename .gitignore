@@ -22,3 +22,7 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Windows NTFS alternate-data-stream artifacts (created when files are
+# downloaded on Windows and copied into WSL)
+*:Zone.Identifier
