@@ -29,7 +29,7 @@ export const projects = [
     name: 'nexus_cluster',
     blurb: 'distributed key-value store running Raft consensus.',
     summary:
-      'A distributed systems project in Python implementing the Raft consensus algorithm: terms, randomized election timeouts, and the follower/candidate/leader state machine, with the RPC payloads, a bounded TCP transport and a replicated log built alongside it. Partial by design so far — the transport is not yet wired into the node, so vote requests are still stubbed and a node elects itself.',
+      'A distributed systems project in Python implementing the Raft consensus algorithm: terms, randomized election timeouts, and the follower/candidate/leader state machine, with the RPC payloads, a bounded TCP transport and a replicated log built alongside it. Partial by design so far: the transport is not yet wired into the node, so vote requests are still stubbed and a node elects itself.',
     highlights: [
       'raft implemented from scratch, no consensus library: RequestVote and AppendEntries built to the field layout in the paper.',
       'node lifecycle management across the Leader / Follower / Candidate states, including election timeouts.',
@@ -122,7 +122,7 @@ export const projects = [
       'stack-based execution loop that decodes instructions and manipulates a virtual stack.',
       'bytecode chunking: data structures for storing and decoding densely packed opcodes and their constants.',
       'written in native C to keep dispatch overhead minimal.',
-      'scoped deliberately small: six opcodes, one value type, no control flow and no compiler in front of it — bytecode is hand-assembled to isolate the dispatch loop itself.',
+      'scoped deliberately small: six opcodes, one value type, no control flow and no compiler in front of it. bytecode is hand-assembled to isolate the dispatch loop itself.',
     ],
     stack: ['C'],
     repo: `${GH}/neon_vm`,
@@ -209,7 +209,7 @@ export const projects = [
       'real-time network I/O: up/down speed and session totals.',
       'AMD GPU monitoring by reading LibreHardwareMonitor\u2019s web server, since Windows APIs do not expose real sensor data; falls back to WMI automatically.',
       '60-second sparkline trends for CPU and RAM, and the top 5 processes by memory.',
-      'GPU sensors are polled on their own interval and cached between frames, so a repaint never costs an HTTP round trip \u2014 or a one-second stall when LibreHardwareMonitor is closed.',
+      'GPU sensors are polled on their own interval and cached between frames, so a repaint never costs an HTTP round trip, or a one-second stall when LibreHardwareMonitor is closed.',
       'metrics persisted to SQLite so history outlives the session; ships as a standalone PyInstaller executable.',
     ],
     stack: ['Python', 'Rich', 'SQLite'],
@@ -224,7 +224,7 @@ export const projects = [
       'A terminal daemon that runs in the background watching the machine: CPU load, thermal curves over time, and VRAM clock speeds, all written to a local database. Built to keep a water-cooled 5900XT and an air-cooled 9070XT honest, because a snapshot tells you nothing about thermals, a history does.',
     highlights: [
       'one coherent sample per tick: the CPU is polled once and threaded through the derived readings, so a single logged row cannot disagree with itself.',
-      'reads package temps from coretemp/k10temp where the platform exposes them, and models a curve from load where it does not — Windows and WSL block the thermal zones.',
+      'reads package temps from coretemp/k10temp where the platform exposes them, and models a curve from load where it does not, because Windows and WSL block the thermal zones.',
       'logs every sample into a local database for long-term trend analysis rather than a live-only readout.',
       'runs as a background daemon from the command line with minimal overhead.',
       'VRAM clock is modelled from system activity rather than measured; reading the real value needs PyNVML or PyAMDGPUInfo.',
@@ -238,7 +238,7 @@ export const projects = [
     name: 'valo_scout',
     blurb: 'valorant match analyzer with a hand-written heapsort.',
     summary:
-      'A Valorant stat tracker that ranks recent high-elo matches by overall efficiency and renders the top five in the terminal. The sorting is a custom Heapsort rather than a library call — the project was as much about sort mechanics and terminal UI as about the stats it surfaces.',
+      'A Valorant stat tracker that ranks recent high-elo matches by overall efficiency and renders the top five in the terminal. The sorting is a custom Heapsort rather than a library call, because the project was as much about sort mechanics and terminal UI as about the stats it surfaces.',
     highlights: [
       'ranks on a composite impact score rather than raw K/D, so a high-kill game with a poor death count does not outrank a cleaner one.',
       'ranks matches with a hand-written Heapsort implementation instead of the standard library sort.',

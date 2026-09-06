@@ -1,13 +1,129 @@
 ---
 import SystemLayout from '../layouts/SystemLayout.astro';
 import SectionHeader from '../components/SectionHeader.astro';
+import { contributions, contributionStats } from '../data/contributions.js';
+import { projects } from '../data/projects.js';
+import { postmortems } from '../data/postmortems.js';
+
+// the five projects that best show range: distributed systems, storage,
+// allocators, graphics, and a shipped browser demo. the rest are one click away.
+const featuredSlugs = [
+  'oracle-of-delphi',
+  'nexus-cluster',
+  'custom-mem-alloc',
+  'cpu-rasterizer',
+  'nexus-db',
+];
+const featured = featuredSlugs
+  .map((s) => projects.find((p) => p.slug === s))
+  .filter(Boolean);
+
+const { repos, prs, issues } = contributionStats;
 ---
 
-<SystemLayout title="work · abir deol">
-  <SectionHeader variant="work" eyebrow="where I've spent my time" title="work" />
+<SystemLayout
+  title="work · abir deol"
+  description={`Open-source contributions to ggml-org/llama.cpp and whisper.cpp, ${projects.length} systems projects, and written post-mortems. Abir Deol, computing science at the University of Alberta.`}
+>
+  <SectionHeader variant="work" eyebrow="the short version, in one page" title="work" />
+
+  <p class="intro">
+    second-year computing science at the university of alberta. I build systems from the
+    bottom up: consensus, storage engines, allocators, virtual machines, rasterizers.
+    I also write down what breaks. everything below links to the actual code or the actual
+    thread; nothing here is a claim you have to take my word for.
+  </p>
+
+  <!-- ============ open source ============ -->
+  <h2 class="sub-heading">open source</h2>
+  <!-- astro trims whitespace where a text line meets a tag across a newline,
+       so every gap next to an inline element here is either on the same line
+       or an explicit {' '}. breaking before a tag silently joins the words. -->
+  <p class="section-note">
+    {prs} pull requests and {issues} issues across {repos} upstream repositories,
+    mostly <a href="https://github.com/ggml-org/whisper.cpp" target="_blank" rel="noopener">whisper.cpp</a> and <a href="https://github.com/ggml-org/llama.cpp" target="_blank" rel="noopener">llama.cpp</a>.{' '}
+    <strong class="honest">all of it is still open. none of these are merged yet.</strong>{' '}
+    they are here because the work is real and public, not because it landed.
+  </p>
+
+  <ul class="rows row-list contrib-list">
+    {contributions.map((c) => (
+      <li class={c.lead ? 'is-lead' : ''}>
+        <div class="contrib-head">
+          <span class="eyebrow repo-label">{c.org}/{c.project}</span>
+          <span class={`chip kind-${c.kind === 'issue' ? 'issue' : 'pr'}`}>{c.kind}</span>
+          {c.diff && <span class="eyebrow diff">{c.diff}</span>}
+          <span class="eyebrow when">{c.date}</span>
+        </div>
+
+        <strong>{c.title}</strong>
+        <p class="muted">{c.summary}</p>
+
+        <ul class="detail">
+          {c.detail.map((d) => <li>{d}</li>)}
+        </ul>
+
+        {c.note && <p class="note">{c.note}</p>}
+
+        <div class="links">
+          {c.issue && (
+            <a href={c.issue.url} target="_blank" rel="noopener">
+              issue #{c.issue.number} <span class="state">{c.issue.state}</span>
+            </a>
+          )}
+          {c.pr && (
+            <a href={c.pr.url} target="_blank" rel="noopener">
+              pr #{c.pr.number} <span class="state">{c.pr.state}</span>
+            </a>
+          )}
+          {c.stack.map((s) => <span class="chip stack-chip">{s}</span>)}
+        </div>
+      </li>
+    ))}
+  </ul>
+
+  <!-- ============ projects ============ -->
+  <h2 class="sub-heading">selected projects</h2>
+  <p class="section-note">
+    five of {projects.length}. <a href="/projects">all projects →</a>
+  </p>
 
   <ul class="rows row-list">
-    <li>
+    {featured.map((p) => (
+      <li>
+        <span class="eyebrow repo-label">{p.tag}</span>
+        <a href={`/projects/${p.slug}`} class="row-link">
+          <strong>{p.name}</strong>
+          <p class="muted">{p.blurb}</p>
+        </a>
+        <div class="links">
+          {p.stack.map((s) => <span class="chip stack-chip">{s}</span>)}
+        </div>
+      </li>
+    ))}
+  </ul>
+
+  <!-- ============ writing ============ -->
+  <h2 class="sub-heading">writing</h2>
+  <p class="section-note">
+    one post-mortem per bug that actually cost me something. <a href="/research">all writing →</a>
+  </p>
+
+  <ul class="rows row-list">
+    {postmortems.slice(0, 3).map((pm) => (
+      <li>
+        <a href={`/research/${pm.slug}`} class="row-link">
+          <strong>{pm.title}</strong>
+          {pm.blurb && <p class="muted">{pm.blurb}</p>}
+        </a>
+      </li>
+    ))}
+  </ul>
+
+  <!-- ============ education ============ -->
+  <h2 class="sub-heading">education</h2>
+  <ul class="rows row-list">
+    <li class="edu-row">
       <div>
         <strong>university of alberta</strong>
         <p class="muted">bsc computing science</p>
@@ -16,19 +132,142 @@ import SectionHeader from '../components/SectionHeader.astro';
     </li>
   </ul>
 
+  <p class="closing">
+    <a class="cta" href="/abir-deol-resume.pdf" target="_blank" rel="noopener">resume (pdf)</a>
+    <a class="cta" href="/connect">get in touch</a>
+  </p>
+
   <style>
-    /* layout only. borders, hover, and type come from .row-list in theme.css */
-    .rows > li {
+    .intro {
+      max-width: 68ch;
+      margin: 0 0 42px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .section-note {
+      max-width: 68ch;
+      margin: 0 0 18px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+    .section-note a { color: var(--accent-warm); }
+    .honest { color: var(--fg); font-weight: 500; }
+
+    /* .sub-heading ships with bottom margin only; these stack as repeated
+       section breaks down one page, so they need the space above too. */
+    .sub-heading { margin-top: 56px; }
+    .sub-heading + .section-note { margin-top: -8px; }
+
+    /* contributions ------------------------------------------------ */
+    .contrib-head {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .repo-label { color: var(--accent-warm); opacity: 0.85; }
+    .diff,
+    .when { color: var(--muted); opacity: 0.75; }
+    .when { margin-left: auto; }
+
+    /* the shared .chip is sized for stack tags; these are inline status
+       markers next to the repo name, so they need to be smaller. */
+    .kind-pr,
+    .kind-issue {
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+    }
+    .stack-chip { font-size: 0.66rem; padding: 4px 9px; }
+
+    /* the two issue -> pr loops carry the most signal, so they get the rail */
+    .contrib-list > li.is-lead { border-left-color: var(--accent-edge); }
+
+    .detail {
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.65;
+    }
+    .detail li { margin-bottom: 6px; }
+    .detail li:last-child { margin-bottom: 0; }
+
+    .note {
+      margin: 10px 0 0;
+      font-size: 0.84rem;
+      color: var(--muted);
+      opacity: 0.85;
+      font-style: italic;
+    }
+
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .links > a {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent-warm);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.25s var(--ease);
+    }
+    .links > a:hover { border-bottom-color: var(--accent-warm); }
+    .state {
+      color: var(--muted);
+      opacity: 0.7;
+      text-transform: uppercase;
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+    }
+
+    .row-link strong { transition: color 0.25s var(--ease); }
+    .row-link:hover strong,
+    .row-link:focus-visible strong { color: var(--accent-warm); }
+
+    .edu-row {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       gap: 20px;
     }
-    .rows .eyebrow {
+    .edu-row .eyebrow {
       flex: none;
       padding-top: 4px;
       color: var(--accent-warm);
       opacity: 0.85;
+    }
+
+    .closing {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 46px 0 0;
+    }
+    .cta {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      padding: 10px 18px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: var(--fg);
+      transition: border-color 0.25s var(--ease), color 0.25s var(--ease);
+    }
+    .cta:hover {
+      border-color: var(--accent-warm);
+      color: var(--accent-warm);
+    }
+
+    @media (max-width: 640px) {
+      .when { margin-left: 0; }
+      .edu-row { flex-direction: column; gap: 6px; }
     }
   </style>
 </SystemLayout>

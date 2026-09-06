@@ -15,11 +15,20 @@ interface Props {
 const SITE = 'https://abirdeol.tech';
 const {
   title,
-  description = `systems programmer at the university of alberta. ${projects.length} projects built raw: distributed systems, allocators, virtual machines, raytracers.`,
+  description = `systems programmer at the university of alberta. ${projects.length} projects built raw: distributed systems, allocators, virtual machines, raytracers, plus open-source contributions to llama.cpp and whisper.cpp.`,
   fullBleed = false,
 } = Astro.props;
 const canonical = new URL(Astro.url.pathname, SITE).href;
 const ogImage = `${SITE}/og.png`;
+
+// work leads: it is the page that answers "what has this person done" in one
+// screen, and the one worth sending someone directly to.
+const navLinks = [
+  { href: '/work', label: 'work' },
+  { href: '/projects', label: 'projects' },
+  { href: '/research', label: 'research' },
+  { href: '/connect', label: 'connect' },
+];
 ---
 
 <!doctype html>
@@ -107,7 +116,22 @@ const ogImage = `${SITE}/og.png`;
         resume
       </a>
       </div>
-      <ThemeToggle />
+
+      <div class="header-right">
+        <!-- persistent nav. before this, navigation existed only on the
+             homepage constellation, so anyone arriving on a deep link from
+             search or a shared url had no way across the site. -->
+        <nav class="site-nav" aria-label="main">
+          {navLinks.map((l) => (
+            <a
+              href={l.href}
+              class="nav-link"
+              aria-current={Astro.url.pathname.startsWith(l.href) ? 'page' : undefined}
+            >{l.label}</a>
+          ))}
+        </nav>
+        <ThemeToggle />
+      </div>
     </header>
 
     <main class={fullBleed ? 'full-bleed' : ''}>
@@ -167,6 +191,51 @@ const ogImage = `${SITE}/og.png`;
         gap: 12px;
         pointer-events: auto;
         min-width: 0;
+      }
+
+      .header-right {
+        display: inline-flex;
+        align-items: center;
+        gap: 18px;
+        pointer-events: auto;
+      }
+      .site-nav {
+        display: inline-flex;
+        align-items: center;
+        gap: 18px;
+      }
+      .nav-link {
+        font-family: var(--font-mono);
+        font-size: 0.74rem;
+        letter-spacing: 0.1em;
+        text-transform: lowercase;
+        color: var(--muted);
+        padding-bottom: 2px;
+        border-bottom: 1px solid transparent;
+        transition: color 0.25s var(--ease), border-color 0.25s var(--ease);
+      }
+      .nav-link:hover,
+      .nav-link:focus-visible { color: var(--fg); }
+      .nav-link[aria-current='page'] {
+        color: var(--fg);
+        border-bottom-color: var(--accent-warm);
+      }
+
+      /* the header already carries wordmark + resume + toggle; on narrow
+         screens the nav wraps under them rather than squeezing the name. */
+      @media (max-width: 720px) {
+        .site-header {
+          flex-wrap: wrap;
+          gap: 10px 14px;
+          padding-bottom: 14px;
+        }
+        .header-right {
+          width: 100%;
+          justify-content: space-between;
+          gap: 10px;
+        }
+        .site-nav { gap: 14px; }
+        .nav-link { font-size: 0.68rem; letter-spacing: 0.08em; }
       }
       .header-sep {
         width: 1px;

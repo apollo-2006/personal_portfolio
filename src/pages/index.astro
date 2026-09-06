@@ -136,8 +136,16 @@ const subItems = {
     <p class="eyebrow">computing science · university of alberta</p>
     <h1>abir deol</h1>
     <p class="alias">apollo</p>
+    <!-- the site used to say only the name and "click a star". this states
+         what I actually build, in text, before anyone has to interact. -->
+    <p class="pitch">
+      systems programmer. consensus, storage engines, allocators, virtual machines
+      and rasterizers, written from the bottom up, then written about.
+    </p>
     <p class="drift">you've drifted into the void</p>
     <p class="lede">click a star to explore. <span class="lede-hint">or draw the bowstring and let go.</span></p>
+    <!-- the way out for anyone who does not want to explore -->
+    <p class="skip"><a href="/work">skip the void, everything on one page →</a></p>
   </div>
 
   <button class="exit-void" type="button" aria-label="back to the void">↺ back to the void</button>
@@ -250,6 +258,37 @@ const subItems = {
       margin: 18px 0 10px;
     }
     .lede { color: var(--muted); }
+
+    .pitch {
+      max-width: 46ch;
+      margin: 14px 0 0;
+      font-size: clamp(0.92rem, 1.15vw, 1.02rem);
+      line-height: 1.65;
+      color: var(--muted);
+    }
+    .skip {
+      margin: 16px 0 0;
+    }
+    .skip a {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      letter-spacing: 0.06em;
+      color: var(--accent-warm);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.25s var(--ease);
+    }
+    .skip a:hover,
+    .skip a:focus-visible { border-bottom-color: var(--accent-warm); }
+
+    /* the hero gained two elements and its container is height:100vh with
+       overflow:hidden on desktop, so on short viewports tighten the stack
+       instead of letting the skip link get clipped off the bottom. */
+    @media (min-width: 721px) and (max-height: 720px) {
+      .hero-text { top: 84px; }
+      .pitch { font-size: 0.86rem; line-height: 1.55; margin-top: 10px; }
+      .drift { margin: 10px 0 6px; }
+      .skip { margin-top: 10px; }
+    }
 
     .star {
       position: absolute;
