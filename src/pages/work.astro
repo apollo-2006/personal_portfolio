@@ -18,7 +18,16 @@ const featured = featuredSlugs
   .map((s) => projects.find((p) => p.slug === s))
   .filter(Boolean);
 
-const { repos, prs, issues } = contributionStats;
+const { repos, prs, issues, merged } = contributionStats;
+
+// the honest line about status. derived, because the previous hardcoded version
+// ("none of these are merged yet") silently became false the day one landed.
+const numeral = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven'];
+const num = (n) => numeral[n] ?? String(n);
+const statusLine =
+  merged === 0
+    ? 'all of it is still open. none of these are merged yet.'
+    : `${num(merged)} of the ${num(prs)} pull requests ${merged === 1 ? 'is' : 'are'} merged upstream. the rest are still open.`;
 ---
 
 <SystemLayout
@@ -42,8 +51,8 @@ const { repos, prs, issues } = contributionStats;
   <p class="section-note">
     {prs} pull requests and {issues} issues across {repos} upstream repositories,
     mostly <a href="https://github.com/ggml-org/whisper.cpp" target="_blank" rel="noopener">whisper.cpp</a> and <a href="https://github.com/ggml-org/llama.cpp" target="_blank" rel="noopener">llama.cpp</a>.{' '}
-    <strong class="honest">all of it is still open. none of these are merged yet.</strong>{' '}
-    they are here because the work is real and public, not because it landed.
+    <strong class="honest">{statusLine}</strong>{' '}
+    they are here because the work is real and public, not only because it landed.
   </p>
 
   <ul class="rows row-list contrib-list">
@@ -52,6 +61,7 @@ const { repos, prs, issues } = contributionStats;
         <div class="contrib-head">
           <span class="eyebrow repo-label">{c.org}/{c.project}</span>
           <span class={`chip kind-${c.kind === 'issue' ? 'issue' : 'pr'}`}>{c.kind}</span>
+          {c.merged && <span class="chip merged-chip">merged</span>}
           {c.diff && <span class="eyebrow diff">{c.diff}</span>}
           <span class="eyebrow when">{c.date}</span>
         </div>
@@ -73,7 +83,7 @@ const { repos, prs, issues } = contributionStats;
           )}
           {c.pr && (
             <a href={c.pr.url} target="_blank" rel="noopener">
-              pr #{c.pr.number} <span class="state">{c.pr.state}</span>
+              pr #{c.pr.number} <span class={c.pr.state === 'merged' ? 'state is-merged' : 'state'}>{c.pr.state}</span>
             </a>
           )}
           {c.stack.map((s) => <span class="chip stack-chip">{s}</span>)}
@@ -175,11 +185,20 @@ const { repos, prs, issues } = contributionStats;
     /* the shared .chip is sized for stack tags; these are inline status
        markers next to the repo name, so they need to be smaller. */
     .kind-pr,
-    .kind-issue {
+    .kind-issue,
+    .merged-chip {
       font-size: 0.6rem;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       padding: 3px 8px;
+    }
+
+    /* merged is the only status worth colour on this page; everything else
+       reads as in-flight and stays muted. */
+    .merged-chip {
+      color: var(--accent-warm);
+      border-color: var(--accent-warm);
+      background: transparent;
     }
     .stack-chip { font-size: 0.66rem; padding: 4px 9px; }
 
@@ -226,6 +245,7 @@ const { repos, prs, issues } = contributionStats;
       font-size: 0.65rem;
       letter-spacing: 0.08em;
     }
+    .state.is-merged { color: var(--accent-warm); opacity: 1; }
 
     .row-link strong { transition: color 0.25s var(--ease); }
     .row-link:hover strong,

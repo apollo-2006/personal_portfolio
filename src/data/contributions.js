@@ -1,11 +1,34 @@
 // Upstream open-source work, pulled from the live GitHub state rather than
-// written from memory. `state` is the real PR/issue state: nothing here is
-// merged yet, and the page says so rather than implying otherwise.
+// written from memory. `state` is the real PR/issue state, merged included, so
+// the page can never claim more than GitHub does.
 //
 // `pairs` are the issue -> PR loops: a bug found and reported, then fixed by
 // the same person. Those are the strongest items and lead the page.
 
 export const contributions = [
+  {
+    id: 'whisper-backend-dl-tests',
+    project: 'whisper.cpp',
+    org: 'ggml-org',
+    kind: 'issue → pr',
+    lead: true,
+    merged: true,
+    issue: { number: 4030, url: 'https://github.com/ggml-org/whisper.cpp/issues/4030', state: 'closed' },
+    pr: { number: 4031, url: 'https://github.com/ggml-org/whisper.cpp/pull/4031', state: 'merged' },
+    date: '2026-09',
+    diff: '+8 / -0',
+    title: 'tests abort on a GGML_BACKEND_DL build',
+    summary:
+      'found the test suite aborting on a valid build configuration, traced it to the real cause, and fixed it in four lines of call sites. merged into master.',
+    detail: [
+      'with GGML_BACKEND_DL=ON no backend registers until something asks for one, so whisper_init_* ran with devices = 0 and tripped GGML_ASSERT(device) inside ggml_backend_dev_backend_reg.',
+      'every example already called ggml_backend_load_all() first; the tests were the only callers that did not. the fix adds that call, with no new includes needed.',
+      'corrected my own scope in a follow-up comment: three tests, not two. test-vad aborts identically but is labelled unit rather than gh, so ctest -L gh never reached it.',
+      'landed as 79f2d92, closing the issue. ctest -L gh goes from 2 of 4 to 4 of 4 on such a build; a normal build is unaffected.',
+    ],
+    stack: ['C++', 'CMake', 'ctest'],
+  },
+
   {
     id: 'whisper-macos-release',
     project: 'whisper.cpp',
@@ -25,27 +48,6 @@ export const contributions = [
       'each archive is smoke-tested from an extracted copy rather than from build/bin, so the test exercises what actually ships and catches @loader_path failing to resolve dylibs once the tree leaves the machine that built it.',
     ],
     stack: ['GitHub Actions', 'CMake', 'macOS', 'lipo'],
-  },
-
-  {
-    id: 'whisper-backend-dl-tests',
-    project: 'whisper.cpp',
-    org: 'ggml-org',
-    kind: 'issue → pr',
-    lead: true,
-    issue: { number: 4030, url: 'https://github.com/ggml-org/whisper.cpp/issues/4030', state: 'open' },
-    pr: { number: 4031, url: 'https://github.com/ggml-org/whisper.cpp/pull/4031', state: 'open' },
-    date: '2026-09',
-    diff: '+8 / -0',
-    title: 'tests abort on a GGML_BACKEND_DL build',
-    summary:
-      'found the test suite aborting on a valid build configuration, traced it to the real cause, and fixed it in four lines of call sites.',
-    detail: [
-      'with GGML_BACKEND_DL=ON no backend registers until something asks for one, so whisper_init_* ran with devices = 0 and tripped GGML_ASSERT(device) inside ggml_backend_dev_backend_reg.',
-      'every example already called ggml_backend_load_all() first; the tests were the only callers that did not. the fix adds that call, with no new includes needed.',
-      'corrected my own scope in a follow-up comment: three tests, not two. test-vad aborts identically but is labelled unit rather than gh, so ctest -L gh never reached it.',
-    ],
-    stack: ['C++', 'CMake', 'ctest'],
   },
 
   {
@@ -109,4 +111,5 @@ export const contributionStats = {
   repos: new Set(contributions.map((c) => `${c.org}/${c.project}`)).size,
   prs: contributions.filter((c) => c.pr).length,
   issues: contributions.filter((c) => c.issue).length,
+  merged: contributions.filter((c) => c.pr && c.pr.state === 'merged').length,
 };
