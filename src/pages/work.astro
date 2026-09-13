@@ -18,16 +18,20 @@ const featured = featuredSlugs
   .map((s) => projects.find((p) => p.slug === s))
   .filter(Boolean);
 
-const { repos, prs, issues, merged } = contributionStats;
+const { repos, prs, issues, merged, approved } = contributionStats;
 
 // the honest line about status. derived, because the previous hardcoded version
 // ("none of these are merged yet") silently became false the day one landed.
 const numeral = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven'];
 const num = (n) => numeral[n] ?? String(n);
+const approvedClause =
+  approved === 0 ? '' : `, and ${num(approved)} more ${approved === 1 ? 'is' : 'are'} approved`;
 const statusLine =
   merged === 0
-    ? 'all of it is still open. none of these are merged yet.'
-    : `${num(merged)} of the ${num(prs)} pull requests ${merged === 1 ? 'is' : 'are'} merged upstream. the rest are still open.`;
+    ? approved === 0
+      ? 'all of it is still open. none of these are merged yet.'
+      : `none of these are merged yet, but ${num(approved)} ${approved === 1 ? 'is' : 'are'} approved. the rest are still open.`
+    : `${num(merged)} of the ${num(prs)} pull requests ${merged === 1 ? 'is' : 'are'} merged upstream${approvedClause}. the rest are still open.`;
 ---
 
 <SystemLayout
@@ -83,7 +87,7 @@ const statusLine =
           )}
           {c.pr && (
             <a href={c.pr.url} target="_blank" rel="noopener">
-              pr #{c.pr.number} <span class={c.pr.state === 'merged' ? 'state is-merged' : 'state'}>{c.pr.state}</span>
+              pr #{c.pr.number} <span class={c.pr.state === 'merged' ? 'state is-merged' : 'state'}>{c.pr.state}{c.pr.review === 'approved' && c.pr.state === 'open' && ' · approved'}</span>
             </a>
           )}
           {c.stack.map((s) => <span class="chip stack-chip">{s}</span>)}

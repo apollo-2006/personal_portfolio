@@ -30,6 +30,26 @@ export const contributions = [
   },
 
   {
+    id: 'whisper-backend-dl-ci',
+    project: 'whisper.cpp',
+    org: 'ggml-org',
+    kind: 'pr',
+    pr: { number: 4047, url: 'https://github.com/ggml-org/whisper.cpp/pull/4047', state: 'open' },
+    date: '2026-09',
+    diff: '+3 / -1',
+    title: 'cover GGML_BACKEND_DL in CI',
+    summary:
+      'the follow-up to the merged fix above: a CI leg that would have caught the bug before it shipped, so it cannot quietly come back.',
+    detail: [
+      '#4030 shipped because no workflow paired the two. build-clang, build-gcc and build-sanitize run ctest -L gh without GGML_BACKEND_DL; release.yml sets it but runs no tests.',
+      'adds a backend_dl OFF/ON axis to ubuntu-22-clang-arm64, a native arm64 runner that already runs ctest on every PR. two legs become four.',
+      'checked that the guard actually guards: with #4031 reverted the ON legs fail at 2 of 4, on master they pass 4 of 4. all four legs green on a fork run.',
+      'the ccache key gains the axis too, since ccache is auto-detected even with no launcher set and the OFF and ON legs would otherwise race to save one entry on master.',
+    ],
+    stack: ['GitHub Actions', 'CMake', 'ctest'],
+  },
+
+  {
     id: 'whisper-macos-release',
     project: 'whisper.cpp',
     org: 'ggml-org',
@@ -75,7 +95,7 @@ export const contributions = [
     project: 'whisper.cpp',
     org: 'ggml-org',
     kind: 'pr',
-    pr: { number: 4019, url: 'https://github.com/ggml-org/whisper.cpp/pull/4019', state: 'open' },
+    pr: { number: 4019, url: 'https://github.com/ggml-org/whisper.cpp/pull/4019', state: 'open', review: 'approved' },
     date: '2026-08',
     diff: '+30 / -0',
     title: 'clarify VAD-mode timestamps and model-path errors',
@@ -84,6 +104,7 @@ export const contributions = [
     detail: [
       'asked the maintainer who wrote the original VAD support a direct question about where the timestamps came from, since I could not settle it from the source alone.',
       'I had it wrong. the answer pointed at vad_simple in the stream example rather than where I was looking, so the documentation went in corrected.',
+      'approved by a maintainer on 2026-09-11, waiting on merge.',
     ],
     stack: ['C', 'technical writing'],
   },
@@ -112,4 +133,7 @@ export const contributionStats = {
   prs: contributions.filter((c) => c.pr).length,
   issues: contributions.filter((c) => c.issue).length,
   merged: contributions.filter((c) => c.pr && c.pr.state === 'merged').length,
+  // approved but not yet merged. `review` is GitHub's review decision, kept
+  // separate from `state` because an approved PR is still open.
+  approved: contributions.filter((c) => c.pr && c.pr.state === 'open' && c.pr.review === 'approved').length,
 };
