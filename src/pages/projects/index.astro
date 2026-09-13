@@ -3,7 +3,7 @@ import SystemLayout from '../../layouts/SystemLayout.astro';
 import SectionHeader from '../../components/SectionHeader.astro';
 import { projects } from '../../data/projects.js';
 
-const tags = ['all', ...Array.from(new Set(projects.map((p) => p.tag)))];
+const tags = ['all', ...Array.from(new Set(projects.map((p) => p.tag))), 'live demos'];
 ---
 
 <SystemLayout title="projects · abir deol">
@@ -17,10 +17,10 @@ const tags = ['all', ...Array.from(new Set(projects.map((p) => p.tag)))];
 
   <ul class="rows row-list">
     {projects.map((p) => (
-      <li data-tag={p.tag}>
+      <li data-tag={p.tag} data-live={p.live ? 'true' : undefined}>
         <span class="eyebrow tag-label">{p.tag}</span>
         <a href={`/projects/${p.slug}`} class="project-link">
-          <strong>{p.name}</strong>
+          <strong>{p.name}</strong>{p.live && <span class="live-chip" title="has a live demo that runs in the browser">live</span>}
           <p class="muted">{p.blurb}</p>
         </a>
       </li>
@@ -76,6 +76,20 @@ const tags = ['all', ...Array.from(new Set(projects.map((p) => p.tag)))];
       font-size: 0.97rem;
       max-width: 60ch;
     }
+    .live-chip {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid var(--accent-edge);
+      background: var(--accent-soft);
+      border-radius: 999px;
+      padding: 1px 7px;
+      margin-left: 10px;
+      vertical-align: 3px;
+    }
+    .filters { flex-wrap: wrap; row-gap: 8px; }
     .project-link:hover strong,
     .project-link:focus-visible strong { color: var(--accent-warm); }
   </style>
@@ -92,7 +106,9 @@ const tags = ['all', ...Array.from(new Set(projects.map((p) => p.tag)))];
           var filter = btn.getAttribute('data-filter');
           for (var k = 0; k < items.length; k++) {
             var li = items[k];
-            li.hidden = filter !== 'all' && li.getAttribute('data-tag') !== filter;
+            li.hidden = filter === 'live demos'
+              ? li.getAttribute('data-live') !== 'true'
+              : filter !== 'all' && li.getAttribute('data-tag') !== filter;
           }
         });
       }

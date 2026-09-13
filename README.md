@@ -8,11 +8,11 @@ Built with [Astro](https://astro.build), statically generated, no client framewo
 ## Structure
 
 ```
-src/pages/          routes — index, projects, passions, research, work, connect
+src/pages/          routes: index, projects, passions, research, work, connect
 src/layouts/        SystemLayout, the shared page shell
 src/components/     Starfield, ConstellationGlyph, ProjectArtifact, SectionHeader, ThemeToggle
 src/data/           the content itself, as plain JS modules
-src/styles/         theme.css — design tokens, light and dark
+src/styles/         theme.css: design tokens, light and dark
 public/             static assets and the resume PDF
 ```
 
@@ -28,7 +28,7 @@ object to `projects.js`, not touching a page.
 | `passions.js` | Non-code sections |
 
 Project copy is mirrored from each repo's own README, so the two are meant to stay in
-step — if a README's claims change, the entry here changes with it.
+step: if a README's claims change, the entry here changes with it.
 
 ## Develop
 
@@ -44,6 +44,10 @@ npm run dev        # http://localhost:4321
 
 `npm run build` writes the static site to `dist/`; `npm run preview` serves that build.
 
+## License
+
+MIT. See [LICENSE](LICENSE).
+
 ## Author
 
-**Abir Deol**
+**Abir Deol** · [abirdeol.tech](https://abirdeol.tech)
