@@ -280,7 +280,8 @@ export const projects = [
       'email auth gates the whole app, and bets let either side stake points on an outcome and settle it later.',
     ],
     stack: ['HTML', 'JavaScript', 'Firebase', 'Firestore'],
-    repo: `${GH}/points-sys`,
+    // The repo is private, so a link would land visitors on a GitHub 404.
+    repoNote: 'source is in a private repository.',
   },
   {
     slug: 'personal-portfolio',
