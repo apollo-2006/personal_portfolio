@@ -207,7 +207,7 @@ export const projects = [
       'The systems of a tactical shooter, written in Unreal Engine 5 C++ to explore what competitive FPS games actually have to solve: hit registration across a network, a server-authoritative ability system, and movement precise enough to feel fair. Built from the player side of ~3,000 hours in the genre, aimed at the parts players feel but rarely see. these are the mechanics, not a game: there is no level, HUD or content.',
     highlights: [
       'lag compensation records each head position per server tick and interpolates between the two frames bracketing the shooter\u2019s timestamp, reconstructing where a target was on the shooter\u2019s screen rather than where it is now.',
-      'deterministic recoil: a fixed per-shot offset curve makes the spray learnable, with random spread layered on top and scaled by movement speed.',
+      'recoil modelled on CS and Valorant: a fixed 25-bullet spray that climbs then sways, a camera that shows half of it, exponential recovery once the trigger is released, and spread that grows with movement and through a spray.',
       'partial: the rewind is built and correct but not yet called from hit validation, which still applies damage to the client-reported target.',
       'ability system (RadiantAbilityBase) with charges and cooldowns enforced on the server, where an early press is ignored rather than failing RPC validation and disconnecting the player. NearSight and Dark Cover reach the right machines but have no visible effect yet.',
       'counter-strafing in a custom movement component: friction rises inside CalcVelocity when input opposes momentum, so the client\u2019s prediction and the server\u2019s replay of the same move agree.',
