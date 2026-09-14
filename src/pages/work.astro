@@ -36,7 +36,7 @@ const statusLine =
 
 <SystemLayout
   title="work · abir deol"
-  description={`Open-source contributions to ggml-org/llama.cpp and whisper.cpp, ${projects.length} systems projects, and written post-mortems. Abir Deol, computing science at the University of Alberta.`}
+  description={`Open-source contributions to whisper.cpp, llama.cpp, candle, tokenizers and espeak-ng, ${projects.length} systems projects, and written post-mortems. Abir Deol, computing science at the University of Alberta.`}
 >
   <SectionHeader variant="work" eyebrow="the short version, in one page" title="work" />
 
@@ -53,8 +53,8 @@ const statusLine =
        so every gap next to an inline element here is either on the same line
        or an explicit {' '}. breaking before a tag silently joins the words. -->
   <p class="section-note">
-    {prs} pull requests and {issues} issues across {repos} upstream repositories,
-    mostly <a href="https://github.com/ggml-org/whisper.cpp" target="_blank" rel="noopener">whisper.cpp</a> and <a href="https://github.com/ggml-org/llama.cpp" target="_blank" rel="noopener">llama.cpp</a>.{' '}
+    {prs} pull requests and {issues} issues across {repos} upstream repositories: whisper.cpp and llama.cpp,
+    Hugging Face's candle and tokenizers, espeak-ng and pdf-rs. about half fix memory-safety bugs or crashes found with sanitizers and Miri.{' '}
     <strong class="honest">{statusLine}</strong>{' '}
     they are here because the work is real and public, not only because it landed.
   </p>

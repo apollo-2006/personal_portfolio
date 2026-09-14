@@ -101,6 +101,12 @@ const tags = ['all', ...Array.from(new Set(projects.map((p) => p.tag))), 'live d
       for (var i = 0; i < buttons.length; i++) {
         buttons[i].addEventListener('click', function (e) {
           var btn = e.currentTarget;
+          // Keep the choice in the URL, so a filtered list can be linked to.
+          var f = btn.getAttribute('data-filter');
+          var url = new URL(location.href);
+          if (f === 'all') url.searchParams.delete('filter');
+          else url.searchParams.set('filter', f === 'live demos' ? 'live' : f);
+          history.replaceState(null, '', url);
           for (var j = 0; j < buttons.length; j++) buttons[j].setAttribute('aria-pressed', 'false');
           btn.setAttribute('aria-pressed', 'true');
           var filter = btn.getAttribute('data-filter');
@@ -111,6 +117,14 @@ const tags = ['all', ...Array.from(new Set(projects.map((p) => p.tag))), 'live d
               : filter !== 'all' && li.getAttribute('data-tag') !== filter;
           }
         });
+      }
+      // ?filter=live (linked from every demo) or ?filter=<tag> preselects a filter.
+      var wanted = new URLSearchParams(location.search).get('filter');
+      if (wanted) {
+        var target = wanted === 'live' ? 'live demos' : wanted;
+        for (var j = 0; j < buttons.length; j++) {
+          if (buttons[j].getAttribute('data-filter') === target) buttons[j].click();
+        }
       }
     })();
   </script>

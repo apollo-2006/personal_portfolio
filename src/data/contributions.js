@@ -71,23 +71,171 @@ export const contributions = [
   },
 
   {
-    id: 'llama-streaming-tool-calls',
+    id: 'espeak-voice-oob',
+    project: 'espeak-ng',
+    org: 'espeak-ng',
+    kind: 'pr',
+    pr: { number: 2530, url: 'https://github.com/espeak-ng/espeak-ng/pull/2530', state: 'open' },
+    date: '2026-09',
+    diff: '+3 / -1',
+    title: 'out-of-bounds read on ordinary voice selection',
+    summary:
+      'a size_t subtraction in SelectVoiceByName wraps for two-character voice identifiers, so selecting a voice reads one byte before a heap string, on essentially every run. found under UBSan.',
+    detail: [
+      'three voices sit at the top level of espeak-ng-data/voices, so their identifiers are two characters. strlen(id) - last_part_len is evaluated as unsigned, wraps, and strcasecmp reads id[-1].',
+      'CI never saw it: the ubsan leg runs with halt_on_error=1 but its clang does not apply the pointer-overflow check, and valgrind reports zero errors because id[-1] still lands inside the same heap block.',
+      'the fix hoists the length into an int and skips identifiers too short to match. phoneme output is byte-identical across all 151 voices, and the clang UBSan suite goes from 15 failures to 19 of 19.',
+    ],
+    stack: ['C', 'UBSan', 'valgrind'],
+  },
+
+  {
+    id: 'whisper-vad-layers',
+    project: 'whisper.cpp',
+    org: 'ggml-org',
+    kind: 'pr',
+    pr: { number: 4064, url: 'https://github.com/ggml-org/whisper.cpp/pull/4064', state: 'open' },
+    date: '2026-09',
+    diff: '+8 / -0',
+    title: 'heap out-of-bounds read from a VAD model header',
+    summary:
+      'a VAD model that declares any number of encoder layers other than four overruns three heap arrays at load, reachable from whisper-cli --vad on a user-supplied model.',
+    detail: [
+      'n_encoder_layers comes from the file and sizes three arrays, but the encoder graph is hardcoded to four layers and indexes them [0..3] whatever the file said.',
+      'a crafted three-layer model aborts, and ASan reports a heap-buffer-overflow. the fix rejects the value right after it is read, matching the existing n_dims guard.',
+      'a real silero v6.2.0 model still transcribes, and test-vad and test-vad-full pass.',
+    ],
+    stack: ['C++', 'AddressSanitizer'],
+  },
+
+  {
+    id: 'candle-ggml-slice',
+    project: 'candle',
+    org: 'huggingface',
+    kind: 'pr',
+    pr: { number: 3963, url: 'https://github.com/huggingface/candle/pull/3963', state: 'open' },
+    date: '2026-09',
+    diff: '+99 / -3',
+    title: 'undefined behaviour loading quantized GGML tensors',
+    summary:
+      'a public, safe loader reinterpreted a byte slice as quantized blocks with no length or alignment check. Miri reports a dangling reference, and a debug build aborts on an unaligned buffer.',
+    detail: [
+      'the length was never compared against the buffer, which the issue had missed: a short buffer produced a slice past the end of its allocation. that is now an error.',
+      'the issue proposed asserting alignment. under Miri that rejects an ordinary well-formed tensor, because a byte buffer\'s alignment is the allocator\'s choice, so the fix borrows when aligned and copies when not.',
+      'tests assert on loaded contents rather than on which branch ran, so they hold under any allocator. candle-core: 232 passed, and Miri reports no undefined behaviour.',
+    ],
+    stack: ['Rust', 'Miri', 'unsafe'],
+  },
+
+  {
+    id: 'candle-safetensors-copy',
+    project: 'candle',
+    org: 'huggingface',
+    kind: 'pr',
+    pr: { number: 3965, url: 'https://github.com/huggingface/candle/pull/3965', state: 'open' },
+    date: '2026-09',
+    diff: '+91 / -2',
+    title: 'heap overflow in Tensor::from_raw_buffer',
+    summary:
+      'on the unaligned path the copy moved every byte of the input into a buffer sized for whole elements only, so a seven-byte f32 buffer wrote past its allocation and still returned Ok.',
+    detail: [
+      'a write, not a read, and reachable from safe public API. Miri pins it to the copy in convert_slice.',
+      'the copy now matches the allocation, which is what the aligned branch already did. the PR names the wider question, whether a non-multiple length should be an error, as the maintainers\' call.',
+      'separate from an existing shape-mismatch issue: the failing case has shape [1] and one element, so the shapes agree and that fix would not reach it.',
+    ],
+    stack: ['Rust', 'Miri', 'unsafe'],
+  },
+
+  {
+    id: 'tokenizers-bpe-prefix',
+    project: 'tokenizers',
+    org: 'huggingface',
+    kind: 'pr',
+    pr: { number: 2398, url: 'https://github.com/huggingface/tokenizers/pull/2398', state: 'open' },
+    date: '2026-09',
+    diff: '+68 / -15',
+    title: 'invalid UTF-8 and panics from a malformed BPE merge list',
+    summary:
+      'building a BPE model stripped the continuing-subword prefix by byte offset without checking the token had it, then built a str with from_utf8_unchecked. a malformed tokenizer file, not even a malicious one, reaches three failures.',
+    detail: [
+      'the offset can land inside a multi-byte character, producing a str that is not valid UTF-8; the subtraction can underflow; and the scratch buffer can be too small for the merged token.',
+      'str::strip_prefix removes the prefix only when present, so it always cuts on a character boundary, and the unsafe block is gone. well-formed vocabularies produce byte-identical tokens.',
+      'three regression tests, one per failure, each failing with its own error before the fix. 258 passed including the real GPT-2 vocabulary.',
+    ],
+    stack: ['Rust', 'unsafe', 'UTF-8'],
+  },
+
+  {
+    id: 'espeak-truncated-data',
+    project: 'espeak-ng',
+    org: 'espeak-ng',
+    kind: 'pr',
+    pr: { number: 2537, url: 'https://github.com/espeak-ng/espeak-ng/pull/2537', state: 'open' },
+    date: '2026-09',
+    diff: '+61 / -2',
+    title: 'crash on a zero-length phoneme data file',
+    summary:
+      'ReadPhFile treated an empty file as success and returned a NULL buffer that none of its callers checked, so a zero-byte phontab from a truncated download or full disk segfaults the process.',
+    detail: [
+      'all four files it loads reproduce it. the same branch also leaked the file handle, which cppcheck flags independently.',
+      'the load now fails with a message that names the file, and the unexpected-end-of-file status finally has text instead of printing as an unspecified error.',
+      'the new test checks for that message, not just the absence of a signal: a sanitizer build turns the crash into exit status 1, so a signal check alone passes against the unfixed code.',
+    ],
+    stack: ['C', 'AddressSanitizer', 'cppcheck'],
+  },
+
+  {
+    id: 'llama-build-info',
     project: 'llama.cpp',
     org: 'ggml-org',
     kind: 'pr',
-    pr: { number: 28261, url: 'https://github.com/ggml-org/llama.cpp/pull/28261', state: 'open' },
+    pr: { number: 28462, url: 'https://github.com/ggml-org/llama.cpp/pull/28462', state: 'open' },
     date: '2026-09',
-    diff: '+33 / -0',
-    title: 'document streaming tool calls and the Jinja requirement',
+    diff: '+33 / -3',
+    title: 'build info taken from the wrong git repository',
     summary:
-      'documented two behaviours that are easy to get wrong and were not written down anywhere, with every claim checked against the source.',
+      'the build asked git for the commit and build number without checking the answer came from llama.cpp itself. a release tarball unpacked inside any other repository stamped that repository\'s HEAD into --version.',
     detail: [
-      'streaming tool calls arrive as deltas keyed by index, not as one object. name and id come once on the first chunk; later chunks carry raw JSON argument fragments that must be concatenated per index, so a client parsing any single fragment gets invalid JSON.',
-      'with the Jinja path off or a template that is not tool-aware, tool calls come back as plain assistant text and nothing reports an error, which reads like the model ignoring the tools.',
-      'claims cite file and line (server-chat.cpp, server-task.cpp, common/chat.cpp), and the example accumulation loop was executed against a simulated interleaved stream before being added.',
+      'git searches parent directories, so both values came from whatever repository sat above the tree: a well-formed hash that resolves to nothing.',
+      'found a second path the issue did not report: the script-mode run the web UI build uses resolves against the working directory, so it takes the wrong repository too.',
+      'checked across four placements before and after; a tree that is its own checkout is unchanged, and a tarball inside another repository now reports unknown.',
     ],
-    stack: ['C++', 'OpenAI API', 'technical writing'],
-    note: 'this is the reworked version of an earlier PR of mine (#27778) that I closed and resubmitted after tightening it.',
+    stack: ['CMake', 'git'],
+  },
+
+  {
+    id: 'espeak-fallthrough',
+    project: 'espeak-ng',
+    org: 'espeak-ng',
+    kind: 'pr',
+    pr: { number: 2529, url: 'https://github.com/espeak-ng/espeak-ng/pull/2529', state: 'open' },
+    date: '2026-09',
+    diff: '+34 / -11',
+    title: 'catch a missing break in the language table at compile time',
+    summary:
+      'a missing break in the thousand-line language switch silently gives one language another\'s settings, and the audio-hash tests invite pasting in the new hash. -Wimplicit-fallthrough now catches it.',
+    detail: [
+      'reintroducing the exact bug from the issue is flagged by both CI compilers, gcc 16 and clang 22, at the line numbers quoted in the PR.',
+      'the existing intentional fall-throughs are annotated, and the warning is scoped to the library target so the vendored ucd-tools stays untouched.',
+    ],
+    stack: ['C', 'CMake', 'compiler warnings'],
+  },
+
+  {
+    id: 'pdf-rs-robustness',
+    project: 'pdf',
+    org: 'pdf-rs',
+    kind: 'pr',
+    pr: { number: 296, url: 'https://github.com/pdf-rs/pdf/pull/296', state: 'open' },
+    date: '2026-09',
+    diff: '+31 / -2',
+    title: 'panic on a sampled function with an inverted domain',
+    summary:
+      'f32::clamp panics when its bounds are reversed, and a PDF can declare a function domain written backwards, so evaluating it crashed the parser. bounds are now ordered first, as the stitching function already did.',
+    detail: [
+      'a companion PR, #295, reads a /P permissions value written as an unsigned 32-bit integer, which made encrypted files from some producers impossible to open with any password.',
+    ],
+    stack: ['Rust', 'PDF'],
   },
 
   {
