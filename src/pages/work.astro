@@ -90,6 +90,11 @@ const statusLine =
               pr #{c.pr.number} <span class={c.pr.state === 'merged' ? 'state is-merged' : 'state'}>{c.pr.state}{c.pr.review === 'approved' && c.pr.state === 'open' && ' · approved'}</span>
             </a>
           )}
+          {c.companion && (
+            <a href={c.companion.url} target="_blank" rel="noopener">
+              pr #{c.companion.number} <span class={c.companion.state === 'merged' ? 'state is-merged' : 'state'}>{c.companion.state}</span>
+            </a>
+          )}
           {c.stack.map((s) => <span class="chip stack-chip">{s}</span>)}
         </div>
       </li>

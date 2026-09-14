@@ -227,6 +227,8 @@ export const contributions = [
     org: 'pdf-rs',
     kind: 'pr',
     pr: { number: 296, url: 'https://github.com/pdf-rs/pdf/pull/296', state: 'open' },
+    // a second, smaller PR to the same repository, described in the detail below
+    companion: { number: 295, url: 'https://github.com/pdf-rs/pdf/pull/295', state: 'open' },
     date: '2026-09',
     diff: '+31 / -2',
     title: 'panic on a sampled function with an inverted domain',
@@ -278,9 +280,10 @@ export const contributions = [
 // drift out of step with the list above.
 export const contributionStats = {
   repos: new Set(contributions.map((c) => `${c.org}/${c.project}`)).size,
-  prs: contributions.filter((c) => c.pr).length,
+  prs: contributions.filter((c) => c.pr).length + contributions.filter((c) => c.companion).length,
   issues: contributions.filter((c) => c.issue).length,
-  merged: contributions.filter((c) => c.pr && c.pr.state === 'merged').length,
+  merged: contributions.filter((c) => c.pr && c.pr.state === 'merged').length +
+    contributions.filter((c) => c.companion && c.companion.state === 'merged').length,
   // approved but not yet merged. `review` is GitHub's review decision, kept
   // separate from `state` because an approved PR is still open.
   approved: contributions.filter((c) => c.pr && c.pr.state === 'open' && c.pr.review === 'approved').length,
