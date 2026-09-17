@@ -15,7 +15,7 @@ interface Props {
 const SITE = 'https://abirdeol.tech';
 const {
   title,
-  description = `systems programmer at the university of alberta. ${projects.length} projects built raw: distributed systems, allocators, virtual machines, raytracers, plus open-source contributions to llama.cpp and whisper.cpp.`,
+  description = `systems programmer at the university of alberta. ${projects.length} projects built raw: distributed systems, allocators, virtual machines, raytracers, plus open-source contributions merged into llama.cpp, whisper.cpp and the Vulkan validation layers.`,
   fullBleed = false,
 } = Astro.props;
 const canonical = new URL(Astro.url.pathname, SITE).href;
@@ -334,6 +334,21 @@ const navLinks = [
         padding: 0;
         height: 100vh;
         overflow: hidden;
+      }
+      /* the constellation is a fixed 100vh box on desktop, where the stars are
+         absolutely positioned inside it. on phones it reflows into a grid that
+         is taller than the screen, so the box has to be allowed to grow. this
+         override lives here rather than in index.astro because astro scopes
+         these rules to this component: a `:global(main.full-bleed)` rule over
+         in index.astro is LESS specific than the scoped one above and silently
+         lost, which left the page stuck at 100vh with overflow:hidden and the
+         bottom of the constellation clipped off with no way to scroll to it. */
+      @media (max-width: 720px) {
+        main.full-bleed {
+          height: auto;
+          min-height: 100vh;
+          overflow: visible;
+        }
       }
 
       #boot {

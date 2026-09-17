@@ -561,6 +561,15 @@ const subItems = {
       }
       .zoom-scrim, .lines, .orbit, .exit-void { display: none; }
       .bow-grip, .bow-draw, .bow-arrow { display: none; }
+      /* the entrance/float/twinkle keyframes bake translate(-50%,-50%) in, to
+         centre the absolutely positioned desktop stars on their coordinates.
+         they are switched on by a `main.full-bleed.booted .star` rule, which
+         outranks a bare `.star` here, so a plain `animation: none` never
+         landed. in the static grid that centring translate is pure offset: it
+         dragged every star half its own width left and half its height up,
+         which pushed the left column and the full-width connect row clean off
+         the screen edge. matching that selector actually switches them off. */
+      :global(main.full-bleed.booted) .star,
       .star {
         position: static;
         transform: none;
