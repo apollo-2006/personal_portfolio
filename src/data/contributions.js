@@ -7,6 +7,97 @@
 
 export const contributions = [
   {
+    id: 'vvl-coopmat-stride',
+    project: 'Vulkan-ValidationLayers',
+    org: 'KhronosGroup',
+    kind: 'issue → pr',
+    lead: true,
+    merged: true,
+    issue: { number: 13098, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/issues/13098', state: 'closed' },
+    pr: { number: 13104, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/13104', state: 'merged' },
+    date: '2026-09',
+    diff: '+82 / -3',
+    title: 'GPU-AV crashed instrumenting a runtime cooperative-matrix stride',
+    summary:
+      'with GPU-AV on, vkCreateComputePipelines segfaulted on any compute shader whose coopMatLoad or coopMatStore used a stride computed at runtime. reported it with a minimal shader, then wrote the fix. merged into the validation layers.',
+    detail: [
+      'SharedMemoryDataRacePass read the Stride operand as if it were always a constant, so GetConstantUInt32FromId dereferenced null and took the whole pipeline call down. SPIR-V only requires MemoryLayout to be constant; Stride can be any integer.',
+      'constants still take the existing path. a runtime value is now passed straight to the instrumentation call, converted to uint32 with OpBitcast or OpUConvert exactly the way DebugPrintfPass already handles integer arguments.',
+      'two regression tests, copies of the existing coopmat positive tests with the stride made runtime. both crash without the change. the rest of the shared-memory data race suite is untouched: 71 passed, 6 skipped, 0 failed on RADV.',
+      'found it while chasing something else: it is the validation-layer bug that forced GGML_VK_DISABLE_COOPMAT=1 in the llama.cpp work below.',
+    ],
+    stack: ['C++', 'SPIR-V', 'Vulkan', 'GPU-AV'],
+  },
+
+  {
+    id: 'llama-vulkan-im2col-align',
+    project: 'llama.cpp',
+    org: 'ggml-org',
+    kind: 'issue → pr',
+    lead: true,
+    merged: true,
+    issue: { number: 28960, url: 'https://github.com/ggml-org/llama.cpp/issues/28960', state: 'closed' },
+    pr: { number: 28996, url: 'https://github.com/ggml-org/llama.cpp/pull/28996', state: 'merged' },
+    date: '2026-09',
+    diff: '+2 / -2',
+    title: 'Vulkan im2col shaders wrote through an under-aligned buffer reference',
+    summary:
+      'two shaders declared a buffer_reference with no alignment, so glslang emitted every write as Aligned 16 while the pointer actually advanced 2 or 4 bytes at a time. a one-word fix in each shader, found by running the validation layers over the Vulkan backend.',
+    detail: [
+      'VUID-RuntimeSpirv-PhysicalStorageBuffer64-06315 fired 20 times each in im2col.comp and im2col_3d.comp. D_SIZE is 4 for float and 2 for float16_t, so most write addresses were never 16-byte aligned; declaring buffer_reference_align = D_SIZE makes the declared alignment match the real stride.',
+      'it is a validation error rather than a wrong answer, so the pass rates do not move: 92 of 92 and 2051 of 2051 before and after. what changes is 40 VUID hits going to zero.',
+      'the maintainer asked for the PR on the issue and cleared opening it while another of mine was still active, so it went up alongside rather than behind.',
+      'introduced in #16135. tested on an RX 9070 XT on RADV, with coopmat disabled to route around the validation-layer crash I fixed above.',
+    ],
+    stack: ['GLSL', 'Vulkan', 'SPIR-V'],
+  },
+
+  {
+    id: 'lemonade-gpu-name',
+    project: 'lemonade',
+    org: 'lemonade-sdk',
+    kind: 'issue → pr',
+    lead: true,
+    merged: true,
+    issue: { number: 3592, url: 'https://github.com/lemonade-sdk/lemonade/issues/3592', state: 'closed' },
+    pr: { number: 3601, url: 'https://github.com/lemonade-sdk/lemonade/pull/3601', state: 'merged' },
+    date: '2026-09',
+    diff: '+69 / -9',
+    title: 'AMD GPUs reported by KFD version number instead of their name',
+    summary:
+      'on Linux the system-info endpoint named an AMD GPU "120001", the raw gfx_target_version. the obvious fix breaks ROCm backend selection, because that same field is the arch lookup key, so the fix had to add a name rather than replace one.',
+    detail: [
+      'name doubles as the key select_rocm_arch() looks up, so overwriting it with something readable would have silently changed which backends the machine thinks it can run.',
+      'added a separate display_name built from libdrm amdgpu_get_marketing_name(), preferred by the device JSON and falling back to the old value when libdrm returns nothing. family is still derived from the ISA, so backend selection is bit for bit what it was.',
+      'the HSA path in the same file already formatted a name this way, so that logic moved into one shared gpu_display_name() helper instead of being written twice.',
+      '"120001" now reads "AMD Radeon RX 9070 XT (gfx1201)". ctest -L cpp-ci at 72 of 72, including five new cases for the helper covering either half missing and a driver that reports the ISA as its own marketing name. Windows and macOS untouched.',
+    ],
+    stack: ['C++', 'libdrm', 'ROCm', 'ctest'],
+  },
+
+  {
+    id: 'lemonade-embedding-batch',
+    project: 'lemonade',
+    org: 'lemonade-sdk',
+    kind: 'issue → pr',
+    lead: true,
+    issue: { number: 3591, url: 'https://github.com/lemonade-sdk/lemonade/issues/3591', state: 'open' },
+    pr: { number: 3611, url: 'https://github.com/lemonade-sdk/lemonade/pull/3611', state: 'open' },
+    date: '2026-09',
+    diff: '+6 / -0',
+    title: 'embedding requests over 512 tokens failed with a 500 on an 8192-token context',
+    summary:
+      'the limit users were told about and the limit they actually hit did not match. the context was raised to 8192 for embedding models but the micro batch was left at llama.cpp\'s default 512, and for a non-causal model the micro batch is the real ceiling.',
+    detail: [
+      'embedding models have to fit the whole input into one micro batch, so --ubatch-size bounded the request, not --ctx-size. anything past 512 tokens came back as a 500 from llama-server.',
+      'both --batch-size and --ubatch-size now follow the context size, inside the existing supports_embeddings branch, so only embedding models change and chat models still accept the flags themselves.',
+      'traced it to a regression rather than an oversight: #510 added the two flags for embedding models and #592 later removed them while keeping the context bump.',
+      'a 992-token input goes from 500 to 200 with 768 dims, and a 2972-token input now returns a 400 naming the model\'s own trained context instead of a 500. ctest -L cpp-ci at 72 of 72.',
+    ],
+    stack: ['Python', 'llama.cpp', 'REST'],
+  },
+
+  {
     id: 'whisper-backend-dl-tests',
     project: 'whisper.cpp',
     org: 'ggml-org',
@@ -257,6 +348,23 @@ export const contributions = [
       'approved by a maintainer on 2026-09-11, waiting on merge.',
     ],
     stack: ['C', 'technical writing'],
+  },
+
+  {
+    id: 'therock-rocm-sdk-test-path',
+    project: 'TheRock',
+    org: 'ROCm',
+    kind: 'issue',
+    issue: { number: 8219, url: 'https://github.com/ROCm/TheRock/issues/8219', state: 'open' },
+    date: '2026-09',
+    title: 'rocm_sdk test fails unless the virtual environment is activated',
+    summary:
+      'one test in the ROCm SDK suite runs rocm_sdk through sys.executable but then calls hipconfig by bare name, so it resolves through PATH instead of through the interpreter under test and fails on an unactivated venv.',
+    detail: [
+      'the other tests in the same file already invoke [sys.executable, "-m", "rocm_sdk", ...]; line 82 is the only bare executable left, and hipDNN\'s own build docs tell people to use exactly the invocation that breaks it.',
+      'reported with the traceback, the proof that the install is fine (hipconfig is right there in the venv bin), and two concrete fixes. separated it from #4040, which is the same test failing for a different reason and was fixed in March.',
+    ],
+    stack: ['Python', 'ROCm', 'unittest'],
   },
 
   {
