@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Abir Deol - Resume</title>
+<style>
+  @page { size: letter; margin: 0.28in 0.40in; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    font-family: "Charter", "Georgia", "Times New Roman", serif;
+    font-size: 8.55pt;
+    line-height: 1.135;
+    color: #000;
+    margin: 0;
+  }
+  header { text-align: center; margin-bottom: 4pt; }
+  h1 {
+    font-size: 17.5pt;
+    letter-spacing: 2.6pt;
+    font-weight: 600;
+    margin: 0 0 3pt;
+    text-transform: uppercase;
+  }
+  .contact { font-size: 8.9pt; }
+  .contact a { color: #000; text-decoration: none; }
+  .sep { padding: 0 3pt; }
+
+  h2 {
+    font-size: 9.4pt;
+    letter-spacing: 1.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin: 4.6pt 0 2pt;
+    padding-bottom: 1.5pt;
+    border-bottom: 0.7pt solid #000;
+  }
+  h2:first-of-type { margin-top: 4pt; }
+
+  .row { display: flex; justify-content: space-between; align-items: baseline; gap: 10pt; }
+  .row .left { font-weight: 700; }
+  .row .right { font-style: italic; white-space: nowrap; font-size: 9.1pt; }
+
+  .entry { margin-bottom: 1.6pt; }
+  .entry-head { font-size: 9.0pt; }
+  .entry-head .name { font-weight: 700; }
+  .entry-head .stack { font-style: italic; font-size: 8.9pt; }
+  .entry-head .meta { font-style: italic; font-size: 8.9pt; white-space: nowrap; }
+
+  ul { margin: 1pt 0 0; padding-left: 12pt; }
+  li { margin-bottom: 0.4pt; }
+  li::marker { font-size: 7.5pt; }
+
+  .skills p { margin: 0 0 1.2pt; }
+  .skills .k { font-weight: 700; }
+
+  .tag {
+    font-family: "SF Mono", "DejaVu Sans Mono", monospace;
+    font-size: 7.4pt;
+    font-weight: 700;
+    letter-spacing: 0.4pt;
+    border: 0.7pt solid #000;
+    border-radius: 2pt;
+    padding: 0.3pt 2.6pt;
+    vertical-align: 1pt;
+    margin-left: 3pt;
+  }
+  code, .mono {
+    font-family: "SF Mono", "DejaVu Sans Mono", monospace;
+    font-size: 8.1pt;
+  }
+  .note { font-size: 8.35pt; margin: 1.2pt 0 2.4pt; }
+  p { margin: 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Abir Deol</h1>
+  <div class="contact">
+    abir.deol2006@gmail.com<span class="sep">&middot;</span>(672) 968-0839<span class="sep">&middot;</span>Edmonton, AB
+    <br>
+    abirdeol.tech<span class="sep">&middot;</span>github.com/apollo-2006<span class="sep">&middot;</span>linkedin.com/in/abirdeol
+  </div>
+</header>
+
+<h2>Education</h2>
+<div class="row">
+  <span class="left">University of Alberta &middot; Bachelor of Science, Computing Science</span>
+  <span class="right">Expected 2028</span>
+</div>
+
+<h2>Technical Skills</h2>
+<div class="skills">
+  <p><span class="k">Languages:</span> C, C++17, Rust, Python, Go, TypeScript, JavaScript, GLSL, SQL</p>
+  <p><span class="k">Systems:</span> Memory safety and sanitizers (ASan, UBSan, Miri), concurrency, memory management, distributed consensus, storage engines, GPU compute and SPIR-V, TCP and WebSockets</p>
+  <p><span class="k">Tools:</span> Linux, Git, GDB, CMake, Vulkan validation layers, LLVM/Clang, SDL2, FastAPI, React, SQLite</p>
+</div>
+
+<h2>Open-Source Contributions</h2>
+<p class="note">
+  19 pull requests and 9 issues across 10 upstream repositories, 6 merged. Most began as a bug I found, reported, and
+  then fixed myself. Write-ups at abirdeol.tech/work.
+</p>
+
+<div class="entry">
+  <div class="entry-head">
+    <span class="name">Khronos Group &middot; Vulkan-ValidationLayers</span>
+    <span class="stack">| C++, SPIR-V, GPU-AV</span>
+    <span class="tag">2 MERGED</span>
+  </div>
+  <ul>
+    <li>Fixed a segfault in <code>vkCreateComputePipelines</code> that took down any compute shader whose
+      <code>coopMatLoad</code> or <code>coopMatStore</code> used a stride computed at runtime: the GPU-AV
+      instrumentation pass read the stride as if it were always a constant. Reported with a minimal shader, then
+      wrote the fix and two regression tests (#13098 to #13104).</li>
+    <li>Fixed an abort when GPU-AV decoded a shader offset that never named an instruction: an out-of-bounds
+      shared-memory index makes the recovered word arbitrary, and decoding it underflowed a word count and indexed an
+      empty operand list. Validated the offset before decode, letting the decoder assert the invariant instead
+      (#13134 to #13150, through five review rounds with the maintainer).</li>
+  </ul>
+</div>
+
+<div class="entry">
+  <div class="entry-head">
+    <span class="name">ggml-org &middot; llama.cpp and whisper.cpp</span>
+    <span class="stack">| C++, GLSL, Vulkan, CI</span>
+    <span class="tag">3 MERGED</span>
+  </div>
+  <ul>
+    <li>Found, with the validation layers, that both Vulkan <code>im2col</code> shaders declared a
+      <code>buffer_reference</code> with no alignment, so every store was emitted as <code>Aligned 16</code> against a
+      real 2 or 4 byte stride. One word per shader took 40 VUID violations to zero (#28960 to #28996).</li>
+    <li>Fixed the whisper.cpp test suite aborting on every <code>GGML_BACKEND_DL=ON</code> build: no backend registers
+      until something calls <code>ggml_backend_load_all()</code>, and the tests were the only callers that did not
+      (#4030 to #4031). Documented the stream example's VAD timestamps and model-path failure mode (#4019).</li>
+    <li>Open: a heap out-of-bounds read reachable from <code>whisper-cli --vad</code> on any user-supplied VAD model,
+      found under AddressSanitizer with a crafted 94-byte model (#4064), plus a CI leg covering the build that broke
+      above.</li>
+  </ul>
+</div>
+
+<div class="entry">
+  <div class="entry-head">
+    <span class="name">AMD &middot; lemonade SDK and ROCm TheRock</span>
+    <span class="stack">| C++, Python</span>
+    <span class="tag">1 MERGED</span>
+  </div>
+  <ul>
+    <li>AMD GPUs on Linux were named by their raw KFD <code>gfx_target_version</code>, so an RX 9070 XT reported itself
+      as <code>120001</code>. That field also keys the ROCm architecture lookup, so the readable name had to go beside
+      it rather than replace it (#3592 to #3601).</li>
+    <li>Traced embedding requests over 512 tokens failing with a 500 under an 8192 token context: an embedding model is
+      non-causal, so the physical micro-batch is the real ceiling and had regressed to the default (#3591 to #3611).</li>
+  </ul>
+</div>
+
+<div class="entry">
+  <div class="entry-head">
+    <span class="name">Memory-safety fixes</span>
+    <span class="stack">| Hugging Face candle and tokenizers, espeak-ng, pdf-rs, Rust cargo</span>
+  </div>
+  <ul>
+    <li>Undefined behaviour loading quantized GGML tensors, a byte slice cast to blocks with no length or alignment
+      check; and a heap overflow in <code>Tensor::from_raw_buffer</code> reachable from safe code, where a seven-byte
+      f32 buffer wrote past its allocation and returned <code>Ok</code> (candle #3963, #3965, found with Miri).</li>
+    <li>A malformed BPE merge list producing invalid UTF-8 through <code>from_utf8_unchecked</code>; the fix deletes
+      the unsafe block (tokenizers #2398). An unsigned subtraction reading before a heap string on ordinary voice
+      selection, found under UBSan (espeak-ng #2530).</li>
+  </ul>
+</div>
+
+<h2>Projects</h2>
+
+<div class="entry">
+  <div class="entry-head">
+    <span class="name">oracle_of_delphi</span> &middot; Local Voice Assistant
+    <span class="stack">| Rust, C++, TypeScript, Three.js</span>
+  </div>
+  <ul>
+    <li>Built a fully local voice assistant as cooperating processes behind one executable: a real-time C++ audio layer
+      for capture, VAD and barge-in, a Rust orchestrator running the agent loop, and a privileged actuator daemon. Boots
+      offline with no GPU, model download or credentials, then swaps in real backends behind traits.</li>
+    <li>Isolated all OS actuation in the privileged daemon, treating the language model as an untrusted planner: it
+      recomputes the required capability from the operation itself, gates irreversible actions behind confirmation, and
+      audits over a <code>SO_PEERCRED</code> socket. 481 Rust tests and 933 C++ checks pass on Linux, macOS and
+      Windows CI.</li>
+  </ul>
+</div>
+
+<div class="entry">
+  <div class="entry-head">
+    <span class="name">nexus_db</span> &middot; Embedded LSM Key-Value Store
+    <span class="stack">| C++17, Python/FastAPI, React</span>
+  </div>
+  <ul>
+    <li>Built a storage engine modeled on LevelDB: a skip-list memtable for O(log n) insertion and point lookup, a
+      write-ahead log appending every operation before the memtable is modified, frozen memtables flushed to immutable
+      SSTables, levelled compaction, Bloom filters to cut reads that touch disk for keys that are not there, and
+      tombstone deletion reclaimed during compaction. Exposed over a ctypes FFI to Python/FastAPI and a React
+      dashboard.</li>
+  </ul>
+</div>
+
+<div class="entry">
+  <div class="entry-head">
+    <span class="name">nexus_cluster</span> &middot; Distributed Consensus Engine
+    <span class="stack">| Python, Raft, TCP</span>
+  </div>
+  <ul>
+    <li>Implemented Raft from the paper with no consensus library: leader election, log replication and term management
+      over a custom TCP transport, durable term and vote so a restarted node cannot vote twice, log compaction by
+      snapshot, and a read-index path for linearizable reads that do not append an entry. A simulation harness checks
+      the paper's safety properties after every step as nodes fail and rejoin.</li>
+  </ul>
+</div>
+
+<div class="entry">
+  <div class="entry-head">
+    <span class="name">nano_match</span> &middot; Limit Order Book and Matching Engine
+    <span class="stack">| C++</span>
+  </div>
+  <ul>
+    <li>Built a price-time priority matching engine covering the full order lifecycle. Eliminated all heap allocation
+      after startup with a custom pool, reaching 12M requests/s at a 50ns median on one core.</li>
+  </ul>
+</div>
+
+<div class="entry">
+  <div class="entry-head">
+    <span class="name">custom_mem_alloc</span> &middot; Thread-Safe Memory Allocator
+    <span class="stack">| C, pthreads</span>
+  </div>
+  <ul>
+    <li>Wrote a <code>malloc</code> replacement over a single <code>mmap</code> region: first-fit search, block
+      splitting, neighbour coalescing on free, 8-byte alignment and mutex locking, benchmarked against glibc.</li>
+  </ul>
+</div>
+
+<p class="note">
+  <span style="font-weight:700">Additional:</span> nexus_editor (CRDT editor, Go) &middot; photon_tracer (CPU path
+  tracer, 1080p at 50 spp in half a second on 32 threads) &middot; neon_vm (bytecode VM) &middot; cpu_rasterizer and
+  rasterizer_engine (software 3D pipelines, JS and C++/SDL2) &middot; radiant_slice (FPS systems, Unreal Engine 5)
+  &middot; thermal_monitor, terminal_dashboard, valo_scout, cal-cli. 29 public repositories, 10 with live demos.
+</p>
+
+<h2>Writing and Activities</h2>
+<p class="note" style="margin-top:1pt"><span style="font-weight:700">Engineering post-mortems</span> at
+  abirdeol.tech/research: five write-ups of bugs that cost me real hours, each covering the symptom, the chase, the
+  real cause, and what I changed. <span style="font-weight:700">Mixed Martial Arts</span>: two-time national champion,
+  2020 to 2024, training six days a week alongside full-time coursework.</p>
+
+</body>
+</html>
