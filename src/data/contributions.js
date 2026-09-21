@@ -30,6 +30,29 @@ export const contributions = [
   },
 
   {
+    id: 'vvl-instruction-boundary',
+    project: 'Vulkan-ValidationLayers',
+    org: 'KhronosGroup',
+    kind: 'issue → pr',
+    lead: true,
+    merged: true,
+    issue: { number: 13134, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/issues/13134', state: 'closed' },
+    pr: { number: 13150, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/13150', state: 'merged' },
+    date: '2026-09',
+    diff: '+59 / -7',
+    title: 'GPU-AV decoded a shader offset that never named an instruction',
+    summary:
+      'when an application indexed its shared memory out of bounds, GPU-AV read back a word that was never a packed instruction offset and decoded it anyway, walking off an empty operand list. found it under a real llama.cpp workload, reported it, and wrote the fix. merged into the validation layers.',
+    detail: [
+      'the shared memory data race check recovers the conflicting offset from the previous contents of a shadow slot. an out-of-bounds index makes that slot out of range too, so the word read back is arbitrary. it can still land inside the module without sitting on an instruction boundary, which underflows remaining_words in Instruction::Describe() and indexes an empty vector.',
+      'the maintainer and I settled the shape on the issue first: validate in spirv_logging.cpp, and let Describe() assert the invariant rather than defend against it. the FindOpStructFromBDA path was left alone, because its offset comes from the error record header, which was a real instruction boundary in 2826 of 2826 reports I measured.',
+      'reviewed over five rounds by the GPU-AV maintainer, from changes-requested to approved. it took four follow-up commits: report why the source could not be found, return the lookup as one struct, stop assuming every opcode has operands.',
+      'verified by forcing a mid-instruction offset on a build with -D_GLIBCXX_ASSERTIONS: abort with exit 134 before, exit 0 and a readable message after, 5292 of 5292 backend tests passing.',
+    ],
+    stack: ['C++', 'SPIR-V', 'Vulkan', 'GPU-AV'],
+  },
+
+  {
     id: 'llama-vulkan-im2col-align',
     project: 'llama.cpp',
     org: 'ggml-org',
@@ -336,7 +359,8 @@ export const contributions = [
     project: 'whisper.cpp',
     org: 'ggml-org',
     kind: 'pr',
-    pr: { number: 4019, url: 'https://github.com/ggml-org/whisper.cpp/pull/4019', state: 'open', review: 'approved' },
+    merged: true,
+    pr: { number: 4019, url: 'https://github.com/ggml-org/whisper.cpp/pull/4019', state: 'merged' },
     date: '2026-08',
     diff: '+30 / -0',
     title: 'clarify VAD-mode timestamps and model-path errors',
@@ -345,7 +369,7 @@ export const contributions = [
     detail: [
       'asked the maintainer who wrote the original VAD support a direct question about where the timestamps came from, since I could not settle it from the source alone.',
       'I had it wrong. the answer pointed at vad_simple in the stream example rather than where I was looking, so the documentation went in corrected.',
-      'approved by a maintainer on 2026-09-11, waiting on merge.',
+      'approved by a maintainer on 2026-09-11, merged on 2026-09-18.',
     ],
     stack: ['C', 'technical writing'],
   },
