@@ -59,14 +59,14 @@ for (const c of contributions) counts[statusOf(c)]++;
     <strong class="honest">{statusLine}</strong>
   </p>
 
-  <div class="filters" role="group" aria-label="filter contributions">
-    <button type="button" class="filter is-on" data-filter="all">all <span>{counts.all}</span></button>
-    <button type="button" class="filter" data-filter="merged">merged <span>{counts.merged}</span></button>
-    <button type="button" class="filter" data-filter="open">open <span>{counts.open}</span></button>
-    <button type="button" class="filter" data-filter="issue">issues <span>{counts.issue}</span></button>
+  <div class="pills wide" role="group" aria-label="filter contributions">
+    <button type="button" class="pill is-on" data-filter="all">all <span>{counts.all}</span></button>
+    <button type="button" class="pill" data-filter="merged">merged <span>{counts.merged}</span></button>
+    <button type="button" class="pill" data-filter="open">open <span>{counts.open}</span></button>
+    <button type="button" class="pill" data-filter="issue">issues <span>{counts.issue}</span></button>
   </div>
 
-  <ul class="rows row-list contrib-list">
+  <ul class="cards three wide contrib-list">
     {contributions.map((c) => (
       <li class={c.lead ? 'is-lead' : ''} data-status={statusOf(c)}>
         <div class="contrib-head">
@@ -80,7 +80,7 @@ for (const c of contributions) counts[statusOf(c)]++;
         <strong>{c.title}</strong>
         <p class="muted">{c.short}</p>
 
-        <details class="more">
+        <details class="toggle">
           <summary>how it went</summary>
           <p class="muted full">{c.summary}</p>
           {c.detail.length > 0 && (
@@ -120,17 +120,14 @@ for (const c of contributions) counts[statusOf(c)]++;
     five of {projects.length}. <a href="/projects">all projects →</a>
   </p>
 
-  <ul class="rows row-list">
+  <ul class="cards three wide">
     {featured.map((p) => (
       <li>
-        <span class="eyebrow repo-label">{p.tag}</span>
-        <a href={`/projects/${p.slug}`} class="row-link">
+        <a href={`/projects/${p.slug}`} class="card-link">
+          <span class="eyebrow card-eyebrow">{p.tag}</span>
           <strong>{p.name}</strong>
           <p class="muted">{p.blurb}</p>
         </a>
-        <div class="links">
-          {p.stack.map((s) => <span class="chip stack-chip">{s}</span>)}
-        </div>
       </li>
     ))}
   </ul>
@@ -141,12 +138,13 @@ for (const c of contributions) counts[statusOf(c)]++;
     one post-mortem per bug that actually cost me something. <a href="/research">all writing →</a>
   </p>
 
-  <ul class="rows row-list">
+  <ul class="cards three wide">
     {postmortems.slice(0, 3).map((pm) => (
       <li>
-        <a href={`/research/${pm.slug}`} class="row-link">
+        <a href={`/research/${pm.slug}`} class="card-link">
+          <span class="eyebrow card-eyebrow">{pm.project}</span>
           <strong>{pm.title}</strong>
-          {pm.blurb && <p class="muted">{pm.blurb}</p>}
+          <p class="muted">{pm.short}</p>
         </a>
       </li>
     ))}
@@ -170,33 +168,7 @@ for (const c of contributions) counts[statusOf(c)]++;
   </p>
 
   <style>
-    .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 6px; }
-    .filter {
-      font-family: var(--font-mono);
-      font-size: 0.74rem;
-      letter-spacing: 0.04em;
-      color: var(--muted);
-      background: transparent;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 5px 12px;
-      cursor: pointer;
-      transition: color 0.2s var(--ease), border-color 0.2s var(--ease), background 0.2s var(--ease);
-    }
-    .filter span { opacity: 0.6; margin-left: 4px; }
-    .filter:hover, .filter:focus-visible { color: var(--fg); border-color: var(--accent-edge); }
-    .filter.is-on { color: var(--accent-warm); border-color: var(--accent-warm); background: var(--warm-soft); }
-    .more { margin: 8px 0 4px; }
-    .more .full { margin: 6px 0 0; }
-    .more summary {
-      font-family: var(--font-mono);
-      font-size: 0.74rem;
-      letter-spacing: 0.04em;
-      color: var(--accent);
-      cursor: pointer;
-      width: fit-content;
-    }
-    .more[open] summary { margin-bottom: 4px; }
+    .toggle .full { margin: 6px 0 0; }
 
     .intro {
       max-width: 68ch;
@@ -218,44 +190,6 @@ for (const c of contributions) counts[statusOf(c)]++;
        section breaks down one page, so they need the space above too. */
     .sub-heading { margin-top: 56px; }
     .sub-heading + .section-note { margin-top: -8px; }
-
-    /* wide screens: the list breaks out of the reading column into a card
-       grid, since 29 entries in one narrow column is a lot of scrolling */
-    @media (min-width: 1000px) {
-      .filters,
-      .contrib-list {
-        position: relative;
-        left: 50%;
-        transform: translateX(-50%);
-        width: min(1240px, calc(100vw - 96px));
-      }
-      .contrib-list {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 14px;
-        align-items: start;
-        margin-top: 10px;
-      }
-      .contrib-list > li,
-      .contrib-list > li:hover,
-      .contrib-list > li:focus-within {
-        padding: 16px 18px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: rgba(13, 19, 29, 0.72);
-      }
-      .contrib-list > li:last-child { border-bottom: 1px solid var(--line); }
-      .contrib-list > li:hover,
-      .contrib-list > li:focus-within { border-color: var(--accent-edge); }
-      .contrib-list > li.is-lead { border-left: 1px solid var(--line); box-shadow: inset 2px 0 0 var(--accent-warm); }
-      .contrib-list > li[hidden] { display: none; }
-      .contrib-list strong { font-size: 0.98rem; }
-      .contrib-list p.muted { font-size: 0.9rem; line-height: 1.6; }
-      .contrib-list .links { margin-top: 10px; }
-    }
-    @media (min-width: 1440px) {
-      .contrib-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    }
 
     /* contributions ------------------------------------------------ */
     .contrib-head {
@@ -291,7 +225,6 @@ for (const c of contributions) counts[statusOf(c)]++;
     .stack-chip { font-size: 0.66rem; padding: 4px 9px; }
 
     /* the two issue -> pr loops carry the most signal, so they get the rail */
-    .contrib-list > li.is-lead { border-left-color: var(--accent-edge); }
 
     .detail {
       margin: 10px 0 0;
@@ -379,7 +312,7 @@ for (const c of contributions) counts[statusOf(c)]++;
     }
   </style>
 <script>
-  const buttons = document.querySelectorAll('.filter');
+  const buttons = document.querySelectorAll('.pills .pill');
   const items = document.querySelectorAll('.contrib-list > li');
   buttons.forEach((b) =>
     b.addEventListener('click', () => {

@@ -4,6 +4,7 @@
 export const postmortems = [
   {
     slug: 'oracle',
+    short: 'four failures that looked like the language model\'s fault. none of them were.',
     title: 'It Was Never the Model',
     project: 'oracle_of_delphi',
     projectHref: '/projects/oracle-of-delphi',
@@ -39,6 +40,7 @@ export const postmortems = [
 
   {
     slug: 'allocator',
+    short: 'a free list that stores its pointer inside the freed block, and a block too small to hold it.',
     title: 'The Block That Was Too Small to Free',
     project: 'custom_mem_alloc',
     projectHref: '/projects/custom-mem-alloc',
@@ -70,6 +72,7 @@ export const postmortems = [
 
   {
     slug: 'tombstones',
+    short: 'the flush path dropped deletes it thought were redundant, so deleted keys came back.',
     title: 'The Delete That Did Not Delete',
     project: 'nexus_db',
     projectHref: '/projects/nexus-db',
@@ -101,6 +104,7 @@ export const postmortems = [
 
   {
     slug: 'order-pool',
+    short: 'a cancelled order was reused while the book still pointed at it. nothing crashed.',
     title: 'The Order That Was in Two Places',
     project: 'nano_match',
     projectHref: '/projects/nano-match',
@@ -132,6 +136,7 @@ export const postmortems = [
 
   {
     slug: 'election-timeouts',
+    short: 'a Raft timeout copied from the paper, on one machine where GC pauses outlast it.',
     title: 'A Cluster That Could Not Keep a Leader',
     project: 'nexus_cluster',
     projectHref: '/projects/nexus-cluster',

@@ -185,3 +185,76 @@ h1, h2, h3 {
   padding: 7px 13px;
   border-radius: 4px;
 }
+
+/* ---------------------------------------------------------------------------
+   cards, pills and the wide breakout: the pattern the work page introduced,
+   shared by every list page so a long list is a grid, not a scroll
+   --------------------------------------------------------------------------- */
+.pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 6px; }
+.pill {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease), background 0.2s var(--ease);
+}
+.pill span { opacity: 0.6; margin-left: 4px; }
+.pill:hover, .pill:focus-visible { color: var(--fg); border-color: var(--accent-edge); }
+.pill.is-on, .pill[aria-pressed='true'] { color: var(--accent-warm); border-color: var(--accent-warm); background: var(--warm-soft); }
+
+.cards {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+.cards > li {
+  position: relative;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(var(--bg-rgb), 0.72);
+  transition: border-color 0.25s var(--ease), background 0.25s var(--ease);
+}
+.cards > li:hover,
+.cards > li:focus-within { border-color: var(--accent-edge); background: rgba(var(--bg-rgb), 0.9); }
+.cards > li[hidden] { display: none; }
+.cards > li.is-lead { box-shadow: inset 2px 0 0 var(--accent-warm); }
+.cards strong { font-family: var(--font-display); font-weight: 500; font-size: 0.98rem; }
+.cards p { margin: 5px 0 0; }
+.cards .card-eyebrow { display: block; margin-bottom: 6px; color: var(--accent-warm); opacity: 0.85; }
+.cards a.card-link { display: block; }
+.cards a.card-link:hover strong,
+.cards a.card-link:focus-visible strong { color: var(--accent-warm); }
+
+.toggle { margin: 8px 0 4px; }
+.toggle summary {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  cursor: pointer;
+  width: fit-content;
+}
+.toggle[open] summary { margin-bottom: 4px; }
+
+@media (min-width: 1000px) {
+  .wide {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(1240px, calc(100vw - 96px));
+  }
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1440px) {
+  .cards.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

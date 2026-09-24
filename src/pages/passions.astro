@@ -33,11 +33,11 @@ const entries = [
     everything else inherited it.
   </p>
 
-  <ul class="rows row-list">
+  <ul class="cards three wide">
     {entries.map((e) => (
       <li>
-        <span class="eyebrow tag-label">{e.eyebrow}</span>
-        <a href={e.href} class="passion-link">
+        <a href={e.href} class="card-link">
+          <span class="eyebrow card-eyebrow">{e.eyebrow}</span>
           <strong>{e.name}</strong>
           <p class="muted">{e.blurb}</p>
         </a>
@@ -51,35 +51,6 @@ const entries = [
       margin: -18px 0 34px;
       color: var(--fg);
       font-size: 1.04rem;
-    }
-    /* borders and hover come from .row-list in theme.css */
-    .rows > li {
-      display: grid;
-      grid-template-columns: 168px 1fr;
-      gap: 20px;
-    }
-    .tag-label {
-      padding-top: 5px;
-      color: var(--accent-warm);
-      opacity: 0.8;
-    }
-    .passion-link strong {
-      font-family: var(--font-display);
-      font-weight: 500;
-      font-size: 1.05rem;
-      transition: color 0.25s var(--ease);
-    }
-    .passion-link p {
-      margin: 6px 0 0;
-      font-size: 0.97rem;
-      max-width: 60ch;
-    }
-    .passion-link:hover strong,
-    .passion-link:focus-visible strong { color: var(--accent-warm); }
-
-    @media (max-width: 620px) {
-      .rows > li { grid-template-columns: 1fr; gap: 4px; }
-      .tag-label { padding-top: 0; }
     }
   </style>
 </SystemLayout>

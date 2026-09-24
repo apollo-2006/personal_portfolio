@@ -9,17 +9,17 @@ const tags = ['all', ...Array.from(new Set(projects.map((p) => p.tag))), 'live d
 <SystemLayout title="projects · abir deol">
   <SectionHeader variant="projects" eyebrow="a small cluster, each one its own star" title="projects" />
 
-  <div class="filters" role="tablist">
+  <div class="pills wide" role="tablist">
     {tags.map((t, i) => (
-      <button class="filter" data-filter={t} aria-pressed={i === 0 ? 'true' : 'false'}>{t}</button>
+      <button class="pill" data-filter={t} aria-pressed={i === 0 ? 'true' : 'false'}>{t}</button>
     ))}
   </div>
 
-  <ul class="rows row-list">
+  <ul class="cards three wide">
     {projects.map((p) => (
       <li data-tag={p.tag} data-live={p.live ? 'true' : undefined}>
-        <span class="eyebrow tag-label">{p.tag}</span>
-        <a href={`/projects/${p.slug}`} class="project-link">
+        <a href={`/projects/${p.slug}`} class="card-link">
+          <span class="eyebrow card-eyebrow">{p.tag}</span>
           <strong>{p.name}</strong>{p.live && <span class="live-chip" title="has a live demo that runs in the browser">live</span>}
           <p class="muted">{p.blurb}</p>
         </a>
@@ -28,54 +28,6 @@ const tags = ['all', ...Array.from(new Set(projects.map((p) => p.tag))), 'live d
   </ul>
 
   <style>
-    .filters {
-      display: flex;
-      gap: 22px;
-      margin-bottom: 28px;
-    }
-    .filter {
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      font-weight: 500;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      cursor: pointer;
-      padding: 5px 2px;
-      border-bottom: 1px solid transparent;
-      transition: color 0.25s var(--ease), border-color 0.25s var(--ease);
-    }
-    .filter:hover { color: var(--fg); }
-    .filter[aria-pressed='true'] {
-      color: var(--fg);
-      border-bottom-color: var(--accent-warm);
-    }
-
-    /* borders + hover come from .row-list in theme.css */
-    .rows > li {
-      display: grid;
-      grid-template-columns: 96px 1fr;
-      gap: 20px;
-    }
-    .rows > li[hidden] { display: none; }
-    .tag-label {
-      padding-top: 5px;
-      color: var(--accent-warm);
-      opacity: 0.8;
-    }
-    .project-link strong {
-      font-family: var(--font-display);
-      font-weight: 500;
-      font-size: 1.05rem;
-      transition: color 0.25s var(--ease);
-    }
-    .project-link p {
-      margin: 6px 0 0;
-      font-size: 0.97rem;
-      max-width: 60ch;
-    }
     .live-chip {
       font-family: var(--font-mono);
       font-size: 0.6rem;
@@ -87,17 +39,14 @@ const tags = ['all', ...Array.from(new Set(projects.map((p) => p.tag))), 'live d
       border-radius: 999px;
       padding: 1px 7px;
       margin-left: 10px;
-      vertical-align: 3px;
+      vertical-align: 2px;
     }
-    .filters { flex-wrap: wrap; row-gap: 8px; }
-    .project-link:hover strong,
-    .project-link:focus-visible strong { color: var(--accent-warm); }
   </style>
 
   <script is:inline>
     (function () {
-      var buttons = document.querySelectorAll('.filter');
-      var items = document.querySelectorAll('.rows > li');
+      var buttons = document.querySelectorAll('.pills .pill');
+      var items = document.querySelectorAll('.cards > li');
       for (var i = 0; i < buttons.length; i++) {
         buttons[i].addEventListener('click', function (e) {
           var btn = e.currentTarget;
