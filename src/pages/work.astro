@@ -32,6 +32,9 @@ const statusLine =
       ? 'all of it is still open. none of these are merged yet.'
       : `none of these are merged yet, but ${num(approved)} ${approved === 1 ? 'is' : 'are'} approved. the rest are still open.`
     : `${num(merged)} of the ${num(prs)} pull requests ${merged === 1 ? 'is' : 'are'} merged upstream${approvedClause}. the rest are still open.`;
+const statusOf = (c) => (c.pr ? (c.pr.state === 'merged' ? 'merged' : 'open') : 'issue');
+const counts = { all: contributions.length, merged: 0, open: 0, issue: 0 };
+for (const c of contributions) counts[statusOf(c)]++;
 ---
 
 <SystemLayout
@@ -41,10 +44,8 @@ const statusLine =
   <SectionHeader variant="work" eyebrow="the short version, in one page" title="work" />
 
   <p class="intro">
-    third-year computing science at the university of alberta. I build systems from the
-    bottom up: consensus, storage engines, allocators, virtual machines, rasterizers.
-    I also write down what breaks. everything below links to the actual code or the actual
-    thread; nothing here is a claim you have to take my word for.
+    third-year computing science at the university of alberta. I build systems from the bottom up and
+    write down what breaks. everything below links to the real code or thread.
   </p>
 
   <!-- ============ open source ============ -->
@@ -53,17 +54,21 @@ const statusLine =
        so every gap next to an inline element here is either on the same line
        or an explicit {' '}. breaking before a tag silently joins the words. -->
   <p class="section-note">
-    {prs} pull requests and {issues} issues across {repos} upstream repositories: Khronos' Vulkan validation layers
-    and Mesa's lavapipe and RADV drivers, whisper.cpp and llama.cpp, AMD's lemonade and ROCm TheRock, Hugging Face's
-    candle and tokenizers, espeak-ng and pdf-rs. most fix crashes, memory-safety bugs or missing validation, found with
-    sanitizers, Miri and the Vulkan validation layers.{' '}
-    <strong class="honest">{statusLine}</strong>{' '}
-    they are here because the work is real and public, not only because it landed.
+    {prs} pull requests and {issues} issues across {repos} projects, most of them crashes and missing
+    validation I found and fixed myself.{' '}
+    <strong class="honest">{statusLine}</strong>
   </p>
+
+  <div class="filters" role="group" aria-label="filter contributions">
+    <button type="button" class="filter is-on" data-filter="all">all <span>{counts.all}</span></button>
+    <button type="button" class="filter" data-filter="merged">merged <span>{counts.merged}</span></button>
+    <button type="button" class="filter" data-filter="open">open <span>{counts.open}</span></button>
+    <button type="button" class="filter" data-filter="issue">issues <span>{counts.issue}</span></button>
+  </div>
 
   <ul class="rows row-list contrib-list">
     {contributions.map((c) => (
-      <li class={c.lead ? 'is-lead' : ''}>
+      <li class={c.lead ? 'is-lead' : ''} data-status={statusOf(c)}>
         <div class="contrib-head">
           <span class="eyebrow repo-label">{c.org}/{c.project}</span>
           <span class={`chip kind-${c.kind === 'issue' ? 'issue' : 'pr'}`}>{c.kind}</span>
@@ -73,11 +78,17 @@ const statusLine =
         </div>
 
         <strong>{c.title}</strong>
-        <p class="muted">{c.summary}</p>
+        <p class="muted">{c.short}</p>
 
-        <ul class="detail">
-          {c.detail.map((d) => <li>{d}</li>)}
-        </ul>
+        <details class="more">
+          <summary>how it went</summary>
+          <p class="muted full">{c.summary}</p>
+          {c.detail.length > 0 && (
+            <ul class="detail">
+              {c.detail.map((d) => <li>{d}</li>)}
+            </ul>
+          )}
+        </details>
 
         {c.note && <p class="note">{c.note}</p>}
 
@@ -159,6 +170,34 @@ const statusLine =
   </p>
 
   <style>
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 6px; }
+    .filter {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: color 0.2s var(--ease), border-color 0.2s var(--ease), background 0.2s var(--ease);
+    }
+    .filter span { opacity: 0.6; margin-left: 4px; }
+    .filter:hover, .filter:focus-visible { color: var(--fg); border-color: var(--accent-edge); }
+    .filter.is-on { color: var(--accent-warm); border-color: var(--accent-warm); background: var(--warm-soft); }
+    .more { margin: 8px 0 4px; }
+    .more .full { margin: 6px 0 0; }
+    .more summary {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+      cursor: pointer;
+      width: fit-content;
+    }
+    .more[open] summary { margin-bottom: 4px; }
+
     .intro {
       max-width: 68ch;
       margin: 0 0 42px;
@@ -179,6 +218,44 @@ const statusLine =
        section breaks down one page, so they need the space above too. */
     .sub-heading { margin-top: 56px; }
     .sub-heading + .section-note { margin-top: -8px; }
+
+    /* wide screens: the list breaks out of the reading column into a card
+       grid, since 29 entries in one narrow column is a lot of scrolling */
+    @media (min-width: 1000px) {
+      .filters,
+      .contrib-list {
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(1240px, calc(100vw - 96px));
+      }
+      .contrib-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        align-items: start;
+        margin-top: 10px;
+      }
+      .contrib-list > li,
+      .contrib-list > li:hover,
+      .contrib-list > li:focus-within {
+        padding: 16px 18px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(13, 19, 29, 0.72);
+      }
+      .contrib-list > li:last-child { border-bottom: 1px solid var(--line); }
+      .contrib-list > li:hover,
+      .contrib-list > li:focus-within { border-color: var(--accent-edge); }
+      .contrib-list > li.is-lead { border-left: 1px solid var(--line); box-shadow: inset 2px 0 0 var(--accent-warm); }
+      .contrib-list > li[hidden] { display: none; }
+      .contrib-list strong { font-size: 0.98rem; }
+      .contrib-list p.muted { font-size: 0.9rem; line-height: 1.6; }
+      .contrib-list .links { margin-top: 10px; }
+    }
+    @media (min-width: 1440px) {
+      .contrib-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
 
     /* contributions ------------------------------------------------ */
     .contrib-head {
@@ -301,4 +378,15 @@ const statusLine =
       .edu-row { flex-direction: column; gap: 6px; }
     }
   </style>
+<script>
+  const buttons = document.querySelectorAll('.filter');
+  const items = document.querySelectorAll('.contrib-list > li');
+  buttons.forEach((b) =>
+    b.addEventListener('click', () => {
+      buttons.forEach((x) => x.classList.toggle('is-on', x === b));
+      const f = b.dataset.filter;
+      items.forEach((li) => (li.hidden = f !== 'all' && li.dataset.status !== f));
+    })
+  );
+</script>
 </SystemLayout>

@@ -3,6 +3,7 @@ import SystemLayout from '../layouts/SystemLayout.astro';
 import { postmortems } from '../data/postmortems.js';
 import ConstellationGlyph from '../components/ConstellationGlyph.astro';
 import { projects } from '../data/projects.js';
+import { contributionStats } from '../data/contributions.js';
 
 // scattered constellation, positioned by top/left percentages (this is the
 // pattern from the original design that rendered correctly; the entrance
@@ -139,13 +140,19 @@ const subItems = {
     <!-- the site used to say only the name and "click a star". this states
          what I actually build, in text, before anyone has to interact. -->
     <p class="pitch">
-      systems programmer. consensus, storage engines, allocators, virtual machines
-      and rasterizers, written from the bottom up, then written about.
+      I work on the Vulkan validation layers and GPU drivers, and build systems from the bottom up:
+      consensus, storage engines, allocators, virtual machines and rasterizers.
     </p>
-    <p class="drift">you've drifted into the void</p>
-    <p class="lede">click a star to explore. <span class="lede-hint">or draw the bowstring and let go.</span></p>
-    <!-- the way out for anyone who does not want to explore -->
-    <p class="skip"><a href="/work">skip the void, everything on one page →</a></p>
+    <ul class="stats" aria-label="at a glance">
+      <li><strong>{contributionStats.merged}</strong> merged upstream</li>
+      <li>Khronos · Mesa · ggml-org</li>
+      <li><strong>10</strong> live demos</li>
+    </ul>
+    <p class="cta">
+      <a class="btn btn-primary" href="/work">see the work →</a>
+      <a class="btn" href="/abir-deol-resume.pdf">resume</a>
+    </p>
+    <p class="lede">or click a star to explore the void. <span class="lede-hint">you can also draw the bowstring and let go.</span></p>
   </div>
 
   <button class="exit-void" type="button" aria-label="back to the void">↺ back to the void</button>
@@ -233,7 +240,7 @@ const subItems = {
       position: absolute;
       top: 100px;
       left: clamp(20px, 4vw, 48px);
-      max-width: 340px;
+      max-width: 420px;
       z-index: 3;
       transition: opacity 0.35s var(--ease), transform 0.35s var(--ease);
     }
@@ -257,18 +264,53 @@ const subItems = {
       color: var(--fg);
       margin: 18px 0 10px;
     }
-    .lede { color: var(--muted); }
+    .lede { color: var(--muted); font-size: 0.86rem; }
 
     .pitch {
       max-width: 46ch;
       margin: 14px 0 0;
       font-size: clamp(0.92rem, 1.15vw, 1.02rem);
       line-height: 1.65;
-      color: var(--muted);
+      color: var(--fg);
+      opacity: 0.86;
     }
     .skip {
       margin: 16px 0 0;
     }
+    .stats {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 18px 0 0;
+      padding: 0;
+    }
+    .stats li {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      letter-spacing: 0.04em;
+      color: var(--fg);
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(var(--bg-rgb), 0.6);
+    }
+    .stats strong { color: var(--accent-warm); font-weight: 500; }
+    .cta { display: flex; gap: 10px; margin: 18px 0 14px; }
+    .btn {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: 1px solid var(--accent-edge);
+      color: var(--fg);
+      background: rgba(var(--bg-rgb), 0.6);
+      transition: background 0.25s var(--ease), border-color 0.25s var(--ease);
+    }
+    .btn:hover, .btn:focus-visible { background: var(--accent-soft); }
+    .btn-primary { border-color: var(--accent-warm); color: var(--accent-warm); }
+    .btn-primary:hover, .btn-primary:focus-visible { background: var(--warm-soft); }
     .skip a {
       font-family: var(--font-mono);
       font-size: 0.76rem;

@@ -74,6 +74,13 @@ const navLinks = [
         document.documentElement.setAttribute('data-theme', saved || 'orbit');
       })();
     </script>
+    <!-- the uplink screen plays once per visit, not on every page -->
+    <script is:inline>
+      try {
+        if (sessionStorage.getItem('uplinked')) document.documentElement.classList.add('uplinked');
+        else sessionStorage.setItem('uplinked', '1');
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="boot" aria-hidden="true">
@@ -374,6 +381,7 @@ const navLinks = [
       @media (prefers-reduced-motion: reduce) {
         #boot { animation: none; opacity: 0; visibility: hidden; }
       }
+      :global(html.uplinked) #boot { display: none; }
     </style>
   </body>
 </html>

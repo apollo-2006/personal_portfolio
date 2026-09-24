@@ -18,6 +18,7 @@ export const contributions = [
     date: '2026-09',
     diff: '+82 / -3',
     title: 'GPU-AV crashed instrumenting a runtime cooperative-matrix stride',
+    short: 'GPU-AV segfaulted on any cooperative-matrix load with a runtime stride. reported it, then fixed the pass.',
     summary:
       'with GPU-AV on, vkCreateComputePipelines segfaulted on any compute shader whose coopMatLoad or coopMatStore used a stride computed at runtime. reported it with a minimal shader, then wrote the fix. merged into the validation layers.',
     detail: [
@@ -41,6 +42,7 @@ export const contributions = [
     date: '2026-09',
     diff: '+59 / -7',
     title: 'GPU-AV decoded a shader offset that never named an instruction',
+    short: 'GPU-AV decoded garbage after an out-of-bounds shared memory access. found under llama.cpp, fixed over five review rounds.',
     summary:
       'when an application indexed its shared memory out of bounds, GPU-AV read back a word that was never a packed instruction offset and decoded it anyway, walking off an empty operand list. found it under a real llama.cpp workload, reported it, and wrote the fix. merged into the validation layers.',
     detail: [
@@ -63,6 +65,7 @@ export const contributions = [
     date: '2026-09',
     diff: '+138 / -62',
     title: 'graphics pipeline libraries with independent sets were never compared',
+    short: 'mismatched set layouts in linked pipeline libraries went unreported. found because lavapipe asserted on a test.',
     summary:
       'when a pipeline layout uses independent sets, linked libraries may leave a set null on one side, but two non-null set layouts at the same index must still match (06616/06617). the comparison only ran without independent sets, so a mismatch went unreported. found it because lavapipe asserted on a test that did exactly that.',
     detail: [
@@ -83,6 +86,7 @@ export const contributions = [
     date: '2026-09',
     diff: '+11 / -11',
     title: 'eleven descriptor heap tests compared a sampled UNORM value exactly',
+    short: 'eleven tests compared a sampled float exactly, and lavapipe was one ulp off. now they allow for rounding.',
     summary:
       'the tests sampled 0.2 from an 8-bit UNORM image and compared the float with ==. lavapipe returns 51/255, one ulp off, which the spec allows. they now compare with a tolerance. approved within the hour.',
     detail: [
@@ -100,6 +104,7 @@ export const contributions = [
     date: '2026-09',
     diff: '+79 / -17',
     title: 'a plane view that kept the multi-planar format was never reported',
+    short: 'a YCbCr plane view with the wrong format slipped past validation. in review, working through the spec together.',
     summary:
       'VUID 01586 says a single-plane view of a YCbCr image must use a format compatible with that plane. the check only ran when the view format differed from the image format, so a PLANE_0 view that kept the whole multi-planar format slipped through, and lavapipe asserted on it.',
     detail: [
@@ -119,6 +124,7 @@ export const contributions = [
     date: '2026-09',
     diff: '+34 / -14',
     title: 'five tests that only passed on one kind of driver',
+    short: 'tests that only passed on one kind of driver, found running the suite on lavapipe.',
     summary:
       'the rest of the lavapipe run, in one commit as the maintainer suggested. each test leaned on one implementation\'s limits or had a bug another driver happened to hide.',
     detail: [
@@ -136,6 +142,7 @@ export const contributions = [
     issue: { number: 16396, url: 'https://gitlab.freedesktop.org/mesa/mesa/-/issues/16396', state: 'open' },
     date: '2026-09',
     title: 'descriptor heap data loads lowered as acceleration structure loads',
+    short: 'plain descriptor heap reads came back wrong on two drivers. traced into Mesa\'s shared runtime and bisected.',
     summary:
       'a shader reading four plain uints from the descriptor heap got back the wrong values on both lavapipe and RADV. traced it past both drivers to Mesa\'s shared Vulkan runtime, which treated every direct heap load as an acceleration structure load, and bisected it to one commit.',
     detail: [
@@ -153,6 +160,7 @@ export const contributions = [
     issue: { number: 16378, url: 'https://gitlab.freedesktop.org/mesa/mesa/-/issues/16378', state: 'open' },
     date: '2026-09',
     title: 'RADV asserted on destroy with two queues of one family',
+    short: 'RADV asserted on a valid queue setup. fixed by a RADV developer the next day, now a CTS ticket.',
     summary:
       'two queue create infos sharing a family index but differing in flags, which the spec allows, left one queue never torn down, so vkDestroyDevice asserted. a RADV developer had a fix up the next day, and it became a Vulkan CTS ticket.',
     detail: [
@@ -169,6 +177,7 @@ export const contributions = [
     issue: { number: 16379, url: 'https://gitlab.freedesktop.org/mesa/mesa/-/issues/16379', state: 'open' },
     date: '2026-09',
     title: 'RADV segfaulted on a result-status-only query pool with no video profile',
+    short: 'RADV segfaulted on a valid video query pool. picked up the same day, now a CTS ticket.',
     summary:
       'radv_create_query_pool dereferenced a video profile the spec does not require for this query type. a RADV developer picked it up the same day with a fix now landing, and it became a Vulkan CTS ticket too.',
     detail: [
@@ -189,6 +198,7 @@ export const contributions = [
     date: '2026-09',
     diff: '+2 / -2',
     title: 'Vulkan im2col shaders wrote through an under-aligned buffer reference',
+    short: 'two Vulkan shaders declared the wrong pointer alignment. a one-word fix each, 40 validation errors to zero.',
     summary:
       'two shaders declared a buffer_reference with no alignment, so glslang emitted every write as Aligned 16 while the pointer actually advanced 2 or 4 bytes at a time. a one-word fix in each shader, found by running the validation layers over the Vulkan backend.',
     detail: [
@@ -212,6 +222,7 @@ export const contributions = [
     date: '2026-09',
     diff: '+69 / -9',
     title: 'AMD GPUs reported by KFD version number instead of their name',
+    short: 'an RX 9070 XT reported itself as "120001". added a readable name without breaking ROCm backend selection.',
     summary:
       'on Linux the system-info endpoint named an AMD GPU "120001", the raw gfx_target_version. the obvious fix breaks ROCm backend selection, because that same field is the arch lookup key, so the fix had to add a name rather than replace one.',
     detail: [
@@ -234,6 +245,7 @@ export const contributions = [
     date: '2026-09',
     diff: '+6 / -0',
     title: 'embedding requests over 512 tokens failed with a 500 on an 8192-token context',
+    short: 'embedding requests over 512 tokens failed on an 8192-token context. the batch size was the real limit.',
     summary:
       'the limit users were told about and the limit they actually hit did not match. the context was raised to 8192 for embedding models but the micro batch was left at llama.cpp\'s default 512, and for a non-causal model the micro batch is the real ceiling.',
     detail: [
@@ -257,6 +269,7 @@ export const contributions = [
     date: '2026-09',
     diff: '+8 / -0',
     title: 'tests abort on a GGML_BACKEND_DL build',
+    short: 'the tests aborted on a valid build configuration. fixed in four call sites.',
     summary:
       'found the test suite aborting on a valid build configuration, traced it to the real cause, and fixed it in four lines of call sites. merged into master.',
     detail: [
@@ -278,6 +291,7 @@ export const contributions = [
     date: '2026-09',
     diff: '+3 / -1',
     title: 'cover GGML_BACKEND_DL in CI',
+    short: 'a CI leg that would have caught the bug above before it shipped.',
     summary:
       'the follow-up to the merged fix above: a CI leg that would have caught the bug before it shipped, so it cannot quietly come back.',
     detail: [
@@ -300,6 +314,7 @@ export const contributions = [
     date: '2026-09',
     diff: '+251 / -1',
     title: 'macOS CLI release binaries',
+    short: 'prebuilt macOS binaries, including one universal archive that picks its CPU backend at load time.',
     summary:
       'proposed that releases ship prebuilt macOS binaries, discussed the shape with another contributor in the issue, then wrote the workflow that does it.',
     detail: [
@@ -319,6 +334,7 @@ export const contributions = [
     date: '2026-09',
     diff: '+3 / -1',
     title: 'out-of-bounds read on ordinary voice selection',
+    short: 'an out-of-bounds read on nearly every run, found under UBSan.',
     summary:
       'a size_t subtraction in SelectVoiceByName wraps for two-character voice identifiers, so selecting a voice reads one byte before a heap string, on essentially every run. found under UBSan.',
     detail: [
@@ -339,6 +355,7 @@ export const contributions = [
     date: '2026-09',
     diff: '+8 / -0',
     title: 'heap out-of-bounds read from a VAD model header',
+    short: 'a VAD model header could make whisper read past three heap arrays.',
     summary:
       'a VAD model that declares any number of encoder layers other than four overruns three heap arrays at load, reachable from whisper-cli --vad on a user-supplied model.',
     detail: [
@@ -358,6 +375,7 @@ export const contributions = [
     date: '2026-09',
     diff: '+99 / -3',
     title: 'undefined behaviour loading quantized GGML tensors',
+    short: 'undefined behaviour loading quantized tensors, reachable from safe Rust.',
     summary:
       'a public, safe loader reinterpreted a byte slice as quantized blocks with no length or alignment check. Miri reports a dangling reference, and a debug build aborts on an unaligned buffer.',
     detail: [
@@ -377,6 +395,7 @@ export const contributions = [
     date: '2026-09',
     diff: '+91 / -2',
     title: 'heap overflow in Tensor::from_raw_buffer',
+    short: 'a heap overflow reachable from safe code that still returned Ok.',
     summary:
       'on the unaligned path the copy moved every byte of the input into a buffer sized for whole elements only, so a seven-byte f32 buffer wrote past its allocation and still returned Ok.',
     detail: [
@@ -396,6 +415,7 @@ export const contributions = [
     date: '2026-09',
     diff: '+68 / -15',
     title: 'invalid UTF-8 and panics from a malformed BPE merge list',
+    short: 'a malformed merge list produced invalid UTF-8 through an unsafe block, now removed.',
     summary:
       'building a BPE model stripped the continuing-subword prefix by byte offset without checking the token had it, then built a str with from_utf8_unchecked. a malformed tokenizer file, not even a malicious one, reaches three failures.',
     detail: [
@@ -415,6 +435,7 @@ export const contributions = [
     date: '2026-09',
     diff: '+61 / -2',
     title: 'crash on a zero-length phoneme data file',
+    short: 'an empty data file crashed the process through a NULL nobody checked.',
     summary:
       'ReadPhFile treated an empty file as success and returned a NULL buffer that none of its callers checked, so a zero-byte phontab from a truncated download or full disk segfaults the process.',
     detail: [
@@ -434,6 +455,7 @@ export const contributions = [
     date: '2026-09',
     diff: '+33 / -3',
     title: 'build info taken from the wrong git repository',
+    short: 'a release unpacked inside another git repository stamped that repository\'s commit into --version.',
     summary:
       'the build asked git for the commit and build number without checking the answer came from llama.cpp itself. a release tarball unpacked inside any other repository stamped that repository\'s HEAD into --version.',
     detail: [
@@ -453,6 +475,7 @@ export const contributions = [
     date: '2026-09',
     diff: '+34 / -11',
     title: 'catch a missing break in the language table at compile time',
+    short: 'turn on a compiler warning that catches a missing break in a thousand-line table.',
     summary:
       'a missing break in the thousand-line language switch silently gives one language another\'s settings, and the audio-hash tests invite pasting in the new hash. -Wimplicit-fallthrough now catches it.',
     detail: [
@@ -473,6 +496,7 @@ export const contributions = [
     date: '2026-09',
     diff: '+31 / -2',
     title: 'panic on a sampled function with an inverted domain',
+    short: 'a PDF with a backwards function domain panicked the parser.',
     summary:
       'f32::clamp panics when its bounds are reversed, and a PDF can declare a function domain written backwards, so evaluating it crashed the parser. bounds are now ordered first, as the stitching function already did.',
     detail: [
@@ -491,6 +515,7 @@ export const contributions = [
     date: '2026-08',
     diff: '+30 / -0',
     title: 'clarify VAD-mode timestamps and model-path errors',
+    short: 'documented the stream example\'s output formats and a confusing model path error.',
     summary:
       'hit two confusing behaviours in the stream example while building against the library, and wrote them down.',
     detail: [
@@ -510,6 +535,7 @@ export const contributions = [
     date: '2026-09',
     diff: '+11 / -1',
     title: 'the GUI3 web app had no tab icon and two 404s on every load',
+    short: 'the web app had no tab icon and two 404s on every page load.',
     summary:
       'nothing in the web-app build emitted favicon.ico, and the logo path was rewritten in the app CSS but not in the critical CSS inlined into index.html. one webpack plugin now handles both.',
     detail: [],
@@ -525,6 +551,7 @@ export const contributions = [
     date: '2026-09',
     diff: '+10 / -10',
     title: 'nightly ROCm builds of llama-server all reported build 1',
+    short: 'every nightly ROCm build of llama-server reported build 1, because of a shallow clone.',
     summary:
       'llama.cpp takes its build number from git rev-list --count, and the workflow cloned with --depth 1, so the count was always 1. a blobless clone keeps the full history without the download.',
     detail: [],
@@ -539,6 +566,7 @@ export const contributions = [
     issue: { number: 8219, url: 'https://github.com/ROCm/TheRock/issues/8219', state: 'open' },
     date: '2026-09',
     title: 'rocm_sdk test fails unless the virtual environment is activated',
+    short: 'a ROCm SDK test only passed with the virtual environment activated.',
     summary:
       'one test in the ROCm SDK suite runs rocm_sdk through sys.executable but then calls hipconfig by bare name, so it resolves through PATH instead of through the interpreter under test and fails on an unactivated venv.',
     detail: [
@@ -556,6 +584,7 @@ export const contributions = [
     issue: { number: 1825, url: 'https://github.com/tauri-apps/wry/issues/1825', state: 'open' },
     date: '2026-08',
     title: "PermissionKind's media-capture variants lack the platform-specific block",
+    short: 'media-capture permissions were missing their platform notes in the docs.',
     summary:
       'found the gap while building the native shell for oracle_of_delphi: every other PermissionKind variant documents its platform behaviour, the media-capture ones do not.',
     detail: [
