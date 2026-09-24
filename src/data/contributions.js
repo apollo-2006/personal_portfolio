@@ -120,19 +120,22 @@ export const contributions = [
     project: 'Vulkan-ValidationLayers',
     org: 'KhronosGroup',
     kind: 'pr',
-    pr: { number: 13217, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/13217', state: 'open' },
+    merged: true,
+    pr: { number: 13217, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/13217', state: 'merged' },
     date: '2026-09',
-    diff: '+34 / -14',
-    title: 'five tests that only passed on one kind of driver',
-    short: 'tests that only passed on one kind of driver, found running the suite on lavapipe.',
+    diff: '+38 / -17',
+    title: 'tests that only passed on one kind of driver',
+    short: 'four tests rewritten to ask the driver for its limits instead of assuming them. merged after two review rounds.',
     summary:
       'the rest of the lavapipe run, in one commit as the maintainer suggested. each test leaned on one implementation\'s limits or had a bug another driver happened to hide.',
     detail: [
-      'the sharpest one: an untyped access chain with no index pointed at heap offset 0 instead of a struct member placed at buf_size * 2. RADV silently dropped the store and lavapipe segfaulted. with the index both read back 42.',
-      'the others: cooperative-matrix tests that assumed 16x16 support, a capture-data size that can be 0, a skip that checked descriptor size when the VUID is about alignment, and a sampler descriptor overwritten by the UBO next to it.',
+      'the one the maintainer asked for: a descriptor alignment test placed its second buffer inside the first, so on drivers with 4-byte alignment spirv-val reported the overlap instead of the alignment error. sizing both members bufferDescriptorSize + 2 puts it just past the first and off the alignment grid on every conformant driver, checked across nine faked size and alignment profiles.',
+      'the others: cooperative-matrix tests that assumed 16x16 support, a capture-data size that can be 0, and a sampler descriptor overwritten by the UBO next to it.',
+      'a fifth fix, for an access chain with no index, turned into a SPIR-V spec question. the answer confirmed it pointed at heap offset 0 rather than the struct member, and the maintainer took it on in #13219.',
     ],
     stack: ['C++', 'SPIR-V', 'Vulkan'],
   },
+
 
   {
     id: 'mesa-heap-data-loads',
