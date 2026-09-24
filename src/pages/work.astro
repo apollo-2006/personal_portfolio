@@ -36,12 +36,12 @@ const statusLine =
 
 <SystemLayout
   title="work · abir deol"
-  description={`Open-source contributions to whisper.cpp, llama.cpp, the Vulkan validation layers, lemonade, candle, tokenizers and espeak-ng, ${projects.length} systems projects, and written post-mortems. Abir Deol, computing science at the University of Alberta.`}
+  description={`Open-source contributions to the Vulkan validation layers, Mesa, whisper.cpp, llama.cpp, lemonade, candle, tokenizers and espeak-ng, ${projects.length} systems projects, and written post-mortems. Abir Deol, computing science at the University of Alberta.`}
 >
   <SectionHeader variant="work" eyebrow="the short version, in one page" title="work" />
 
   <p class="intro">
-    second-year computing science at the university of alberta. I build systems from the
+    third-year computing science at the university of alberta. I build systems from the
     bottom up: consensus, storage engines, allocators, virtual machines, rasterizers.
     I also write down what breaks. everything below links to the actual code or the actual
     thread; nothing here is a claim you have to take my word for.
@@ -53,9 +53,10 @@ const statusLine =
        so every gap next to an inline element here is either on the same line
        or an explicit {' '}. breaking before a tag silently joins the words. -->
   <p class="section-note">
-    {prs} pull requests and {issues} issues across {repos} upstream repositories: whisper.cpp and llama.cpp,
-    Khronos' Vulkan validation layers, AMD's lemonade and ROCm TheRock, Hugging Face's candle and tokenizers,
-    espeak-ng and pdf-rs. about half fix memory-safety bugs or crashes found with sanitizers, Miri and the Vulkan validation layers.{' '}
+    {prs} pull requests and {issues} issues across {repos} upstream repositories: Khronos' Vulkan validation layers
+    and Mesa's lavapipe and RADV drivers, whisper.cpp and llama.cpp, AMD's lemonade and ROCm TheRock, Hugging Face's
+    candle and tokenizers, espeak-ng and pdf-rs. most fix crashes, memory-safety bugs or missing validation, found with
+    sanitizers, Miri and the Vulkan validation layers.{' '}
     <strong class="honest">{statusLine}</strong>{' '}
     they are here because the work is real and public, not only because it landed.
   </p>

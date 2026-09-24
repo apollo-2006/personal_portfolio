@@ -53,6 +53,131 @@ export const contributions = [
   },
 
   {
+    id: 'vvl-gpl-independent-sets',
+    project: 'Vulkan-ValidationLayers',
+    org: 'KhronosGroup',
+    kind: 'pr',
+    lead: true,
+    merged: true,
+    pr: { number: 13208, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/13208', state: 'merged' },
+    date: '2026-09',
+    diff: '+138 / -62',
+    title: 'graphics pipeline libraries with independent sets were never compared',
+    summary:
+      'when a pipeline layout uses independent sets, linked libraries may leave a set null on one side, but two non-null set layouts at the same index must still match (06616/06617). the comparison only ran without independent sets, so a mismatch went unreported. found it because lavapipe asserted on a test that did exactly that.',
+    detail: [
+      'ran the whole validation layer suite on lavapipe, the CPU Vulkan driver, at the maintainer\'s suggestion. a GPU-AV test linked a storage buffer set against an unused sampler set at the same index, and lavapipe\'s merge_layouts asserted on it in a debug build.',
+      'the fix runs the existing set-layout comparison for independent sets too, choosing the 06616 or 06617 VUID by how the pipeline is built. the error text is only picked when an error is actually reported, and the test\'s unused set is now null, as it intended.',
+      'two new tests, one per VUID, as asked in review. the maintainer cross-checked it the next morning and merged it.',
+    ],
+    stack: ['C++', 'Vulkan', 'GPL'],
+  },
+
+  {
+    id: 'vvl-unorm-tolerance',
+    project: 'Vulkan-ValidationLayers',
+    org: 'KhronosGroup',
+    kind: 'pr',
+    merged: true,
+    pr: { number: 13209, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/13209', state: 'merged' },
+    date: '2026-09',
+    diff: '+11 / -11',
+    title: 'eleven descriptor heap tests compared a sampled UNORM value exactly',
+    summary:
+      'the tests sampled 0.2 from an 8-bit UNORM image and compared the float with ==. lavapipe returns 51/255, one ulp off, which the spec allows. they now compare with a tolerance. approved within the hour.',
+    detail: [
+      'part of the same lavapipe run: a test suite that only ever ran on GPUs had quietly assumed their rounding.',
+    ],
+    stack: ['C++', 'Vulkan'],
+  },
+
+  {
+    id: 'vvl-plane-view-format',
+    project: 'Vulkan-ValidationLayers',
+    org: 'KhronosGroup',
+    kind: 'pr',
+    pr: { number: 13207, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/13207', state: 'open' },
+    date: '2026-09',
+    diff: '+79 / -17',
+    title: 'a plane view that kept the multi-planar format was never reported',
+    summary:
+      'VUID 01586 says a single-plane view of a YCbCr image must use a format compatible with that plane. the check only ran when the view format differed from the image format, so a PLANE_0 view that kept the whole multi-planar format slipped through, and lavapipe asserted on it.',
+    detail: [
+      'moved the check so every single-plane view goes through one place, and added a test that fails on main.',
+      'two existing tests created exactly that view. fixing them meant reading 01586, 06658 and 01564 together: a view with a YCbCr conversion must use the conversion\'s multi-planar format, so it cannot be a single-plane view.',
+      'still in review. YCbCr is a deep corner of the spec, and the maintainer and I are working through it together.',
+    ],
+    stack: ['C++', 'Vulkan', 'YCbCr'],
+  },
+
+  {
+    id: 'vvl-test-portability',
+    project: 'Vulkan-ValidationLayers',
+    org: 'KhronosGroup',
+    kind: 'pr',
+    pr: { number: 13217, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/13217', state: 'open' },
+    date: '2026-09',
+    diff: '+34 / -14',
+    title: 'five tests that only passed on one kind of driver',
+    summary:
+      'the rest of the lavapipe run, in one commit as the maintainer suggested. each test leaned on one implementation\'s limits or had a bug another driver happened to hide.',
+    detail: [
+      'the sharpest one: an untyped access chain with no index pointed at heap offset 0 instead of a struct member placed at buf_size * 2. RADV silently dropped the store and lavapipe segfaulted. with the index both read back 42.',
+      'the others: cooperative-matrix tests that assumed 16x16 support, a capture-data size that can be 0, a skip that checked descriptor size when the VUID is about alignment, and a sampler descriptor overwritten by the UBO next to it.',
+    ],
+    stack: ['C++', 'SPIR-V', 'Vulkan'],
+  },
+
+  {
+    id: 'mesa-heap-data-loads',
+    project: 'mesa',
+    org: 'mesa',
+    kind: 'issue',
+    issue: { number: 16396, url: 'https://gitlab.freedesktop.org/mesa/mesa/-/issues/16396', state: 'open' },
+    date: '2026-09',
+    title: 'descriptor heap data loads lowered as acceleration structure loads',
+    summary:
+      'a shader reading four plain uints from the descriptor heap got back the wrong values on both lavapipe and RADV. traced it past both drivers to Mesa\'s shared Vulkan runtime, which treated every direct heap load as an acceleration structure load, and bisected it to one commit.',
+    detail: [
+      'spirv_to_nir output was correct. try_lower_heaps_load_accel_struct in vk_nir_lower_descriptor_heaps.c matched any load rooted at the heap, and each driver then broke differently: lavapipe read shifted values, RADV failed NIR validation in a debug build.',
+      'wrote a fix that keeps the acceleration structure path only for the one load shape that can be one, with the descriptor_heap CTS group unchanged on both drivers. the commit\'s author picked the issue up the next morning.',
+    ],
+    stack: ['C', 'NIR', 'Mesa', 'Vulkan'],
+  },
+
+  {
+    id: 'mesa-radv-queue-flags',
+    project: 'mesa',
+    org: 'mesa',
+    kind: 'issue',
+    issue: { number: 16378, url: 'https://gitlab.freedesktop.org/mesa/mesa/-/issues/16378', state: 'open' },
+    date: '2026-09',
+    title: 'RADV asserted on destroy with two queues of one family',
+    summary:
+      'two queue create infos sharing a family index but differing in flags, which the spec allows, left one queue never torn down, so vkDestroyDevice asserted. a RADV developer had a fix up the next day, and it became a Vulkan CTS ticket.',
+    detail: [
+      'the issue showed why the usage is valid: VUID 02802 requires the family and flags combination to be unique, not the family alone.',
+    ],
+    stack: ['C', 'RADV', 'Vulkan'],
+  },
+
+  {
+    id: 'mesa-radv-query-pool',
+    project: 'mesa',
+    org: 'mesa',
+    kind: 'issue',
+    issue: { number: 16379, url: 'https://gitlab.freedesktop.org/mesa/mesa/-/issues/16379', state: 'open' },
+    date: '2026-09',
+    title: 'RADV segfaulted on a result-status-only query pool with no video profile',
+    summary:
+      'radv_create_query_pool dereferenced a video profile the spec does not require for this query type. a RADV developer picked it up the same day with a fix now landing, and it became a Vulkan CTS ticket too.',
+    detail: [
+      'one of four RADV and Mesa bugs found running the validation layer suite on an RX 9070 XT, each reported with the exact test, the crash site and the VUID that shows the application is valid.',
+    ],
+    stack: ['C', 'RADV', 'Vulkan Video'],
+  },
+
+  {
     id: 'llama-vulkan-im2col-align',
     project: 'llama.cpp',
     org: 'ggml-org',
@@ -148,7 +273,8 @@ export const contributions = [
     project: 'whisper.cpp',
     org: 'ggml-org',
     kind: 'pr',
-    pr: { number: 4047, url: 'https://github.com/ggml-org/whisper.cpp/pull/4047', state: 'open' },
+    merged: true,
+    pr: { number: 4047, url: 'https://github.com/ggml-org/whisper.cpp/pull/4047', state: 'merged' },
     date: '2026-09',
     diff: '+3 / -1',
     title: 'cover GGML_BACKEND_DL in CI',
@@ -208,7 +334,8 @@ export const contributions = [
     project: 'whisper.cpp',
     org: 'ggml-org',
     kind: 'pr',
-    pr: { number: 4064, url: 'https://github.com/ggml-org/whisper.cpp/pull/4064', state: 'open' },
+    merged: true,
+    pr: { number: 4064, url: 'https://github.com/ggml-org/whisper.cpp/pull/4064', state: 'merged' },
     date: '2026-09',
     diff: '+8 / -0',
     title: 'heap out-of-bounds read from a VAD model header',
@@ -372,6 +499,36 @@ export const contributions = [
       'approved by a maintainer on 2026-09-11, merged on 2026-09-18.',
     ],
     stack: ['C', 'technical writing'],
+  },
+
+  {
+    id: 'lemonade-gui3-favicon',
+    project: 'lemonade',
+    org: 'lemonade-sdk',
+    kind: 'pr',
+    pr: { number: 3652, url: 'https://github.com/lemonade-sdk/lemonade/pull/3652', state: 'open' },
+    date: '2026-09',
+    diff: '+11 / -1',
+    title: 'the GUI3 web app had no tab icon and two 404s on every load',
+    summary:
+      'nothing in the web-app build emitted favicon.ico, and the logo path was rewritten in the app CSS but not in the critical CSS inlined into index.html. one webpack plugin now handles both.',
+    detail: [],
+    stack: ['webpack', 'JavaScript'],
+  },
+
+  {
+    id: 'llamacpp-rocm-build-number',
+    project: 'llamacpp-rocm',
+    org: 'lemonade-sdk',
+    kind: 'pr',
+    pr: { number: 145, url: 'https://github.com/lemonade-sdk/llamacpp-rocm/pull/145', state: 'open' },
+    date: '2026-09',
+    diff: '+10 / -10',
+    title: 'nightly ROCm builds of llama-server all reported build 1',
+    summary:
+      'llama.cpp takes its build number from git rev-list --count, and the workflow cloned with --depth 1, so the count was always 1. a blobless clone keeps the full history without the download.',
+    detail: [],
+    stack: ['GitHub Actions', 'git'],
   },
 
   {
