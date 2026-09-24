@@ -99,25 +99,25 @@
 
 <h2>Open-Source Contributions</h2>
 <p class="note">
-  19 pull requests and 9 issues across 10 upstream repositories, 6 merged. Most began as a bug I found, reported, and
+  25 pull requests and 12 issues across 12 upstream projects, 10 merged. Most began as a bug I found, reported, and
   then fixed myself. Write-ups at abirdeol.tech/work.
 </p>
 
 <div class="entry">
   <div class="entry-head">
-    <span class="name">Khronos Group &middot; Vulkan-ValidationLayers</span>
-    <span class="stack">| C++, SPIR-V, GPU-AV</span>
-    <span class="tag">2 MERGED</span>
+    <span class="name">Khronos Group &middot; Vulkan-ValidationLayers, and Mesa</span>
+    <span class="stack">| C++, SPIR-V, GPU-AV, RADV, lavapipe</span>
+    <span class="tag">4 MERGED</span>
   </div>
   <ul>
-    <li>Fixed a segfault in <code>vkCreateComputePipelines</code> that took down any compute shader whose
-      <code>coopMatLoad</code> or <code>coopMatStore</code> used a stride computed at runtime: the GPU-AV
-      instrumentation pass read the stride as if it were always a constant. Reported with a minimal shader, then
-      wrote the fix and two regression tests (#13098 to #13104).</li>
-    <li>Fixed an abort when GPU-AV decoded a shader offset that never named an instruction: an out-of-bounds
-      shared-memory index makes the recovered word arbitrary, and decoding it underflowed a word count and indexed an
-      empty operand list. Validated the offset before decode, letting the decoder assert the invariant instead
-      (#13134 to #13150, through five review rounds with the maintainer).</li>
+    <li>Fixed a GPU-AV segfault in <code>vkCreateComputePipelines</code> on any <code>coopMatLoad</code> or
+      <code>coopMatStore</code> with a runtime stride, which the instrumentation pass read as a constant (#13098 to
+      #13104). Fixed an abort when GPU-AV decoded a shader offset that never named an instruction, found under a real
+      llama.cpp workload (#13134 to #13150, five review rounds).</li>
+    <li>Ran the full suite on lavapipe, Mesa's CPU Vulkan driver, at the maintainer's suggestion: added validation
+      that linked pipeline libraries with independent sets never had (#13208), fixed tests that only passed on one
+      kind of driver (#13209), and reported four RADV and Mesa driver bugs with the exact VUID showing the application
+      was valid. Two already have fixes from RADV developers and became Vulkan CTS tickets.</li>
   </ul>
 </div>
 
@@ -125,7 +125,7 @@
   <div class="entry-head">
     <span class="name">ggml-org &middot; llama.cpp and whisper.cpp</span>
     <span class="stack">| C++, GLSL, Vulkan, CI</span>
-    <span class="tag">3 MERGED</span>
+    <span class="tag">5 MERGED</span>
   </div>
   <ul>
     <li>Found, with the validation layers, that both Vulkan <code>im2col</code> shaders declared a
@@ -134,9 +134,9 @@
     <li>Fixed the whisper.cpp test suite aborting on every <code>GGML_BACKEND_DL=ON</code> build: no backend registers
       until something calls <code>ggml_backend_load_all()</code>, and the tests were the only callers that did not
       (#4030 to #4031). Documented the stream example's VAD timestamps and model-path failure mode (#4019).</li>
-    <li>Open: a heap out-of-bounds read reachable from <code>whisper-cli --vad</code> on any user-supplied VAD model,
-      found under AddressSanitizer with a crafted 94-byte model (#4064), plus a CI leg covering the build that broke
-      above.</li>
+    <li>Fixed a heap out-of-bounds read reachable from <code>whisper-cli --vad</code> on any user-supplied VAD model,
+      found under AddressSanitizer with a crafted 94-byte model (#4064), and added the CI leg that would have caught
+      the break above (#4047).</li>
   </ul>
 </div>
 
