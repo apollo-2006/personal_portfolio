@@ -547,6 +547,39 @@ export const contributions = [
   },
 
   {
+    id: 'lemonade-pull-variants-400',
+    project: 'lemonade',
+    org: 'lemonade-sdk',
+    kind: 'pr',
+    pr: { number: 3673, url: 'https://github.com/lemonade-sdk/lemonade/pull/3673', state: 'open' },
+    date: '2026-09',
+    diff: '+33 / -4',
+    title: 'model search filled the server log with 500s',
+    short: 'a repo with nothing pullable returned a 500 and two error lines. now a 400 and a warning.',
+    summary:
+      'the ModelScope search probes /pull/variants for every result. a repo with no GGUF, ONNX or Omni files threw a generic exception, so one search for qwen1.5 produced 19 server errors and 38 error log lines.',
+    detail: [
+      'made "no supported files" a 400, matching the maintainers\' existing choice for GGUFs llama.cpp cannot load, and logged 4xx as warnings with 5xx still errors. regression test added.',
+    ],
+    stack: ['C++', 'REST'],
+  },
+
+  {
+    id: 'lemonade-gui3-favicon-symlink',
+    project: 'lemonade',
+    org: 'lemonade-sdk',
+    kind: 'pr',
+    pr: { number: 3674, url: 'https://github.com/lemonade-sdk/lemonade/pull/3674', state: 'open' },
+    date: '2026-09',
+    title: 'the GUI3 desktop app panicked at launch on Windows',
+    short: 'a symlinked icon became a 32-byte text file on Windows checkouts. stored it as a real file.',
+    summary:
+      'git for Windows checks symlinks out as text, so include_bytes! embedded the link path instead of the icon and image decoding panicked at startup.',
+    detail: [],
+    stack: ['Rust', 'git'],
+  },
+
+  {
     id: 'llamacpp-rocm-build-number',
     project: 'llamacpp-rocm',
     org: 'lemonade-sdk',
