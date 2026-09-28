@@ -158,6 +158,25 @@ export const contributions = [
   },
 
   {
+    id: 'vvl-dedicated-export-alloc',
+    project: 'Vulkan-ValidationLayers',
+    org: 'KhronosGroup',
+    kind: 'pr',
+    pr: { number: 13245, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/13245', state: 'open' },
+    date: '2026-09',
+    diff: '+261 / -36',
+    title: 'export handle types checked at allocation, not bind',
+    short: 'when memory is dedicated to one buffer or image, its export handle types can be checked the moment it is allocated.',
+    summary:
+      'the export checks waited for vkBind*Memory even when VkMemoryDedicatedAllocateInfo already named the resource. after a discussion on the issue, the maintainer asked for code first so the spec wording could follow.',
+    detail: [
+      'shared the external memory queries between the import and export checks, and skipped the duplicate bind-time report for dedicated memory.',
+      'two negative tests fail on main and pass on the mock driver, lavapipe and RADV; the full suite matches main.',
+    ],
+    stack: ['C++', 'Vulkan', 'external memory'],
+  },
+
+  {
     id: 'glslang-task-payload',
     project: 'glslang',
     org: 'KhronosGroup',
