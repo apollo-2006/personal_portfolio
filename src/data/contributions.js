@@ -137,6 +137,44 @@ export const contributions = [
     stack: ['C++', 'SPIR-V', 'Vulkan'],
   },
 
+  {
+    id: 'vvl-bp-ds-resolve-access',
+    project: 'Vulkan-ValidationLayers',
+    org: 'KhronosGroup',
+    kind: 'pr',
+    merged: true,
+    pr: { number: 13241, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/13241', state: 'merged' },
+    date: '2026-09',
+    diff: '+136 / -10',
+    title: 'best practices warned about barriers the spec asks for',
+    short: 'depth/stencil resolves use the color attachment access flags, and best practices flagged them. approved in two minutes.',
+    summary:
+      'the spec says multisample resolves read and write through COLOR_ATTACHMENT access even for depth/stencil attachments. the best practices access/layout table only allowed depth/stencil accesses there, so a barrier written exactly as the spec says got a warning.',
+    detail: [
+      'a resolve has two sides: the single-sample attachment is written, the multisample one only read and allowed to sit in a read-only layout. so attachment layouts accept read and write, read-only layouts only read.',
+      'the positive test fails on main with 23 warnings, and a negative test proves writes into read-only layouts are still caught.',
+    ],
+    stack: ['C++', 'Vulkan', 'synchronization'],
+  },
+
+  {
+    id: 'glslang-task-payload',
+    project: 'glslang',
+    org: 'KhronosGroup',
+    kind: 'pr',
+    pr: { number: 4450, url: 'https://github.com/KhronosGroup/glslang/pull/4450', state: 'open' },
+    date: '2026-09',
+    diff: '+29 / -0',
+    title: 'a misplaced task payload qualifier was silently dropped',
+    short: 'taskPayloadSharedEXT on a struct definition compiled fine and sent no payload. now it is a compile error.',
+    summary:
+      'writing taskPayloadSharedEXT on a struct type instead of a variable declared nothing, so the qualifier vanished and EmitMeshTasksEXT was emitted without its payload operand.',
+    detail: [
+      'the check sits where glslang already rejects other declarations without a variable. both broken forms error out, both valid forms still compile, and the whole test suite passes.',
+    ],
+    stack: ['C++', 'GLSL', 'mesh shading'],
+  },
+
 
   {
     id: 'mesa-heap-data-loads',
