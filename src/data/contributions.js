@@ -162,7 +162,8 @@ export const contributions = [
     project: 'Vulkan-ValidationLayers',
     org: 'KhronosGroup',
     kind: 'pr',
-    pr: { number: 13245, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/13245', state: 'open' },
+    merged: true,
+    pr: { number: 13245, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/13245', state: 'merged' },
     date: '2026-09',
     diff: '+261 / -36',
     title: 'export handle types checked at allocation, not bind',
@@ -171,7 +172,7 @@ export const contributions = [
       'the export checks waited for vkBind*Memory even when VkMemoryDedicatedAllocateInfo already named the resource. after a discussion on the issue, the maintainer asked for code first so the spec wording could follow.',
     detail: [
       'shared the external memory queries between the import and export checks, and skipped the duplicate bind-time report for dedicated memory.',
-      'two negative tests fail on main and pass on the mock driver, lavapipe and RADV; the full suite matches main.',
+      'two negative tests fail on main and pass on the mock driver, lavapipe and RADV; the full suite matches main. an Android CI leg caught one false report on external-format images, fixed the same day, then merged.',
     ],
     stack: ['C++', 'Vulkan', 'external memory'],
   },
@@ -192,6 +193,154 @@ export const contributions = [
       'the check sits where glslang already rejects other declarations without a variable. both broken forms error out, both valid forms still compile, and the whole test suite passes.',
     ],
     stack: ['C++', 'GLSL', 'mesh shading'],
+  },
+
+  {
+    id: 'vvl-mesh-output-clamp',
+    project: 'Vulkan-ValidationLayers',
+    org: 'KhronosGroup',
+    kind: 'pr',
+    merged: true,
+    pr: { number: 13246, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/13246', state: 'merged' },
+    date: '2026-09',
+    diff: '+155 / -6',
+    title: 'GPU-AV safe mode could hand the driver an out-of-range mesh output count',
+    short: 'safe mode replaced a bad SetMeshOutputsEXT with fixed counts that could be out of range themselves. now it clamps.',
+    summary:
+      'when GPU-AV caught an invalid SetMeshOutputsEXT in safe mode, it branched to SetMeshOutputsEXT(3, 1). a shader declaring max_vertices = 1 made that fallback invalid too. picked up from a TODO in the mesh shading pass.',
+    detail: [
+      'the call now runs exactly once, with each count clamped to the shader\'s declared maximum. error reporting is unchanged.',
+    ],
+    stack: ['C++', 'SPIR-V', 'GPU-AV', 'mesh shading'],
+  },
+
+  {
+    id: 'vvl-mesh-device-address',
+    project: 'Vulkan-ValidationLayers',
+    org: 'KhronosGroup',
+    kind: 'pr',
+    merged: true,
+    pr: { number: 13260, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/13260', state: 'merged' },
+    date: '2026-09',
+    diff: '+213 / -5',
+    title: 'mesh draws from device addresses had no GPU-AV checks',
+    short: 'the new device-address mesh draw commands were unchecked, and one reported the wrong error on packed commands.',
+    summary:
+      'vkCmdDrawMeshTasksIndirect2EXT had no GPU-AV hook, and the count variant went through the non-mesh path, which read 12-byte mesh commands with the 16-byte draw layout and reported the next command\'s groupCountX as a bad firstInstance.',
+    detail: [
+      'resolved the address ranges to a buffer and offset the way the non-mesh device-address draws already do, then reused the existing mesh checks.',
+      'tests fail on main and pass on lavapipe and RADV. approved and merged within a day.',
+    ],
+    stack: ['C++', 'Vulkan', 'GPU-AV', 'mesh shading'],
+  },
+
+  {
+    id: 'vvl-coopmat-stride-units',
+    project: 'Vulkan-ValidationLayers',
+    org: 'KhronosGroup',
+    kind: 'pr',
+    pr: { number: 13276, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/13276', state: 'open' },
+    date: '2026-09',
+    diff: '+77 / -24',
+    title: 'cooperative matrix strides measured in the wrong units',
+    short: 'GPU-AV scaled coopmat strides by the matrix component size instead of the pointed-to type. found by two failing tests on RADV.',
+    summary:
+      'the extension says Stride is in units of the type the pointer points to. GPU-AV used the matrix component size for both the alignment and bounds checks, so an aligned load reported a false error and a misaligned one slipped through.',
+    detail: [
+      'the runtime stride path also dropped the access chain offset, so its bounds check measured from the start of the buffer.',
+      'the full GPU-AV suite on RADV: 918 pass, and only the two broken tests and one new test change.',
+    ],
+    stack: ['C++', 'SPIR-V', 'GPU-AV', 'cooperative matrix'],
+  },
+
+  {
+    id: 'spirv-tools-dead-members',
+    project: 'SPIRV-Tools',
+    org: 'KhronosGroup',
+    kind: 'pr',
+    pr: { number: 6916, url: 'https://github.com/KhronosGroup/SPIRV-Tools/pull/6916', state: 'open' },
+    date: '2026-09',
+    diff: '+76 / -0',
+    title: 'the optimizer stripped struct members that were still needed',
+    short: 'spirv-opt deleted members of structs used as type operands, so every glslang abort shader came out invalid at -Os.',
+    summary:
+      '--eliminate-dead-members counted a struct as used when an instruction took a value of that type, never when it took the type itself. OpAbortKHR and untyped access chains both take one, so their structs lost their members.',
+    detail: [
+      'found by running spirv-opt\'s recipes over 564 valid glslang test shaders and validating every output. 30 came out invalid; with the fix all 30 validate and nothing else changes across 12 pass sets.',
+    ],
+    stack: ['C++', 'SPIR-V', 'compilers'],
+  },
+
+  {
+    id: 'wgpu-mesh-bundle-multiview',
+    project: 'wgpu',
+    org: 'gfx-rs',
+    kind: 'pr',
+    pr: { number: 10496, url: 'https://github.com/gfx-rs/wgpu/pull/10496', state: 'open' },
+    date: '2026-09',
+    diff: '+204 / -25',
+    title: 'mesh draws in render bundles skipped the multiview check',
+    short: 'render bundles never checked mesh draws against the multiview mask, and the check itself was off by one.',
+    summary:
+      'render passes validated mesh draws against the multiview mask, but bundles use a different state struct and never called it. moved the check so both paths share it.',
+    detail: [
+      'found an off-by-one while testing: with a limit of 2 views, a mask covering views 0 to 2 was accepted. the second commit fixes it, with validation tests for each case.',
+    ],
+    stack: ['Rust', 'WebGPU', 'mesh shading'],
+  },
+
+  {
+    id: 'naga-mesh-local-invocation-index',
+    project: 'wgpu',
+    org: 'gfx-rs',
+    kind: 'pr',
+    pr: { number: 10497, url: 'https://github.com/gfx-rs/wgpu/pull/10497', state: 'open' },
+    date: '2026-09',
+    diff: '+972 / -983',
+    title: 'naga declared LocalInvocationIndex twice in mesh shaders',
+    short: 'two parts of naga\'s SPIR-V backend each declared the built-in, which SPIR-V forbids. CI missed it.',
+    summary:
+      'a mesh entry point without local_invocation_index got two LocalInvocationIndex variables: one from the mesh output copy and one from the workgroup zero-init polyfill. both now share one.',
+    detail: [
+      'CI did not catch it because spirv-val ran without a Vulkan target environment, where this rule applies. most of the diff is the regenerated snapshots.',
+    ],
+    stack: ['Rust', 'SPIR-V', 'naga', 'mesh shading'],
+  },
+
+  {
+    id: 'dxc-mesh-nested-structs',
+    project: 'DirectXShaderCompiler',
+    org: 'microsoft',
+    kind: 'pr',
+    pr: { number: 8982, url: 'https://github.com/microsoft/DirectXShaderCompiler/pull/8982', state: 'open' },
+    date: '2026-09',
+    diff: '+233 / -14',
+    title: 'nested structs in mesh shader outputs crashed the SPIR-V backend',
+    short: 'a mesh output struct containing another struct crashed DXC\'s SPIR-V backend. fixes two open issues.',
+    summary:
+      'semantics on the inner struct\'s fields created the right stage variables, but the output write looked up the semantic of the outer field, which has none, and asserted. release builds carried on with an empty semantic.',
+    detail: [
+      'covers nested and inherited structs in mesh outputs, fixing #7340 and #8475.',
+    ],
+    stack: ['C++', 'HLSL', 'SPIR-V', 'mesh shading'],
+  },
+
+  {
+    id: 'mesa-lvp-callee-exec-mask',
+    project: 'mesa',
+    org: 'mesa',
+    kind: 'pr',
+    pr: { number: 44818, url: 'https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/44818', state: 'open' },
+    date: '2026-09',
+    diff: '+9 / -1',
+    title: 'lavapipe ray tracing read SSBOs through an inactive lane',
+    short: 'lavapipe assumed invocation 0 was active inside ray tracing callees. fixes 24 CTS failures, following the maintainer\'s suggestion.',
+    summary:
+      'ray tracing stages run as function calls in lavapipe, and inside a callee gallivm assumed invocation 0 was active. with only some lanes running, the SSBO base pointer was loaded from an inactive lane and used for every lane.',
+    detail: [
+      'all 24 shaderRecord CTS tests go from fail to pass, and nothing else changes across 9398 cases.',
+    ],
+    stack: ['C', 'LLVM', 'Mesa', 'ray tracing'],
   },
 
 
@@ -218,7 +367,7 @@ export const contributions = [
     project: 'mesa',
     org: 'mesa',
     kind: 'issue',
-    issue: { number: 16378, url: 'https://gitlab.freedesktop.org/mesa/mesa/-/issues/16378', state: 'open' },
+    issue: { number: 16378, url: 'https://gitlab.freedesktop.org/mesa/mesa/-/issues/16378', state: 'closed' },
     date: '2026-09',
     title: 'RADV asserted on destroy with two queues of one family',
     short: 'RADV asserted on a valid queue setup. fixed by a RADV developer the next day, now a CTS ticket.',
@@ -235,7 +384,7 @@ export const contributions = [
     project: 'mesa',
     org: 'mesa',
     kind: 'issue',
-    issue: { number: 16379, url: 'https://gitlab.freedesktop.org/mesa/mesa/-/issues/16379', state: 'open' },
+    issue: { number: 16379, url: 'https://gitlab.freedesktop.org/mesa/mesa/-/issues/16379', state: 'closed' },
     date: '2026-09',
     title: 'RADV segfaulted on a result-status-only query pool with no video profile',
     short: 'RADV segfaulted on a valid video query pool. picked up the same day, now a CTS ticket.',
