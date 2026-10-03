@@ -92,8 +92,8 @@
 
 <h2>Technical Skills</h2>
 <div class="skills">
-  <p><span class="k">Languages:</span> C, C++17, Rust, Python, Go, TypeScript, JavaScript, GLSL, SQL</p>
-  <p><span class="k">Systems:</span> Memory safety and sanitizers (ASan, UBSan, Miri), concurrency, memory management, distributed consensus, storage engines, GPU compute and SPIR-V, TCP and WebSockets</p>
+  <p><span class="k">Languages:</span> C, C++20, Rust, Python, Go, TypeScript, JavaScript, GLSL, WGSL, SQL</p>
+  <p><span class="k">Systems:</span> Memory safety and sanitizers (ASan, UBSan, Miri), concurrency, memory management, distributed consensus, storage engines, GPU rendering and compute (Vulkan, WebGPU, SPIR-V), TCP and WebSockets</p>
   <p><span class="k">Tools:</span> Linux, Git, GDB, CMake, Vulkan validation layers, LLVM/Clang, SDL2, FastAPI, React, SQLite</p>
 </div>
 
@@ -175,13 +175,28 @@
 
 <div class="entry">
   <div class="entry-head">
+    <span class="name">colossus</span> &middot; Virtualized Geometry Renderer
+    <span class="stack">| C++20, Vulkan, GLSL, WebGPU</span>
+  </div>
+  <ul>
+    <li>Built Nanite-style virtualized geometry from scratch: a builder splits scanned models into 128-triangle
+      clusters and simplifies them into a crack-free LOD hierarchy with proven error bounds; the renderer streams
+      pages from disk and picks, per cluster on the GPU, the coarsest level within a pixel.</li>
+    <li>Two-pass occlusion culling, mesh shaders plus a compute rasterizer for pixel-sized triangles, and virtual
+      shadow maps draw 900 scanned statues (15.9 billion triangles at full detail) at 1080p in 1.33 ms on an RX 9070
+      XT, and a million instances in 1.63 ms. Ported to WebGPU as a live demo.</li>
+  </ul>
+</div>
+
+<div class="entry">
+  <div class="entry-head">
     <span class="name">oracle_of_delphi</span> &middot; Local Voice Assistant
     <span class="stack">| Rust, C++, TypeScript, Three.js</span>
   </div>
   <ul>
     <li>Built a fully local voice assistant as cooperating processes behind one executable: a real-time C++ audio layer
-      for capture, VAD and barge-in, a Rust orchestrator running the agent loop, and a privileged actuator daemon. Boots
-      offline with no GPU, model download or credentials, then swaps in real backends behind traits.</li>
+      for capture, VAD and barge-in, a Rust agent orchestrator, and a privileged actuator daemon. Boots
+      offline with no GPU, model or credentials, then swaps in real backends behind traits.</li>
     <li>Isolated all OS actuation in the privileged daemon, treating the language model as an untrusted planner: it
       recomputes the required capability from the operation itself, gates irreversible actions behind confirmation, and
       audits over a <code>SO_PEERCRED</code> socket. 481 Rust tests and 933 C++ checks pass on Linux, macOS and
@@ -227,22 +242,11 @@
   </ul>
 </div>
 
-<div class="entry">
-  <div class="entry-head">
-    <span class="name">custom_mem_alloc</span> &middot; Thread-Safe Memory Allocator
-    <span class="stack">| C, pthreads</span>
-  </div>
-  <ul>
-    <li>Wrote a <code>malloc</code> replacement over a single <code>mmap</code> region: first-fit search, block
-      splitting, neighbour coalescing on free, 8-byte alignment and mutex locking, benchmarked against glibc.</li>
-  </ul>
-</div>
-
 <p class="note">
-  <span style="font-weight:700">Additional:</span> nexus_editor (CRDT editor, Go) &middot; photon_tracer (CPU path
+  <span style="font-weight:700">Additional:</span> custom_mem_alloc (thread-safe <code>malloc</code> over one <code>mmap</code> region, benchmarked against glibc) &middot; nexus_editor (CRDT editor, Go) &middot; photon_tracer (CPU path
   tracer, 1080p at 50 spp in half a second on 32 threads) &middot; neon_vm (bytecode VM) &middot; cpu_rasterizer and
   rasterizer_engine (software 3D pipelines, JS and C++/SDL2) &middot; radiant_slice (FPS systems, Unreal Engine 5)
-  &middot; thermal_monitor, terminal_dashboard, valo_scout, cal-cli. 29 public repositories, 10 with live demos.
+  &middot; thermal_monitor, terminal_dashboard, valo_scout, cal-cli. 29 public repositories, 11 with live demos.
 </p>
 
 <h2>Writing and Activities</h2>
