@@ -20,6 +20,7 @@ const meta: Record<string, { caption: string }> = {
   'thermal-monitor':   { caption: 'simulated thermal curves in the style of the logged data.' },
   'valo-scout':        { caption: 'not simulated: an actual heapsort, replayed swap by swap.' },
   'cal-cli':           { caption: 'simulated day of logging against real targets.' },
+  'colossus':          { caption: 'not simulated: the repo\u2019s lod rule in 2d. each ring picks the coarsest level whose error is within a pixel on screen, and nearer means finer.' },
   'oracle-of-delphi':  { caption: 'a recreation of the hud: the particle core is real 3d projection, the transcript is a replay of an actual session.' },
   'points-sys':        { caption: 'simulated season: two players claiming habits, trading the lead, and climbing a tier.' },
   'personal-portfolio':{ caption: '' },
@@ -109,6 +110,13 @@ const m = meta[slug];
       )}
 
       {slug === 'cal-cli' && <div class="macros" data-macros></div>}
+
+      {slug === 'colossus' && (
+        <>
+          <canvas data-canvas width="520" height="140"></canvas>
+          <p class="axis" data-lod>&nbsp;</p>
+        </>
+      )}
 
       {slug === 'oracle-of-delphi' && (
         <>
@@ -580,6 +588,62 @@ const m = meta[slug];
           if (pc >= code.length) { pc = 0; stack = []; }
           render();
         }, 760);
+      },
+
+      'colossus': function () {
+        // the lod rule from the repo, in 2d: a ring of radius r drawn with n edges strays
+        // r (1 - cos(pi / n)) from the true circle (drawn faintly behind). level 0 has 16
+        // edges and each level up halves them. each ring draws the coarsest level whose
+        // error on screen, error times focal over depth, is within one pixel, so the rings
+        // refine as the camera comes closer and coarsen as it backs away.
+        var cv = root.querySelector('[data-canvas]');
+        var ctx = cv && cv.getContext('2d');
+        var out = root.querySelector('[data-lod]');
+        if (!ctx) return;
+        var W = cv.width, H = cv.height, LEVELS = 3, R = 0.5, FOCAL = 110, RINGS = 5;
+        var muted = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#8295aa';
+        var t = 0;
+        function edges(level) { return 16 >> level; }
+        function error(level) { return R * (1 - Math.cos(Math.PI / edges(level))); }
+        function pick(z) {
+          var level = LEVELS - 1;
+          while (level > 0 && error(level) * FOCAL / z > 1) level--;
+          return level;
+        }
+        function frame() {
+          t += 0.025;
+          var dolly = 4.1 + 2.9 * Math.sin(t);  // camera distance to the nearest ring
+          ctx.clearRect(0, 0, W, H);
+          ctx.font = '10px ui-monospace, monospace';
+          ctx.textAlign = 'center';
+          var drawn = 0;
+          for (var i = 0; i < RINGS; i++) {
+            var z = dolly + i * 2.4;
+            var level = pick(z), n = edges(level), r = R * FOCAL / z;
+            var cx = W / RINGS * (i + 0.5), cy = H / 2 - 8;
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.strokeStyle = muted;
+            ctx.globalAlpha = 0.35;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+            ctx.beginPath();
+            for (var k = 0; k <= n; k++) {
+              var a = k / n * Math.PI * 2 - Math.PI / 2;
+              ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+            }
+            ctx.strokeStyle = 'hsl(' + (200 - level * 70) + ', 70%, 62%)';
+            ctx.lineWidth = 1.4;
+            ctx.stroke();
+            ctx.fillStyle = muted;
+            ctx.fillText('L' + level + ' \u00b7 ' + n, cx, H - 6);
+            drawn += n;
+          }
+          out.innerHTML = '<span class="hl">' + drawn + '</span> of ' + RINGS * edges(0) +
+            ' edges drawn \u00b7 every ring within 1 px of a true circle';
+        }
+        loop(frame, 50);
       },
 
       'photon-tracer': function () {

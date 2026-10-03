@@ -5,6 +5,29 @@ const GH = 'https://github.com/apollo-2006';
 
 export const projects = [
   {
+    slug: 'colossus',
+    tag: 'graphics',
+    name: 'colossus',
+    blurb: 'virtualized geometry from scratch in c++20 and vulkan, the idea behind nanite: 15.9 billion triangles in 1.33 ms.',
+    summary:
+      'Virtualized geometry from scratch, the idea behind Unreal Engine 5’s Nanite, built with nothing but Vulkan and GLFW. A builder turns a scanned model into a crack-free hierarchy of clusters; a renderer streams it from disk and draws thousands of copies, picking per cluster the coarsest detail within a pixel of the original. 900 statues of Lucy and the XYZ RGB dragon are 15.9 billion triangles at full detail, drawn at 1920x1080 in 1.33 ms on an RX 9070 XT with soft shadows, ambient occlusion and antialiasing. Clustering, simplification, streaming, culling, both rasterizers, shadows and shading all live in the repository, and the whole renderer is ported to WebGPU.',
+    highlights: [
+      'clusters of at most 128 triangles by recursive bisection of the triangle graph, grouped about eight at a time, merged and simplified to half with locked outlines, level after level until one small root. every level indexes the original vertices, so a crack is exact, and every cut checked has none.',
+      'errors are proven, not sampled: each level’s error is an upper bound on its distance from what it replaced, and the projection to the screen is bounded too. proving both costs triangles, 2.99m to 4.77m beside lucy: the usual error over distance was up to two pixels off axis where it promised one.',
+      'errors only grow toward the root, so one comparison per cluster, own error on screen within a pixel and parent error beyond it, picks exactly one level on every path. one gpu thread per cluster, no tree to walk.',
+      'two rasterizers into one 64 bit visibility buffer: mesh shaders for clusters over 32 pixels, a compute rasterizer for the pixel-sized triangles hardware handles worst. the compute path saves 0.21 to 0.37 ms.',
+      'two pass occlusion culling of cells, instances and clusters against a depth pyramid. at a million instances, 17.6 trillion triangles, it is what makes 1.63 ms possible.',
+      'geometry streams from disk in bit-packed pages through a fixed pool on eight loader threads. a page is resident only while its coarser stand-ins are, so whatever has loaded, exactly one cluster draws on every path. from a cold cache the crowd settles in 34 ms.',
+      'virtual shadow maps: a 14 level clipmap of 128 texel pages, drawn from the same hierarchy seen from the sun, with soft penumbras sized by a blocker search. with the camera still the shadow pages cost 0.08 ms.',
+      'procedural materials with no uvs, since scans have none: veined marble, layered sandstone, granite grains and bronze that patinates in its recesses, plus statues that sway in the wind without opening a crack or breaking the error bound.',
+      'the webgpu port has no mesh shaders, 64 bit atomics or ray queries, so the compute rasterizer runs twice and pages stream over http range requests. 900 instances take 1.30 ms of gpu time in chrome.',
+    ],
+    stack: ['C++20', 'Vulkan', 'GLSL', 'WebGPU', 'WGSL'],
+    repo: `${GH}/colossus`,
+    live: 'https://apollo-2006.github.io/colossus/',
+  },
+
+  {
     slug: 'oracle-of-delphi',
     tag: 'systems',
     name: 'oracle_of_delphi',

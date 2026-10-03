@@ -40,7 +40,7 @@ const subItems = {
   // the full list is too many to orbit legibly, so feature 5, then link out to the rest
   projects: [
     ...projects
-      .filter((p) => ['oracle-of-delphi', 'nexus-cluster', 'nexus-db', 'nano-match', 'cpu-rasterizer'].includes(p.slug))
+      .filter((p) => ['colossus', 'nexus-cluster', 'nexus-db', 'nano-match', 'cpu-rasterizer'].includes(p.slug))
       .map((p) => ({ label: p.name, desc: p.blurb, href: `/projects/${p.slug}` })),
     { label: `all ${projects.length} →`, desc: 'the full cluster', href: '/projects' },
   ],
@@ -146,7 +146,7 @@ const subItems = {
     <ul class="stats" aria-label="at a glance">
       <li><strong>{contributionStats.merged}</strong> merged upstream</li>
       <li>Khronos · Mesa · ggml-org</li>
-      <li><strong>10</strong> live demos</li>
+      <li><strong>{projects.filter((p) => p.live).length}</strong> live demos</li>
     </ul>
     <p class="cta">
       <a class="btn btn-primary" href="/work">see the work →</a>
