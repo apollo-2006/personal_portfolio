@@ -3,7 +3,21 @@ import SystemLayout from '../layouts/SystemLayout.astro';
 import SectionHeader from '../components/SectionHeader.astro';
 import { postmortems } from '../data/postmortems.js';
 
-const paper = {
+// newest first.
+const papers = [
+{
+  title: 'Within a Pixel: Building Virtualized Geometry You Can Check',
+  subtitle:
+    'Notes from building a Nanite-style renderer from scratch, and from trying to prove, rather than hope, that every cluster it draws is within a pixel.',
+  date: 'october 2026',
+  status: 'project write-up',
+  pages: 9,
+  href: '/abir-deol-colossus-within-a-pixel.pdf',
+  topics: ['virtualized geometry', 'hausdorff bounds', 'streaming', 'skinning', 'foliage', 'vulkan / webgpu'],
+  abstract:
+    'Colossus is a virtualized geometry renderer I wrote from scratch in C++20 and Vulkan, with a WebGPU port that runs in a browser. It follows the design Epic described for Nanite, and most of it is a reimplementation. What I write about are the places where I tried to go a step further: an error bound that is proven rather than estimated, and checked in images rather than asserted. At a one pixel threshold, every pixel whose coverage changes touches the full-detail silhouette. The rest is what happened when the renderer met real content: a textured museum scan, an animated character, and a photoscanned forest made of millions of separate needles. Each one broke an assumption, and each fix taught me something about where proofs end and measurements have to begin.',
+},
+{
   title: 'Learning Computer Vision from the Pixels Up',
   subtitle:
     'Field notes on classical CV, and why I worked through all of it before touching a neural network.',
@@ -12,13 +26,16 @@ const paper = {
   pages: 6,
   href: '/abir-deol-learning-computer-vision.pdf',
   topics: ['OpenCV', 'convolution', 'canny', 'contours', 'ORB / SIFT', 'homography'],
-};
+  abstract:
+    'Most people entering computer vision start at a pretrained model and work backwards, which means the first time something breaks they have no mental model to debug against. I took the opposite route: several weeks working through classical CV (convolution, edge detection, segmentation, feature matching, and projective geometry) implemented and tuned by hand in OpenCV before any network was involved. This document is the writeup of that process. It records what each technique actually does, the errors I made and what they taught me, three projects that forced the ideas together, and where the work goes from here. The central claim is simple: a convolutional network is a stack of learned kernels, and it is worth knowing exactly what a kernel does before letting gradient descent choose them for you.',
+},
+];
 
 ---
 
 <SystemLayout
   title="research · abir deol"
-  description="Learning Computer Vision from the Pixels Up, field notes on classical computer vision, by Abir Deol."
+  description="Write-ups by Abir Deol: building virtualized geometry you can check, and learning computer vision from the pixels up."
 >
   <SectionHeader
     variant="research"
@@ -31,6 +48,7 @@ const paper = {
     for every bug that actually hurt.
   </p>
 
+  {papers.map((paper) => (
   <article class="paper">
     <div class="paper-head">
       <p class="eyebrow paper-meta">
@@ -43,19 +61,7 @@ const paper = {
 
     <details class="toggle">
       <summary>abstract</summary>
-      <p class="abstract">
-        Most people entering computer vision start at a pretrained model and work
-        backwards, which means the first time something breaks they have no mental model
-        to debug against. I took the opposite route: several weeks working through
-        classical CV (convolution, edge detection, segmentation, feature matching, and
-        projective geometry) implemented and tuned by hand in OpenCV before any network
-        was involved. This document is the writeup of that process. It records what each
-        technique actually does, the errors I made and what they taught me, three projects
-        that forced the ideas together, and where the work goes from here. The central
-        claim is simple: a convolutional network is a stack of learned kernels, and it is
-        worth knowing exactly what a kernel does before letting gradient descent choose
-        them for you.
-      </p>
+      <p class="abstract">{paper.abstract}</p>
     </details>
 
     <h3 class="sub-heading">covered</h3>
@@ -70,6 +76,7 @@ const paper = {
       </a>
     </div>
   </article>
+  ))}
 
   <h3 class="sub-heading pm-heading">post-mortems</h3>
   <p class="pm-intro">
