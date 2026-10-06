@@ -16,6 +16,7 @@
   h1 { font-size: 21pt; line-height: 1.15; margin: 0 0 4pt; font-weight: 700; letter-spacing: -0.2pt; }
   .subtitle { font-style: italic; color: #666; font-size: 11pt; margin: 0 0 10pt; }
   .byline { color: #888; font-size: 8.5pt; margin: 0 0 16pt; }
+  .draft { display: inline-block; font-size: 7.5pt; letter-spacing: 0.6pt; text-transform: uppercase; color: #9a7a10; border: 0.6pt solid #c9a227; border-radius: 2pt; padding: 1pt 5pt; margin: 0 0 8pt; }
   .abstract { background: #f3f3f1; padding: 10pt 14pt; margin: 0 0 16pt; font-size: 9pt; }
   .abstract b { font-weight: 700; }
   h2 { font-size: 12.5pt; margin: 16pt 0 5pt; break-after: avoid; }
@@ -43,6 +44,7 @@
 <h1>Within a Pixel: Building Virtualized Geometry You Can Check</h1>
 <p class="subtitle">Notes from building a Nanite-style renderer from scratch, and from trying to prove, rather than hope, that every cluster it draws is within a pixel of the original.</p>
 <p class="byline">Abir Deol · University of Alberta, Computing Science · October 2026 · github.com/apollo-2006/colossus</p>
+<p class="draft">Working draft: being revised, and it will change</p>
 
 <div class="abstract">
 <p><b>Abstract.</b> Colossus is a virtualized geometry renderer I wrote from scratch in C++20 and Vulkan, with a WebGPU port that runs in a browser. It follows the design Epic described for Unreal Engine 5's Nanite: a crack-free hierarchy of triangle clusters, streamed from disk, from which the GPU picks, per cluster, the coarsest detail that stays within a pixel of the original. Most of that is a reimplementation, and I credit it as one. What I want to write about are the places where I tried to go a step further and the places where that turned out to be hard. The first is the error bound: instead of a heuristic, each level carries a proven upper bound on its distance from the full-detail surface, projected without the usual approximation, and I check the claim in images rather than assert it. At a one pixel threshold, every pixel whose coverage changes touches the full-detail silhouette. The others are what happened when the renderer met real content: museum scans with textures, a skinned and animated character, and photoscanned foliage made of millions of separate needles. Each one broke an assumption, and each fix taught me something about where proofs end and measurements have to begin. Measured against meshoptimizer's reference builder through the same renderer, colossus keeps silhouettes tighter at the same triangle count, and meshoptimizer shades better. 900 statues totalling 15.9 billion triangles draw at 1920x1080 in 1.51 ms on an RX 9070 XT.</p>
