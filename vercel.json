@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    { "source": "/abir-deol-colossus-within-a-pixel.pdf", "destination": "https://github.com/apollo-2006/colossus", "permanent": false },
+    { "source": "/abir-deol-learning-computer-vision.pdf", "destination": "/", "permanent": false },
+    { "source": "/abir-deol-postmortem-:name.pdf", "destination": "/", "permanent": false },
+    { "source": "/research", "destination": "/", "permanent": false },
+    { "source": "/research/:slug*", "destination": "/", "permanent": false }
+  ]
+}

@@ -1,6 +1,5 @@
 ---
 import SystemLayout from '../layouts/SystemLayout.astro';
-import { postmortems } from '../data/postmortems.js';
 import ConstellationGlyph from '../components/ConstellationGlyph.astro';
 import { projects } from '../data/projects.js';
 import { contributionStats } from '../data/contributions.js';
@@ -15,7 +14,8 @@ import { contributionStats } from '../data/contributions.js';
 // so it costs no extra stars. the grip (max bulge) is the anchor position.
 // to reshape: these five top/left pairs are the only thing you need to touch.
 const stars = [
-  { href: '/research', variant: 'research', label: 'research', desc: 'learning ml, writing it down', top: 10, left: 32 },
+  // locked while the writing is being redone: no page, no orbit, the bow keeps its tip
+  { href: null, variant: 'research', label: 'research', desc: 'rewriting · back soon', locked: true, top: 10, left: 32 },
   { href: '/passions', variant: 'passions', label: 'passions', desc: 'gym · mma · gaming · reading', top: 30, left: 62 },
   { href: '/projects', variant: 'projects', label: 'projects', desc: `${projects.length} systems, built raw`, top: 49, left: 72 },
   { href: '/work', variant: 'work', label: 'work', desc: 'u of a · grad 2028', top: 68, left: 62 },
@@ -23,7 +23,7 @@ const stars = [
 ];
 
 // what each star expands into when clicked: the orbiting sub-nodes.
-// an empty list means a click navigates straight to the page (research).
+// an empty list means a click navigates straight to the page; a locked star does nothing.
 const subItems = {
   work: [
     { label: 'u of a', desc: 'bsc computing science, graduating 2028', href: '/work' },
@@ -49,14 +49,7 @@ const subItems = {
     { label: 'github', desc: 'source, repos', href: 'https://github.com/apollo-2006' },
     { label: 'linkedin', desc: 'the professional signal', href: 'https://www.linkedin.com/in/abirdeol/' },
   ],
-  research: [
-    { label: 'the paper', desc: 'learning cv from the pixels up', href: '/research' },
-    ...postmortems.map((pm) => ({
-      label: pm.orbitLabel,
-      desc: pm.orbitDesc,
-      href: `/research/${pm.slug}`,
-    })),
-  ],
+  research: [],
 };
 ---
 
@@ -87,8 +80,10 @@ const subItems = {
 
     {stars.map((s, i) => (
       <a
-        class="star"
-        href={s.href}
+        class={`star${s.locked ? ' is-locked' : ''}`}
+        href={s.locked ? undefined : s.href}
+        aria-disabled={s.locked ? 'true' : undefined}
+        data-locked={s.locked ? 'true' : undefined}
         data-key={s.variant}
         data-idx={i}
         data-top={s.top}
@@ -100,7 +95,7 @@ const subItems = {
           <ConstellationGlyph variant={s.variant} size={52} />
           <span class="star-label">{s.label}</span>
           <span class="star-desc">{s.desc}</span>
-          <span class="enter-hint">click again to enter →</span>
+          {!s.locked && <span class="enter-hint">click again to enter →</span>}
         </span>
       </a>
     ))}
@@ -458,6 +453,8 @@ const subItems = {
     }
     .star.is-center .enter-hint { opacity: 1; height: auto; margin-top: 2px; }
 
+    .star.is-locked { cursor: default; }
+    .star.is-locked .star-desc { font-style: italic; }
     .star:hover .star-label,
     .star:focus-visible .star-label { color: var(--accent-warm); }
     .star:hover .star-desc,
@@ -1028,6 +1025,7 @@ const subItems = {
 
       stars.forEach(function (star) {
         star.el.addEventListener('click', function (e) {
+          if (star.el.dataset.locked === 'true') { e.preventDefault(); return; } // locked: stays put
           if (isMobileLayout()) return; // flat mobile layout, default nav
           if (!star.hasChildren) return; // nothing to expand, go to page
           if (zoomedKey === star.key) return; // second click commits to page

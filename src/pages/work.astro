@@ -3,7 +3,6 @@ import SystemLayout from '../layouts/SystemLayout.astro';
 import SectionHeader from '../components/SectionHeader.astro';
 import { contributions, contributionStats } from '../data/contributions.js';
 import { projects } from '../data/projects.js';
-import { postmortems } from '../data/postmortems.js';
 
 // the five projects that best show range: graphics, distributed systems,
 // allocators and storage, most with a browser demo. the rest are one click away.
@@ -127,24 +126,6 @@ for (const c of contributions) counts[statusOf(c)]++;
           <span class="eyebrow card-eyebrow">{p.tag}</span>
           <strong>{p.name}</strong>
           <p class="muted">{p.blurb}</p>
-        </a>
-      </li>
-    ))}
-  </ul>
-
-  <!-- ============ writing ============ -->
-  <h2 class="sub-heading">writing</h2>
-  <p class="section-note">
-    one post-mortem per bug that actually cost me something. <a href="/research">all writing →</a>
-  </p>
-
-  <ul class="cards three wide">
-    {postmortems.slice(0, 3).map((pm) => (
-      <li>
-        <a href={`/research/${pm.slug}`} class="card-link">
-          <span class="eyebrow card-eyebrow">{pm.project}</span>
-          <strong>{pm.title}</strong>
-          <p class="muted">{pm.short}</p>
         </a>
       </li>
     ))}

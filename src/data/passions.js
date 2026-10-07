@@ -148,7 +148,7 @@ export const passions = [
         ],
       },
     ],
-    links: [{ label: 'the cv paper', href: '/research' }],
+    links: [],
   },
 
   {
