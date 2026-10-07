@@ -239,7 +239,8 @@ export const contributions = [
     project: 'Vulkan-ValidationLayers',
     org: 'KhronosGroup',
     kind: 'pr',
-    pr: { number: 13276, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/13276', state: 'open' },
+    merged: true,
+    pr: { number: 13276, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/13276', state: 'merged' },
     date: '2026-09',
     diff: '+77 / -24',
     title: 'cooperative matrix strides measured in the wrong units',
@@ -248,7 +249,7 @@ export const contributions = [
       'the extension says Stride is in units of the type the pointer points to. GPU-AV used the matrix component size for both the alignment and bounds checks, so an aligned load reported a false error and a misaligned one slipped through.',
     detail: [
       'the runtime stride path also dropped the access chain offset, so its bounds check measured from the start of the buffer.',
-      'the full GPU-AV suite on RADV: 918 pass, and only the two broken tests and one new test change.',
+      'the full GPU-AV suite on RADV: 918 pass, and only the two broken tests and one new test change. approved and merged the next day.',
     ],
     stack: ['C++', 'SPIR-V', 'GPU-AV', 'cooperative matrix'],
   },
@@ -258,7 +259,8 @@ export const contributions = [
     project: 'SPIRV-Tools',
     org: 'KhronosGroup',
     kind: 'pr',
-    pr: { number: 6916, url: 'https://github.com/KhronosGroup/SPIRV-Tools/pull/6916', state: 'open' },
+    merged: true,
+    pr: { number: 6916, url: 'https://github.com/KhronosGroup/SPIRV-Tools/pull/6916', state: 'merged' },
     date: '2026-09',
     diff: '+76 / -0',
     title: 'the optimizer stripped struct members that were still needed',
@@ -266,7 +268,7 @@ export const contributions = [
     summary:
       '--eliminate-dead-members counted a struct as used when an instruction took a value of that type, never when it took the type itself. OpAbortKHR and untyped access chains both take one, so their structs lost their members.',
     detail: [
-      'found by running spirv-opt\'s recipes over 564 valid glslang test shaders and validating every output. 30 came out invalid; with the fix all 30 validate and nothing else changes across 12 pass sets.',
+      'found by running spirv-opt\'s recipes over 564 valid glslang test shaders and validating every output. 30 came out invalid; with the fix all 30 validate and nothing else changes across 12 pass sets. approved and merged.',
     ],
     stack: ['C++', 'SPIR-V', 'compilers'],
   },
