@@ -182,7 +182,8 @@ export const contributions = [
     project: 'glslang',
     org: 'KhronosGroup',
     kind: 'pr',
-    pr: { number: 4450, url: 'https://github.com/KhronosGroup/glslang/pull/4450', state: 'open' },
+    merged: true,
+    pr: { number: 4450, url: 'https://github.com/KhronosGroup/glslang/pull/4450', state: 'merged' },
     date: '2026-09',
     diff: '+29 / -0',
     title: 'a misplaced task payload qualifier was silently dropped',
@@ -190,7 +191,7 @@ export const contributions = [
     summary:
       'writing taskPayloadSharedEXT on a struct type instead of a variable declared nothing, so the qualifier vanished and EmitMeshTasksEXT was emitted without its payload operand.',
     detail: [
-      'the check sits where glslang already rejects other declarations without a variable. both broken forms error out, both valid forms still compile, and the whole test suite passes.',
+      'the check sits where glslang already rejects other declarations without a variable. both broken forms error out, both valid forms still compile, and the whole test suite passes. approved and merged.',
     ],
     stack: ['C++', 'GLSL', 'mesh shading'],
   },
