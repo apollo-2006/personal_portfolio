@@ -99,22 +99,22 @@
 
 <h2>Open-Source Contributions</h2>
 <p class="note">
-  36 pull requests and 12 issues across 16 upstream projects, 21 merged. Most began as a bug I found, reported, and
+  48 pull requests and 12 issues across 17 upstream projects, 28 merged. Most began as a bug I found, reported, and
   then fixed myself. Write-ups at abirdeol.tech/work.
 </p>
 
 <div class="entry">
   <div class="entry-head">
-    <span class="name">Khronos Group &middot; Vulkan-ValidationLayers, SPIRV-Tools, glslang, and Mesa</span>
+    <span class="name">Vulkan and SPIR-V &middot; Vulkan-ValidationLayers, SPIRV-Tools, glslang, Mesa, and wgpu</span>
     <span class="stack">| C++, SPIR-V, GPU-AV, RADV, lavapipe</span>
-    <span class="tag">13 MERGED</span>
+    <span class="tag">19 MERGED</span>
   </div>
   <ul>
     <li>Fixed a GPU-AV segfault in <code>vkCreateComputePipelines</code> on any <code>coopMatLoad</code> or
       <code>coopMatStore</code> with a runtime stride, which the instrumentation pass read as a constant (#13098 to
       #13104). Fixed an abort when GPU-AV decoded a shader offset that never named an instruction, found under a
-      llama.cpp workload (#13134 to #13150, five review rounds). Added mesh checks for device-address draws
-      (#13260) and safe-mode output counts (#13246).</li>
+      llama.cpp workload (#13134 to #13150, five review rounds). Mesh shading fixes in the validation layers (#13246, #13260),
+      glslang (#4467), wgpu (#10496, #10497) and lavapipe (!44818).</li>
     <li>Ran the full suite on lavapipe, Mesa's CPU Vulkan driver, at the maintainer's suggestion: added validation
       that linked pipeline libraries with independent sets never had (#13208), made tests portable
       (#13209, #13217), fixed a false warning on depth/stencil resolves (#13241), moved export checks to allocation (#13245), and reported four RADV and Mesa driver bugs with the VUID showing the application

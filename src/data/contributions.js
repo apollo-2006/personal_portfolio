@@ -178,6 +178,25 @@ export const contributions = [
   },
 
   {
+    id: 'vvl-import-vuid-per-struct',
+    project: 'Vulkan-ValidationLayers',
+    org: 'KhronosGroup',
+    kind: 'pr',
+    merged: true,
+    pr: { number: 13430, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/13430', state: 'merged' },
+    date: '2026-10',
+    diff: '+73 / -3',
+    title: 'every import error at bind time named the Win32 VUID',
+    short: 'memory imported from an fd on Linux was reported under the Win32 import rule. now the error names the struct that was used.',
+    summary:
+      'the bind-time "handle type must be importable" check always reported VUID-VkImportMemoryWin32HandleInfoKHR-handleType-09861, even for memory imported with VkImportMemoryFdInfoKHR or a host pointer, which have their own VUIDs for the same rule. noticed it while reading the external memory checks for #10507.',
+    detail: [
+      'the VUID now follows the import struct in the allocation chain, in the same order the layer already uses to find the handle type. two new tests export a real DMA_BUF fd and get 09862 instead of 09861; the full suite passes on the mock driver. merged.',
+    ],
+    stack: ['C++', 'Vulkan', 'external memory'],
+  },
+
+  {
     id: 'glslang-task-payload',
     project: 'glslang',
     org: 'KhronosGroup',
@@ -192,6 +211,25 @@ export const contributions = [
       'writing taskPayloadSharedEXT on a struct type instead of a variable declared nothing, so the qualifier vanished and EmitMeshTasksEXT was emitted without its payload operand.',
     detail: [
       'the check sits where glslang already rejects other declarations without a variable. both broken forms error out, both valid forms still compile, and the whole test suite passes. approved and merged.',
+    ],
+    stack: ['C++', 'GLSL', 'mesh shading'],
+  },
+
+  {
+    id: 'glslang-mesh-output-read',
+    project: 'glslang',
+    org: 'KhronosGroup',
+    kind: 'pr',
+    merged: true,
+    pr: { number: 4467, url: 'https://github.com/KhronosGroup/glslang/pull/4467', state: 'merged' },
+    date: '2026-10',
+    diff: '+125 / -0',
+    title: 'reading a mesh shader output compiled, then failed validation',
+    short: 'GL_EXT_mesh_shader forbids reading outputs. glslang accepted it and spirv-val failed later. now glslang points at the line.',
+    summary:
+      'glslang emitted an OpLoad from Output for any read of a mesh output, so the error only surfaced later as VUID-StandaloneSpirv-MeshEXT-07107 in spirv-val, far from the source. fixes #4170.',
+    detail: [
+      'a small traverser walks EXT mesh shaders after parsing and flags any output access that is not a plain write. NV mesh shaders allow these reads and are left alone. one new test covers the write and read cases, and the existing suite passes. merged.',
     ],
     stack: ['C++', 'GLSL', 'mesh shading'],
   },
@@ -275,11 +313,31 @@ export const contributions = [
   },
 
   {
+    id: 'spirv-tools-long-vector-access-chain',
+    project: 'SPIRV-Tools',
+    org: 'KhronosGroup',
+    kind: 'pr',
+    merged: true,
+    pr: { number: 6971, url: 'https://github.com/KhronosGroup/SPIRV-Tools/pull/6971', state: 'merged' },
+    date: '2026-10',
+    diff: '+33 / -0',
+    title: 'fix-storage-class broke valid long-vector SPIR-V',
+    short: '--fix-storage-class, and so --legalize-hlsl, turned valid long-vector access chains invalid. one missing case.',
+    summary:
+      'the access chain walk stepped into the element type of vectors, arrays, matrices and cooperative matrices, but not OpTypeVectorIdEXT, so it rewrote a correct pointer to one component into a pointer to the whole vector.',
+    detail: [
+      'noticed it running glslang\'s long-vector test shaders through spirv-opt. one new test, test_opt passes. merged the same day it opened.',
+    ],
+    stack: ['C++', 'SPIR-V', 'compilers'],
+  },
+
+  {
     id: 'wgpu-mesh-bundle-multiview',
     project: 'wgpu',
     org: 'gfx-rs',
     kind: 'pr',
-    pr: { number: 10496, url: 'https://github.com/gfx-rs/wgpu/pull/10496', state: 'open' },
+    merged: true,
+    pr: { number: 10496, url: 'https://github.com/gfx-rs/wgpu/pull/10496', state: 'merged' },
     date: '2026-09',
     diff: '+204 / -25',
     title: 'mesh draws in render bundles skipped the multiview check',
@@ -287,7 +345,7 @@ export const contributions = [
     summary:
       'render passes validated mesh draws against the multiview mask, but bundles use a different state struct and never called it. moved the check so both paths share it.',
     detail: [
-      'found an off-by-one while testing: with a limit of 2 views, a mask covering views 0 to 2 was accepted. the second commit fixes it, with validation tests for each case.',
+      'found an off-by-one while testing: with a limit of 2 views, a mask covering views 0 to 2 was accepted. the second commit fixes it, with validation tests for each case. merged.',
     ],
     stack: ['Rust', 'WebGPU', 'mesh shading'],
   },
@@ -297,7 +355,8 @@ export const contributions = [
     project: 'wgpu',
     org: 'gfx-rs',
     kind: 'pr',
-    pr: { number: 10497, url: 'https://github.com/gfx-rs/wgpu/pull/10497', state: 'open' },
+    merged: true,
+    pr: { number: 10497, url: 'https://github.com/gfx-rs/wgpu/pull/10497', state: 'merged' },
     date: '2026-09',
     diff: '+972 / -983',
     title: 'naga declared LocalInvocationIndex twice in mesh shaders',
@@ -305,7 +364,7 @@ export const contributions = [
     summary:
       'a mesh entry point without local_invocation_index got two LocalInvocationIndex variables: one from the mesh output copy and one from the workgroup zero-init polyfill. both now share one.',
     detail: [
-      'CI did not catch it because spirv-val ran without a Vulkan target environment, where this rule applies. most of the diff is the regenerated snapshots.',
+      'CI did not catch it because spirv-val ran without a Vulkan target environment, where this rule applies. most of the diff is the regenerated snapshots. merged.',
     ],
     stack: ['Rust', 'SPIR-V', 'naga', 'mesh shading'],
   },
@@ -333,7 +392,8 @@ export const contributions = [
     project: 'mesa',
     org: 'mesa',
     kind: 'pr',
-    pr: { number: 44818, url: 'https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/44818', state: 'open' },
+    merged: true,
+    pr: { number: 44818, url: 'https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/44818', state: 'merged' },
     date: '2026-09',
     diff: '+9 / -1',
     title: 'lavapipe ray tracing read SSBOs through an inactive lane',
@@ -341,7 +401,7 @@ export const contributions = [
     summary:
       'ray tracing stages run as function calls in lavapipe, and inside a callee gallivm assumed invocation 0 was active. with only some lanes running, the SSBO base pointer was loaded from an inactive lane and used for every lane.',
     detail: [
-      'all 24 shaderRecord CTS tests go from fail to pass, and nothing else changes across 9398 cases.',
+      'all 24 shaderRecord CTS tests go from fail to pass, and nothing else changes across 9398 cases. merged.',
     ],
     stack: ['C', 'LLVM', 'Mesa', 'ray tracing'],
   },
@@ -523,7 +583,7 @@ export const contributions = [
     kind: 'issue → pr',
     lead: true,
     issue: { number: 4026, url: 'https://github.com/ggml-org/whisper.cpp/issues/4026', state: 'open' },
-    pr: { number: 4029, url: 'https://github.com/ggml-org/whisper.cpp/pull/4029', state: 'open' },
+    pr: { number: 4029, url: 'https://github.com/ggml-org/whisper.cpp/pull/4029', state: 'closed' },
     date: '2026-09',
     diff: '+251 / -1',
     title: 'macOS CLI release binaries',
@@ -703,9 +763,10 @@ export const contributions = [
     project: 'pdf',
     org: 'pdf-rs',
     kind: 'pr',
-    pr: { number: 296, url: 'https://github.com/pdf-rs/pdf/pull/296', state: 'open' },
+    merged: true,
+    pr: { number: 296, url: 'https://github.com/pdf-rs/pdf/pull/296', state: 'merged' },
     // a second, smaller PR to the same repository, described in the detail below
-    companion: { number: 295, url: 'https://github.com/pdf-rs/pdf/pull/295', state: 'open' },
+    companion: { number: 295, url: 'https://github.com/pdf-rs/pdf/pull/295', state: 'closed' },
     date: '2026-09',
     diff: '+31 / -2',
     title: 'panic on a sampled function with an inverted domain',
@@ -713,7 +774,7 @@ export const contributions = [
     summary:
       'f32::clamp panics when its bounds are reversed, and a PDF can declare a function domain written backwards, so evaluating it crashed the parser. bounds are now ordered first, as the stitching function already did.',
     detail: [
-      'a companion PR, #295, reads a /P permissions value written as an unsigned 32-bit integer, which made encrypted files from some producers impossible to open with any password.',
+      'a companion PR, #295, reads a /P permissions value written as an unsigned 32-bit integer, which made encrypted files from some producers impossible to open with any password. the maintainer fixed that one directly in a commit instead.',
     ],
     stack: ['Rust', 'PDF'],
   },
@@ -811,7 +872,7 @@ export const contributions = [
     project: 'TheRock',
     org: 'ROCm',
     kind: 'issue',
-    issue: { number: 8219, url: 'https://github.com/ROCm/TheRock/issues/8219', state: 'open' },
+    issue: { number: 8219, url: 'https://github.com/ROCm/TheRock/issues/8219', state: 'closed' },
     date: '2026-09',
     title: 'rocm_sdk test fails unless the virtual environment is activated',
     short: 'a ROCm SDK test only passed with the virtual environment activated.',
