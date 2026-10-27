@@ -197,6 +197,24 @@ export const contributions = [
   },
 
   {
+    id: 'vvl-copy-indirect-3d',
+    project: 'Vulkan-ValidationLayers',
+    org: 'KhronosGroup',
+    kind: 'pr',
+    pr: { number: 13572, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/13572', state: 'open' },
+    date: '2026-10',
+    diff: '+232 / -1',
+    title: 'indirect copies into 3D images skipped their depth checks',
+    short: 'CopyMemoryToImageIndirect had a TODO where the 3D subresource checks belonged. filled in all four. fixes #11332.',
+    summary:
+      'the 3D branch of the indirect copy validation never checked a copy region against the image depth or the block depth of compressed formats. the depth now follows the mip level, so a range that fits mip 0 but not mip 1 is caught.',
+    detail: [
+      'two negative tests fail on main, one positive test covers in-range copies at both mips. the full suite passes on the mock driver.',
+    ],
+    stack: ['C++', 'Vulkan'],
+  },
+
+  {
     id: 'glslang-task-payload',
     project: 'glslang',
     org: 'KhronosGroup',
@@ -332,6 +350,96 @@ export const contributions = [
   },
 
   {
+    id: 'spirv-tools-coopmat-nv-access-chain',
+    project: 'SPIRV-Tools',
+    org: 'KhronosGroup',
+    kind: 'pr',
+    pr: { number: 6982, url: 'https://github.com/KhronosGroup/SPIRV-Tools/pull/6982', state: 'open' },
+    date: '2026-10',
+    diff: '+35 / -0',
+    title: 'the same access chain bug, for NV cooperative matrices',
+    short: 'the #6971 fix again, for OpTypeCooperativeMatrixNV. two glslang coopmat test shaders hit it.',
+    summary:
+      '--fix-storage-class did not step into OpTypeCooperativeMatrixNV either, so it turned a correct pointer to one component into a pointer to the whole matrix.',
+    detail: [
+      'added the case next to the KHR one, with a test.',
+    ],
+    stack: ['C++', 'SPIR-V', 'compilers'],
+  },
+
+  {
+    id: 'spirv-tools-small-int-constants',
+    project: 'SPIRV-Tools',
+    org: 'KhronosGroup',
+    kind: 'pr',
+    pr: { number: 6990, url: 'https://github.com/KhronosGroup/SPIRV-Tools/pull/6990', state: 'open' },
+    date: '2026-10',
+    diff: '+149 / -1',
+    title: 'the optimizer folded to 8-bit constants the module could not declare',
+    short: 'with 8-bit storage but no Int8 capability, spirv-opt folded conversions into constants that spirv-val rejects.',
+    summary:
+      'CCP and simplification folded OpUConvert %uchar %uint_9 into an 8-bit OpConstant, which needs Int8. both passes now skip the fold when the module cannot declare a constant of that type, the same rule the validator uses.',
+    detail: [
+      'tests in both passes. running glslang\'s test shaders through spirv-opt changes exactly one output, from invalid to valid.',
+    ],
+    stack: ['C++', 'SPIR-V', 'compilers'],
+  },
+
+  {
+    id: 'spirv-tools-member-decorate-id',
+    project: 'SPIRV-Tools',
+    org: 'KhronosGroup',
+    kind: 'pr',
+    pr: { number: 6996, url: 'https://github.com/KhronosGroup/SPIRV-Tools/pull/6996', state: 'open' },
+    date: '2026-10',
+    diff: '+125 / -8',
+    title: 'dead code elimination deleted ids a decoration still used',
+    short: 'ADCE removed constants only used by OpMemberDecorateIdEXT but kept the decoration, leaving it pointing at nothing.',
+    summary:
+      'the decoration manager never registered OpMemberDecorateIdEXT, so six of glslang\'s descriptor heap tests came out of -O with undefined forward references. its operands are now kept live like OpDecorateId, and the decoration goes when its target does.',
+    detail: [
+      'two ADCE tests, live and dead target. test_opt passes on release and debug, and the six heap shaders validate.',
+    ],
+    stack: ['C++', 'SPIR-V', 'compilers'],
+  },
+
+  {
+    id: 'spirv-cross-self-referential-bda',
+    project: 'SPIRV-Cross',
+    org: 'KhronosGroup',
+    kind: 'pr',
+    pr: { number: 2708, url: 'https://github.com/KhronosGroup/SPIRV-Cross/pull/2708', state: 'open' },
+    date: '2026-10',
+    diff: '+131 / -3',
+    title: 'a struct pointing to itself through a buffer reference crashed SPIRV-Cross',
+    short: 'copying a struct that refers back to itself through a buffer_reference sent SPIRV-Cross into two infinite recursions.',
+    summary:
+      'the type equivalence check recursed through the pointer member until the stack overflowed, and the logical copy recursed into the pointee. the first now remembers the pairs it has visited, the second copies physical pointers as plain values.',
+    detail: [
+      'one new test shader, and the full test suite passes.',
+    ],
+    stack: ['C++', 'SPIR-V', 'GLSL'],
+  },
+
+  {
+    id: 'spirv-cross-mesh-point-size',
+    project: 'SPIRV-Cross',
+    org: 'KhronosGroup',
+    kind: 'pr',
+    pr: { number: 2720, url: 'https://github.com/KhronosGroup/SPIRV-Cross/pull/2720', state: 'open' },
+    date: '2026-10',
+    diff: '+254 / -0',
+    title: 'HLSL compat mode emitted mesh PointSize writes it had removed',
+    short: 'with --hlsl-enable-compat, PointSize was dropped from the mesh output struct but its writes were not, so the HLSL did not compile.',
+    summary:
+      'compat already ignores PointSize in vertex shaders. mesh shaders now drop the stores too.',
+    detail: [
+      'the existing mesh tests had the write commented out and ran without compat. the new test is the triangle test with both turned on.',
+    ],
+    stack: ['C++', 'HLSL', 'mesh shading'],
+  },
+
+  {
     id: 'wgpu-mesh-bundle-multiview',
     project: 'wgpu',
     org: 'gfx-rs',
@@ -370,6 +478,24 @@ export const contributions = [
   },
 
   {
+    id: 'wgpu-amd-mesh-zero-init',
+    project: 'wgpu',
+    org: 'gfx-rs',
+    kind: 'pr',
+    pr: { number: 10692, url: 'https://github.com/gfx-rs/wgpu/pull/10692', state: 'open' },
+    date: '2026-10',
+    diff: '+22 / -1',
+    title: 'the mesh shader example panicked on AMD\'s Windows driver',
+    short: 'native workgroup zero init in mesh and task shaders panics on AMD\'s proprietary driver. those stages now use the polyfill there. fixes #9719.',
+    summary:
+      'another contributor tested all three modes on a 9070 XT: native panics, none renders but skips zero init, polyfill renders. this switches only mesh and task stages on that driver to the path wgpu already uses when native zero init is unavailable.',
+    detail: [
+      'on RADV with the flag forced on, all 45 mesh GPU tests pass. CI has no AMD Windows runner, so the driver-side test is the contributor\'s run.',
+    ],
+    stack: ['Rust', 'Vulkan', 'mesh shading'],
+  },
+
+  {
     id: 'dxc-mesh-nested-structs',
     project: 'DirectXShaderCompiler',
     org: 'microsoft',
@@ -404,6 +530,42 @@ export const contributions = [
       'all 24 shaderRecord CTS tests go from fail to pass, and nothing else changes across 9398 cases. merged.',
     ],
     stack: ['C', 'LLVM', 'Mesa', 'ray tracing'],
+  },
+
+  {
+    id: 'mesa-lvp-cull-primitive',
+    project: 'mesa',
+    org: 'mesa',
+    kind: 'pr',
+    pr: { number: 45313, url: 'https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/45313', state: 'open' },
+    date: '2026-10',
+    diff: '+2 / -0',
+    title: 'a computed gl_CullPrimitiveEXT crashed lavapipe',
+    short: 'writing a non-constant value to gl_CullPrimitiveEXT crashed lavapipe at draw. the 1-bit output is now sign-extended before it is stored. closes #14376.',
+    summary:
+      'debug builds hit an invalid bitcast assert and release builds segfaulted inside LLVM. CTS only ever writes constants there, so nothing covered the path.',
+    detail: [
+      'with the fix lavapipe matches RADV pixel for pixel across 8 culling cases, and all 26921 mesh CTS cases match main.',
+    ],
+    stack: ['C', 'LLVM', 'Mesa', 'mesh shading'],
+  },
+
+  {
+    id: 'mesa-lvp-unwritten-indices',
+    project: 'mesa',
+    org: 'mesa',
+    kind: 'pr',
+    pr: { number: 45314, url: 'https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/45314', state: 'open' },
+    date: '2026-10',
+    diff: '+3 / -2',
+    title: 'a valid mesh shader without primitive indices crashed lavapipe',
+    short: 'a mesh shader that never writes gl_PrimitiveTriangleIndicesEXT is valid, and lavapipe read its indices from the next workgroup\'s data.',
+    summary:
+      'with no index output the offset math came out as zero, so the draw read past its own output region and the vertex copy segfaulted. a missing index now reads as vertex 0, which keeps every later primitive\'s data in place.',
+    detail: [
+      'found through a VVL test from the validation layers maintainer: segfault before, pass after. the mesh CTS results match main case by case.',
+    ],
+    stack: ['C', 'Mesa', 'mesh shading'],
   },
 
 
@@ -574,28 +736,6 @@ export const contributions = [
       'the ccache key gains the axis too, since ccache is auto-detected even with no launcher set and the OFF and ON legs would otherwise race to save one entry on master.',
     ],
     stack: ['GitHub Actions', 'CMake', 'ctest'],
-  },
-
-  {
-    id: 'whisper-macos-release',
-    project: 'whisper.cpp',
-    org: 'ggml-org',
-    kind: 'issue → pr',
-    lead: true,
-    issue: { number: 4026, url: 'https://github.com/ggml-org/whisper.cpp/issues/4026', state: 'open' },
-    pr: { number: 4029, url: 'https://github.com/ggml-org/whisper.cpp/pull/4029', state: 'closed' },
-    date: '2026-09',
-    diff: '+251 / -1',
-    title: 'macOS CLI release binaries',
-    short: 'prebuilt macOS binaries, including one universal archive that picks its CPU backend at load time.',
-    summary:
-      'proposed that releases ship prebuilt macOS binaries, discussed the shape with another contributor in the issue, then wrote the workflow that does it.',
-    detail: [
-      'two jobs added to release.yml: arm64 on macos-26 and x86_64 on macos-15-intel, then a lipo pass fusing both into a universal tree.',
-      'one archive runs on every Mac. GGML_BACKEND_DL=ON with GGML_CPU_ALL_VARIANTS=ON makes backends loadable modules picked at load time, so an M1 and an M4 share a build without either giving up its instructions.',
-      'each archive is smoke-tested from an extracted copy rather than from build/bin, so the test exercises what actually ships and catches @loader_path failing to resolve dylibs once the tree leaves the machine that built it.',
-    ],
-    stack: ['GitHub Actions', 'CMake', 'macOS', 'lipo'],
   },
 
   {
