@@ -201,7 +201,8 @@ export const contributions = [
     project: 'Vulkan-ValidationLayers',
     org: 'KhronosGroup',
     kind: 'pr',
-    pr: { number: 13572, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/13572', state: 'open' },
+    merged: true,
+    pr: { number: 13572, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/13572', state: 'merged' },
     date: '2026-10',
     diff: '+232 / -1',
     title: 'indirect copies into 3D images skipped their depth checks',
@@ -212,6 +213,25 @@ export const contributions = [
       'two negative tests fail on main, one positive test covers in-range copies at both mips. the full suite passes on the mock driver.',
     ],
     stack: ['C++', 'Vulkan'],
+  },
+
+  {
+    id: 'vvl-allocation-count-vector',
+    project: 'Vulkan-ValidationLayers',
+    org: 'KhronosGroup',
+    kind: 'pr',
+    merged: true,
+    pr: { number: 13607, url: 'https://github.com/KhronosGroup/Vulkan-ValidationLayers/pull/13607', state: 'merged' },
+    date: '2026-10',
+    diff: '+1 / -2',
+    title: 'one test aborted the whole suite on debug libstdc++',
+    short: 'NegativeMemory.AllocationCount wrote past the end of a reserved but empty vector, so GCC 16 debug builds aborted and every later test was skipped.',
+    summary:
+      'reserve() allocates but does not change the size, so every &mems[i] indexed past the end. with libstdc++ assertions on, that aborts the test binary. the vector is now sized up front.',
+    detail: [
+      'found while running the full suite for #13572. the suite on the test ICD now runs to the end with 0 failures. merged.',
+    ],
+    stack: ['C++', 'Vulkan', 'tests'],
   },
 
   {
@@ -354,7 +374,8 @@ export const contributions = [
     project: 'SPIRV-Tools',
     org: 'KhronosGroup',
     kind: 'pr',
-    pr: { number: 6982, url: 'https://github.com/KhronosGroup/SPIRV-Tools/pull/6982', state: 'open' },
+    merged: true,
+    pr: { number: 6982, url: 'https://github.com/KhronosGroup/SPIRV-Tools/pull/6982', state: 'merged' },
     date: '2026-10',
     diff: '+35 / -0',
     title: 'the same access chain bug, for NV cooperative matrices',
@@ -408,7 +429,8 @@ export const contributions = [
     project: 'SPIRV-Cross',
     org: 'KhronosGroup',
     kind: 'pr',
-    pr: { number: 2708, url: 'https://github.com/KhronosGroup/SPIRV-Cross/pull/2708', state: 'open' },
+    merged: true,
+    pr: { number: 2708, url: 'https://github.com/KhronosGroup/SPIRV-Cross/pull/2708', state: 'merged' },
     date: '2026-10',
     diff: '+131 / -3',
     title: 'a struct pointing to itself through a buffer reference crashed SPIRV-Cross',
@@ -426,7 +448,8 @@ export const contributions = [
     project: 'SPIRV-Cross',
     org: 'KhronosGroup',
     kind: 'pr',
-    pr: { number: 2720, url: 'https://github.com/KhronosGroup/SPIRV-Cross/pull/2720', state: 'open' },
+    merged: true,
+    pr: { number: 2720, url: 'https://github.com/KhronosGroup/SPIRV-Cross/pull/2720', state: 'merged' },
     date: '2026-10',
     diff: '+254 / -0',
     title: 'HLSL compat mode emitted mesh PointSize writes it had removed',
@@ -437,6 +460,25 @@ export const contributions = [
       'the existing mesh tests had the write commented out and ran without compat. the new test is the triangle test with both turned on.',
     ],
     stack: ['C++', 'HLSL', 'mesh shading'],
+  },
+
+  {
+    id: 'spirv-cross-long-vector-spec-const',
+    project: 'SPIRV-Cross',
+    org: 'KhronosGroup',
+    kind: 'pr',
+    merged: true,
+    pr: { number: 2729, url: 'https://github.com/KhronosGroup/SPIRV-Cross/pull/2729', state: 'merged' },
+    date: '2026-10',
+    diff: '+92 / -4',
+    title: 'spec constant sized long vectors came back as cooperative vectors',
+    short: 'OpTypeVectorIdEXT shares an opcode with OpTypeCooperativeVectorNV, so a long vector sized by a spec constant was emitted as coopvecNV.',
+    summary:
+      'recompiling that GLSL produced CooperativeVectorNV instead of LongVectorEXT. SPIRV-Cross now emits vector<T, N> when the module declares LongVectorEXT and not CooperativeVectorNV, so NV cooperative vector shaders are unchanged.',
+    detail: [
+      'found by round tripping glslang\'s spv.longVectorSpecConst.comp. one new test, all suites pass. merged.',
+    ],
+    stack: ['C++', 'SPIR-V', 'GLSL'],
   },
 
   {
@@ -509,6 +551,42 @@ export const contributions = [
       'semantics on the inner struct\'s fields created the right stage variables, but the output write looked up the semantic of the outer field, which has none, and asserted. release builds carried on with an empty semantic.',
     detail: [
       'covers nested and inherited structs in mesh outputs, fixing #7340 and #8475.',
+    ],
+    stack: ['C++', 'HLSL', 'SPIR-V', 'mesh shading'],
+  },
+
+  {
+    id: 'dxc-cull-primitive-non-bool',
+    project: 'DirectXShaderCompiler',
+    org: 'microsoft',
+    kind: 'pr',
+    pr: { number: 9073, url: 'https://github.com/microsoft/DirectXShaderCompiler/pull/9073', state: 'open' },
+    date: '2026-10',
+    diff: '+117 / -6',
+    title: 'a non-bool SV_CullPrimitive crashed out of the SPIR-V backend',
+    short: 'a uint SV_CullPrimitive passed straight through to invalid SPIR-V and a "please file a bug report" fatal error. now it is a normal compile error, like DXIL.',
+    summary:
+      'the check runs on the field type the user wrote, before the per-primitive array is added, so bool2 and bool cull[2] are rejected while bool1 is accepted. it only applies to mesh shader primitive outputs, matching DXIL.',
+    detail: [
+      'the existing triangle mesh test used int and only passed because -fcgl skips validation. it is bool now. the CodeGenSPIRV suite passes.',
+    ],
+    stack: ['C++', 'HLSL', 'SPIR-V', 'mesh shading'],
+  },
+
+  {
+    id: 'dxc-cull-primitive-ps-input',
+    project: 'DirectXShaderCompiler',
+    org: 'microsoft',
+    kind: 'pr',
+    pr: { number: 9088, url: 'https://github.com/microsoft/DirectXShaderCompiler/pull/9088', state: 'open' },
+    date: '2026-10',
+    diff: '+20 / -4',
+    title: 'a pixel shader reading SV_CullPrimitive failed SPIR-V validation',
+    short: 'DXIL replaces a pixel shader SV_CullPrimitive input with 0. the SPIR-V backend mapped it to a mesh-only built-in instead. fixes #9084.',
+    summary:
+      'CullPrimitiveEXT needs MeshShadingEXT and is not allowed in fragment shaders. the input is now a null constant of its declared type, false for bool and 0 for uint, and the old pixel shader built-in path is gone since nothing reaches it.',
+    detail: [
+      'the new test checks bool and uint without -fcgl so spirv-val runs on the output. it fails without the change, and the CodeGenSPIRV suite passes.',
     ],
     stack: ['C++', 'HLSL', 'SPIR-V', 'mesh shading'],
   },
